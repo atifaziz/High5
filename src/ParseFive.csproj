@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <Copyright>Copyright © 2017 Atif Aziz, Adrian Guerra. Portions Copyright © 2013 Ivan Nikulin</Copyright>
+    <Description>HTML parsing/serialization toolset for .NET</Description>
+    <Company></Company>
+    <PackageProjectUrl>https://github.com/atifaziz/ParseFive</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/atifaziz/ParseFive</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>html5 html</PackageTags>
+    <PackageLicenseUrl>https://github.com/atifaziz/ParseFive/blob/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin\Debug\netstandard1.0\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\bin\Release\netstandard1.0\</OutputPath>
+  </PropertyGroup>
+
+</Project>
