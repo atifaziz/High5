@@ -15,39 +15,27 @@ namespace ParseFive.TreeAdapters
     {
         public static TreeAdapter Instance = new DefaultTreeAdapter();
 
-        public Document createDocument()
-        {
-            throw new NotImplementedException();
-        }
+        public Document createDocument() => new Document();
 
-        public DocumentFragment createDocumentFragment()
-        {
-            throw new NotImplementedException();
-        }
+        public DocumentFragment createDocumentFragment() => new DocumentFragment();
 
-        public Element createElement(string tagName, string namespaceURI, List<Attr> attrs)
-        {
-            throw new NotImplementedException();
-        }
+        public Element createElement(string tagName, string namespaceURI, List<Attr> attrs) =>
+            new Element();
 
-        public Comment createCommentNode(string data)
-        {
-            throw new NotImplementedException();
-        }
+        public Comment createCommentNode(string data) => new Comment();
 
-        public Text createTextNode(string value)
-        {
-            throw new NotImplementedException();
-        }
+        public Text createTextNode(string value) => new Text();
 
         public void appendChild(Node parentNode, Node newNode)
         {
-            throw new NotImplementedException();
+            parentNode.ChildNodes.Add(newNode);
+            newNode.ParentNode = parentNode;
         }
 
         public void insertBefore(Node parentNode, Element newNode, Element referenceNode)
         {
-            throw new NotImplementedException();
+            var i = parentNode.ChildNodes.IndexOf(referenceNode);
+            parentNode.ChildNodes.Insert(i, newNode);
         }
 
         public void setTemplateContent(object templateElement, object contentElement)
@@ -65,19 +53,19 @@ namespace ParseFive.TreeAdapters
             throw new NotImplementedException();
         }
 
-        public void setDocumentMode(Document document, string mode)
-        {
-            throw new NotImplementedException();
-        }
+        public void setDocumentMode(Document document, string mode) =>
+            document.Mode = mode;
 
-        public string getDocumentMode(Document document)
-        {
-            throw new NotImplementedException();
-        }
+        public string getDocumentMode(Document document) =>
+            document.Mode;
 
         public void detachNode(Node node)
         {
-            throw new NotImplementedException();
+            if (node.ParentNode == null)
+                return;
+            var i = node.ParentNode.ChildNodes.IndexOf(node);
+            node.ParentNode.ChildNodes.RemoveAt(i);
+            node.ParentNode = null;
         }
 
         public void insertText(Node parent, string chars)

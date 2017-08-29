@@ -31,8 +31,15 @@ public class ElementEntry : IEntry
     }
 }
 
-public class Node {}
-public class Document : Node {}
+public class Node
+{
+    public Node ParentNode { get; internal set; }
+    public System.Collections.Generic.List<Node> ChildNodes { get; } = new System.Collections.Generic.List<Node>();
+}
+public class Document : Node
+{
+    public string Mode { get; internal set; }
+}
 public class DocumentFragment : Node {}
 public class Element : Node {}
 public class Comment : Node {}
