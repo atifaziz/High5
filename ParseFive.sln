@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo", "eg\Demo.csproj", "{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParseFive.Tests", "tests\ParseFive.Tests.csproj", "{63AA59DE-192A-4001-BDAB-17F15884FB3A}"
 EndProject
 Global
@@ -46,6 +48,18 @@ Global
 		{63AA59DE-192A-4001-BDAB-17F15884FB3A}.Release|x64.Build.0 = Release|Any CPU
 		{63AA59DE-192A-4001-BDAB-17F15884FB3A}.Release|x86.ActiveCfg = Release|Any CPU
 		{63AA59DE-192A-4001-BDAB-17F15884FB3A}.Release|x86.Build.0 = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Debug|x86.Build.0 = Debug|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|x64.ActiveCfg = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|x64.Build.0 = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
