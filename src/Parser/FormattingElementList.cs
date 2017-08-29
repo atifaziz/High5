@@ -61,7 +61,7 @@ public class Comment : Node
 }
 public class Text : Node
 {
-    public string Value { get; }
+    public string Value { get; internal set; }
     public Text(string value) => Value = value;
 }
 

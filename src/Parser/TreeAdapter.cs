@@ -22,7 +22,7 @@ namespace ParseFive
         void setDocumentMode(Document document, string mode);
         string getDocumentMode(Document document);
         void detachNode(Node node);
-        void insertText(Node parent, string chars);
+        void insertText(Node parentNode, string text);
         void insertTextBefore(Node parentNode, string text, Element referenceNode);
         void adoptAttributes(Element recipient, List<Attr> attrs);
 

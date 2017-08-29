@@ -80,9 +80,18 @@ namespace ParseFive.TreeAdapters
             node.ParentNode = null;
         }
 
-        public void insertText(Node parent, string chars)
+        public void insertText(Node parentNode, string text)
         {
-            throw new NotImplementedException();
+            if (parentNode.ChildNodes.length.IsTruthy())
+            {
+                if (parentNode.ChildNodes[parentNode.ChildNodes.length - 1] is Text tn)
+                {
+                    tn.Value += text;
+                    return;
+                }
+            }
+
+            appendChild(parentNode, createTextNode(text));
         }
 
         public void insertTextBefore(Node parentNode, string text, Element referenceNode)
