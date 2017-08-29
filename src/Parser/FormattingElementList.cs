@@ -44,7 +44,20 @@ public class DocumentFragment : Node {}
 public class Element : Node {}
 public class Comment : Node {}
 public class Text : Node {}
-public class DocumentType : Node {}
+
+public class DocumentType : Node
+{
+    public string Name     { get; internal set; }
+    public string PublicId { get; internal set; }
+    public string SystemId { get; internal set; }
+
+    public DocumentType(string name, string publicId, string systemId)
+    {
+        Name = name;
+        PublicId = publicId;
+        SystemId = systemId;
+    }
+}
 
 namespace ParseFive.Parser
 {

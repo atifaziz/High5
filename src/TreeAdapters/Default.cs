@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ParseFive.TreeAdapters
 {
+    using System.Linq;
     using Extensions;
 
     static class StockTreeAdapters
@@ -50,7 +51,18 @@ namespace ParseFive.TreeAdapters
 
         public void setDocumentType(Document document, string name, string publicId, string systemId)
         {
-            throw new NotImplementedException();
+            var doctypeNode = document.ChildNodes.OfType<DocumentType>().FirstOrDefault();
+
+            if (doctypeNode.IsTruthy())
+            {
+                doctypeNode.Name = name;
+                doctypeNode.PublicId = publicId;
+                doctypeNode.SystemId = systemId;
+            }
+            else
+            {
+                appendChild(document, new DocumentType(name, publicId, systemId));
+            }
         }
 
         public void setDocumentMode(Document document, string mode) =>
