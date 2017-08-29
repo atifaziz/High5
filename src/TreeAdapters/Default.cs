@@ -21,11 +21,11 @@ namespace ParseFive.TreeAdapters
         public DocumentFragment createDocumentFragment() => new DocumentFragment();
 
         public Element createElement(string tagName, string namespaceURI, List<Attr> attrs) =>
-            new Element();
+            new Element(tagName, namespaceURI, attrs);
 
-        public Comment createCommentNode(string data) => new Comment();
+        public Comment createCommentNode(string data) => new Comment(data);
 
-        public Text createTextNode(string value) => new Text();
+        public Text createTextNode(string value) => new Text(value);
 
         public void appendChild(Node parentNode, Node newNode)
         {

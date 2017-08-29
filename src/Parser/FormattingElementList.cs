@@ -46,14 +46,23 @@ public class Element : Node
     public string TagName { get; }
     public string NamespaceUri { get; }
     public List<Attr> Attributes { get; }
+
+    public Element(string tagName, string namespaceUri, List<Attr> attributes)
+    {
+        TagName = tagName;
+        NamespaceUri = namespaceUri;
+        Attributes = attributes;
+    }
 }
 public class Comment : Node
 {
     public string Data { get; }
+    public Comment(string data) => Data = data;
 }
 public class Text : Node
 {
     public string Value { get; }
+    public Text(string value) => Value = value;
 }
 
 public class DocumentType : Node
