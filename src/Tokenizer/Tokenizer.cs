@@ -1648,7 +1648,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.44 Bogus comment state
 //------------------------------------------------------------------
-[_(Index.BOGUS_COMMENT_STATE)] void bogusCommentState() {
+[_(Index.BOGUS_COMMENT_STATE)] void bogusCommentState(int cp) {
     this.createCommentToken();
     this.reconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
 }
