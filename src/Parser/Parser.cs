@@ -265,7 +265,7 @@ namespace ParseFive.Parser
         //Tree mutation
         void _setDocumentType(Token token)
         {
-            this.treeAdapter.setDocumentType(this.document, token.name, token.publicId, token.systemId);
+            this.treeAdapter.setDocumentType((Document) this.document, token.name, token.publicId, token.systemId);
         }
 
         void _attachElementToTree(Element element)
@@ -888,14 +888,14 @@ namespace ParseFive.Parser
                 HTML.DOCUMENT_MODE.QUIRKS :
                 getDocumentMode(token.name, token.publicId, token.systemId);
 
-            p.treeAdapter.setDocumentMode(p.document, mode);
+            p.treeAdapter.setDocumentMode((Document) p.document, mode);
 
             p.insertionMode = BEFORE_HTML_MODE;
         }
 
         public static void tokenInInitialMode(Parser p, Token token)
         {
-            p.treeAdapter.setDocumentMode(p.document, HTML.DOCUMENT_MODE.QUIRKS);
+            p.treeAdapter.setDocumentMode((Document) p.document, HTML.DOCUMENT_MODE.QUIRKS);
             p.insertionMode = BEFORE_HTML_MODE;
             p._processToken(token);
         }
@@ -1286,7 +1286,7 @@ namespace ParseFive.Parser
 
         public static void tableStartTagInBody(Parser p, Token token)
         {
-            if (p.treeAdapter.getDocumentMode(p.document) != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.hasInButtonScope(ɑ.P))
+            if (p.treeAdapter.getDocumentMode((Document) p.document) != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.hasInButtonScope(ɑ.P))
                 p._closePElement();
 
             p._insertElement(token, NS.HTML);

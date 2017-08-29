@@ -60,42 +60,42 @@ namespace ParseFive.TreeAdapters
             throw new NotImplementedException();
         }
 
-        public void setDocumentType(object document, string name, string publicId, string systemId)
+        public void setDocumentType(Document document, string name, string publicId, string systemId)
         {
             throw new NotImplementedException();
         }
 
-        public void setDocumentMode(Node document, string mode)
+        public void setDocumentMode(Document document, string mode)
         {
             throw new NotImplementedException();
         }
 
-        public string getDocumentMode(Node document)
+        public string getDocumentMode(Document document)
         {
             throw new NotImplementedException();
         }
 
-        public void detachNode(object node)
+        public void detachNode(Node node)
         {
             throw new NotImplementedException();
         }
 
-        public void insertText(object parent, string chars)
+        public void insertText(Node parent, string chars)
         {
             throw new NotImplementedException();
         }
 
-        public void insertTextBefore(object parentNode, object text, Element referenceNode)
+        public void insertTextBefore(Node parentNode, string text, Element referenceNode)
         {
             throw new NotImplementedException();
         }
 
-        public void adoptAttributes(object recipient, List<Attr> attrs)
+        public void adoptAttributes(Element recipient, List<Attr> attrs)
         {
             throw new NotImplementedException();
         }
 
-        public Element getFirstChild(Element node)
+        public Element getFirstChild(Node node)
         {
             throw new NotImplementedException();
         }
@@ -125,27 +125,27 @@ namespace ParseFive.TreeAdapters
             throw new NotImplementedException();
         }
 
-        public string getTextNodeContent(Node textNode)
+        public string getTextNodeContent(Text textNode)
         {
             throw new NotImplementedException();
         }
 
-        public string getCommentNodeContent(Node commentNode)
+        public string getCommentNodeContent(Comment commentNode)
         {
             throw new NotImplementedException();
         }
 
-        public string getDocumentTypeNodeName(Node doctypeNode)
+        public string getDocumentTypeNodeName(DocumentType doctypeNode)
         {
             throw new NotImplementedException();
         }
 
-        public string getDocumentTypeNodePublicId(Node doctypeNode)
+        public string getDocumentTypeNodePublicId(DocumentType doctypeNode)
         {
             throw new NotImplementedException();
         }
 
-        public string getDocumentTypeNodeSystemId(Node doctypeNode)
+        public string getDocumentTypeNodeSystemId(DocumentType doctypeNode)
         {
             throw new NotImplementedException();
         }

@@ -37,6 +37,7 @@ public class DocumentFragment : Node {}
 public class Element : Node {}
 public class Comment : Node {}
 public class Text : Node {}
+public class DocumentType : Node {}
 
 namespace ParseFive.Parser
 {
