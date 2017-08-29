@@ -34,16 +34,27 @@ public class ElementEntry : IEntry
 public class Node
 {
     public Node ParentNode { get; internal set; }
-    public System.Collections.Generic.List<Node> ChildNodes { get; } = new System.Collections.Generic.List<Node>();
+    public List<Node> ChildNodes { get; } = new List<Node>();
 }
 public class Document : Node
 {
     public string Mode { get; internal set; }
 }
 public class DocumentFragment : Node {}
-public class Element : Node {}
-public class Comment : Node {}
-public class Text : Node {}
+public class Element : Node
+{
+    public string TagName { get; }
+    public string NamespaceUri { get; }
+    public List<Attr> Attributes { get; }
+}
+public class Comment : Node
+{
+    public string Data { get; }
+}
+public class Text : Node
+{
+    public string Value { get; }
+}
 
 public class DocumentType : Node
 {
