@@ -364,10 +364,12 @@ namespace ParseFive.Parser
         //Token processing
         bool _shouldProcessTokenInForeignContent(Token token)
         {
-            var current = (Element) this._getAdjustedCurrentElement();
+            var current_ = this._getAdjustedCurrentElement();
 
-            if (!current.IsTruthy() || current == this.document)
+            if (!current_.IsTruthy() || current_ == this.document)
                 return false;
+
+            var current = (Element) current_; // TODO
 
             var ns = this.treeAdapter.getNamespaceURI(current);
 
