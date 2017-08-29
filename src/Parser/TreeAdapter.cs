@@ -18,17 +18,17 @@ namespace ParseFive
         void insertBefore(Node parentNode, Element newNode, Element referenceNode);
         void setTemplateContent(object templateElement, object contentElement);
         Element getTemplateContent(Element templateElement);
-        void setDocumentType(object document, string name, string publicId, string systemId);
-        void setDocumentMode(Node document, string mode);
-        string getDocumentMode(Node document);
-        void detachNode(object node);
-        void insertText(object parent, string chars);
-        void insertTextBefore(object parentNode, object text, Element referenceNode);
-        void adoptAttributes(object recipient, List<Attr> attrs);
+        void setDocumentType(Document document, string name, string publicId, string systemId);
+        void setDocumentMode(Document document, string mode);
+        string getDocumentMode(Document document);
+        void detachNode(Node node);
+        void insertText(Node parent, string chars);
+        void insertTextBefore(Node parentNode, string text, Element referenceNode);
+        void adoptAttributes(Element recipient, List<Attr> attrs);
 
         // Tree traversing
 
-        Element getFirstChild(Element node);
+        Element getFirstChild(Node node);
         Node getChildNodes(Node node);
         Node getParentNode(Node node);
         List<Attr> getAttrList(Element element);
@@ -37,11 +37,11 @@ namespace ParseFive
 
         string getTagName(Element element);
         string getNamespaceURI(Element element);
-        string getTextNodeContent(Node textNode);
-        string getCommentNodeContent(Node commentNode);
-        string getDocumentTypeNodeName(Node doctypeNode);
-        string getDocumentTypeNodePublicId(Node doctypeNode);
-        string getDocumentTypeNodeSystemId(Node doctypeNode);
+        string getTextNodeContent(Text textNode);
+        string getCommentNodeContent(Comment commentNode);
+        string getDocumentTypeNodeName(DocumentType doctypeNode);
+        string getDocumentTypeNodePublicId(DocumentType doctypeNode);
+        string getDocumentTypeNodeSystemId(DocumentType doctypeNode);
 
         // Node types
 
