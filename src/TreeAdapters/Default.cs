@@ -45,7 +45,7 @@ namespace ParseFive.TreeAdapters
             throw new NotImplementedException();
         }
 
-        public void insertBefore(object parentNode, Element newNode, Element referenceNode)
+        public void insertBefore(Node parentNode, Element newNode, Element referenceNode)
         {
             throw new NotImplementedException();
         }
