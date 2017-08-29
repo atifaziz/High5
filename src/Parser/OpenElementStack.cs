@@ -7,6 +7,23 @@ namespace ParseFive.Parser
 {
     class OpenElementStack
     {
+        class TreeAdapter
+        {
+            public readonly Func<Element, string> getNamespaceURI;
+            public readonly Func<Element, string> getTagName;
+            public readonly Func<Element, Element> getTemplateContent;
+
+            public TreeAdapter(Func<Element, string> getNamespaceUri,
+                               Func<Element, string> getTagName,
+                               Func<Element, Element> getTemplateContent)
+            {
+                getNamespaceURI = getNamespaceUri;
+                this.getTagName = getTagName;
+                this.getTemplateContent = getTemplateContent;
+            }
+        }
+
+
         readonly TreeAdapter treeAdapter;
         public Element currentTmplContent { get; set; }
         public Node current { get; set; }
@@ -17,7 +34,7 @@ namespace ParseFive.Parser
         public int stackTop;
 
         //Stack of open elements
-        public OpenElementStack(Node document, TreeAdapter treeAdapter)
+        public OpenElementStack(Node document, ParseFive.TreeAdapter treeAdapter)
         {
             this.stackTop = -1;
             this.items = new List<Element>();
@@ -25,7 +42,9 @@ namespace ParseFive.Parser
             this.currentTagName = null;
             this.currentTmplContent = null;
             this.tmplCount = 0;
-            this.treeAdapter = treeAdapter;
+            this.treeAdapter = new TreeAdapter(treeAdapter.getNamespaceURI,
+                                               treeAdapter.getTagName,
+                                               treeAdapter.getTemplateContent);
         }
 
         public static bool isImpliedEndTagRequired(string tn)
