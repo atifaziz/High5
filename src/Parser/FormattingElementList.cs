@@ -31,7 +31,7 @@ public class ElementEntry : IEntry
     }
 }
 
-public class Node
+public abstract class Node
 {
     public Node ParentNode { get; internal set; }
     public List<Node> ChildNodes { get; } = new List<Node>();
