@@ -103,7 +103,7 @@ namespace ParseFive.Parser
             this.tokenizer.write(html, true);
             this._runParsingLoop(null);
 
-            var rootElement = this.treeAdapter.getFirstChild(documentMock);
+            var rootElement = (Element) this.treeAdapter.getFirstChild(documentMock);
             var fragment = this.treeAdapter.createDocumentFragment();
 
             this._adoptNodes(rootElement, fragment);

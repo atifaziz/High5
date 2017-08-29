@@ -28,8 +28,8 @@ namespace ParseFive
 
         // Tree traversing
 
-        Element getFirstChild(Node node);
-        Node getChildNodes(Node node);
+        Node getFirstChild(Node node);
+        List<Node> getChildNodes(Node node);
         Node getParentNode(Node node);
         List<Attr> getAttrList(Element element);
 

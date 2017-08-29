@@ -95,79 +95,82 @@ namespace ParseFive.TreeAdapters
             throw new NotImplementedException();
         }
 
-        public Element getFirstChild(Node node)
+        //Tree traversing
+        public Node getFirstChild(Node node)
         {
-            throw new NotImplementedException();
+            return node.ChildNodes[0];
         }
 
-        public Node getChildNodes(Node node)
+        public List<Node> getChildNodes(Node node)
         {
-            throw new NotImplementedException();
+            return node.ChildNodes;
         }
 
         public Node getParentNode(Node node)
         {
-            throw new NotImplementedException();
+            return node.ParentNode;
         }
 
         public List<Attr> getAttrList(Element element)
         {
-            throw new NotImplementedException();
+            return element.Attributes;
         }
 
+        //Node data
         public string getTagName(Element element)
         {
-            throw new NotImplementedException();
+            return element.TagName;
         }
 
         public string getNamespaceURI(Element element)
         {
-            throw new NotImplementedException();
+            return element.NamespaceUri;
         }
 
         public string getTextNodeContent(Text textNode)
         {
-            throw new NotImplementedException();
+            return textNode.Value;
         }
 
         public string getCommentNodeContent(Comment commentNode)
         {
-            throw new NotImplementedException();
+            return commentNode.Data;
         }
 
         public string getDocumentTypeNodeName(DocumentType doctypeNode)
         {
-            throw new NotImplementedException();
+            return doctypeNode.Name;
         }
 
         public string getDocumentTypeNodePublicId(DocumentType doctypeNode)
         {
-            throw new NotImplementedException();
+            return doctypeNode.PublicId;
         }
 
         public string getDocumentTypeNodeSystemId(DocumentType doctypeNode)
         {
-            throw new NotImplementedException();
+            return doctypeNode.SystemId;
         }
 
+        //Node types
         public bool isTextNode(Node node)
         {
-            throw new NotImplementedException();
+            return node is Text;
         }
 
         public bool isCommentNode(Node node)
         {
-            throw new NotImplementedException();
+            return node is Comment;
         }
 
         public bool isDocumentTypeNode(Node node)
         {
-            throw new NotImplementedException();
+            return node is Document;
         }
 
         public bool isElementNode(Node node)
         {
-            throw new NotImplementedException();
+            return node is Element;
         }
     }
 }
