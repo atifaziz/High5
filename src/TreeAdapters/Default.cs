@@ -101,7 +101,15 @@ namespace ParseFive.TreeAdapters
 
         public void adoptAttributes(Element recipient, List<Attr> attrs)
         {
-            throw new NotImplementedException();
+            var recipientAttrsMap = new HashSet<string>();
+
+            foreach (var attr in recipient.Attributes)
+                recipientAttrsMap.Add(attr.name);
+
+            foreach (var attr in attrs) {
+                if (!recipientAttrsMap.Contains(attr.name))
+                    recipient.Attributes.push(attr);
+            }
         }
 
         //Tree traversing
