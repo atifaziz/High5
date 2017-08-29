@@ -199,7 +199,7 @@ namespace ParseFive.Parser
             var current = this._getAdjustedCurrentElement();
 
             this.tokenizer.allowCDATA = current.IsTruthy() && current != this.document &&
-                                        this.treeAdapter.getNamespaceURI(current) != NS.HTML && !this._isIntegrationPoint(current);
+                                        this.treeAdapter.getNamespaceURI((Element)current) != NS.HTML && !this._isIntegrationPoint((Element)current);
         }
 
         void _switchToTextParsing(Token currentToken, string nextTokenizerState)
@@ -218,9 +218,9 @@ namespace ParseFive.Parser
         }
 
         //Fragment parsing
-        Element _getAdjustedCurrentElement()
+        Node _getAdjustedCurrentElement()
         {
-            return (Element) (this.openElements.stackTop == 0 && this.fragmentContext.IsTruthy() ?
+            return (this.openElements.stackTop == 0 && this.fragmentContext.IsTruthy() ?
                 this.fragmentContext :
                 this.openElements.current);
         }
@@ -364,7 +364,7 @@ namespace ParseFive.Parser
         //Token processing
         bool _shouldProcessTokenInForeignContent(Token token)
         {
-            var current = this._getAdjustedCurrentElement();
+            var current = (Element) this._getAdjustedCurrentElement();
 
             if (!current.IsTruthy() || current == this.document)
                 return false;
@@ -2869,7 +2869,7 @@ namespace ParseFive.Parser
 
             else
             {
-                var current = p._getAdjustedCurrentElement();
+                var current = (Element) p._getAdjustedCurrentElement();
                 string currentNs = p.treeAdapter.getNamespaceURI(current);
 
                 if (currentNs == NS.MATHML)
