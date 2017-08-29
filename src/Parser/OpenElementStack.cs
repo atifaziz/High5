@@ -30,7 +30,6 @@ namespace ParseFive.Parser
         public List<Element> items;
         public string currentTagName { get; private set; }
         public int tmplCount { get; private set; }
-
         public int stackTop;
 
         //Stack of open elements
@@ -158,7 +157,8 @@ namespace ParseFive.Parser
         //Mutations
         public void push(Element element)
         {
-            this.items[++this.stackTop] = element;
+            this.items.Add(element);
+            stackTop++;
             this._updateCurrentElement();
 
             if (this._isInTemplate())
@@ -169,6 +169,7 @@ namespace ParseFive.Parser
         public void pop()
         {
             this.stackTop--;
+            this.items.pop();
 
             if (this.tmplCount > 0 && this._isInTemplate())
                 this.tmplCount--;
