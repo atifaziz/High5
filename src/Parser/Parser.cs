@@ -17,6 +17,8 @@ using UNICODE = ParseFive.Common.Unicode;
 
 namespace ParseFive.Parser
 {
+    using TreeAdapters;
+
     public class Parser
     {
         readonly TreeAdapter treeAdapter;
@@ -54,11 +56,11 @@ namespace ParseFive.Parser
         }
 
         //Parser
-        public Parser(TreeAdapter treeAdapter)
+        public Parser(TreeAdapter treeAdapter = null)
         {
             //this.options = mergeOptions(DEFAULT_OPTIONS, options);
 
-            this.treeAdapter = treeAdapter;
+            this.treeAdapter = treeAdapter ?? new DefaultTreeAdapter();
             this.pendingScript = null;
 
             //TODO check Parsermixin
