@@ -238,7 +238,7 @@ namespace ParseFive.Parser
                 }
 
                 node = (Element) this.treeAdapter.getParentNode(node);
-            } while (node.IsTruthy()); //TODO
+            } while (node.IsTruthy());
         }
 
         void _initTokenizerForFragmentParsing()
@@ -275,7 +275,7 @@ namespace ParseFive.Parser
 
             else
             {
-                var parent = this.openElements.currentTmplContent ?? this.openElements.current; //TODO || operator
+                var parent = this.openElements.currentTmplContent ?? this.openElements.current; //|| operator
 
                 this.treeAdapter.appendChild(parent, element);
             }
@@ -341,7 +341,7 @@ namespace ParseFive.Parser
 
             else
             {
-                var parent = this.openElements.currentTmplContent ?? this.openElements.current; //TODO || operator
+                var parent = this.openElements.currentTmplContent ?? this.openElements.current; // || operator
 
                 this.treeAdapter.insertText(parent, token.chars);
             }
@@ -369,7 +369,7 @@ namespace ParseFive.Parser
             if (!current_.IsTruthy() || current_ == this.document)
                 return false;
 
-            var current = (Element) current_; // TODO
+            var current = (Element) current_;
 
             var ns = this.treeAdapter.getNamespaceURI(current);
 
@@ -547,7 +547,7 @@ namespace ParseFive.Parser
 
                 else if (tn == ɑ.HTML)
                 {
-                    this.insertionMode = this.headElement.IsTruthy() ? AFTER_HEAD_MODE : BEFORE_HEAD_MODE; //TODO
+                    this.insertionMode = this.headElement.IsTruthy() ? AFTER_HEAD_MODE : BEFORE_HEAD_MODE;
                     break;
                 }
 
@@ -857,7 +857,7 @@ namespace ParseFive.Parser
 
         public static void appendComment(Parser p, Token token)
         {
-            p._appendCommentNode(token, p.openElements.currentTmplContent ?? p.openElements.current); //TODO || operator
+            p._appendCommentNode(token, p.openElements.currentTmplContent ?? p.openElements.current); //|| operator
         }
 
         public static void appendCommentToRootHtmlElement(Parser p, Token token)
@@ -2705,7 +2705,7 @@ namespace ParseFive.Parser
 
             else
             {
-                var newInsertionMode = TEMPLATE_INSERTION_MODE_SWITCH_MAP[tn] /*||*/ ?? IN_BODY_MODE; //TODO
+                var newInsertionMode = TEMPLATE_INSERTION_MODE_SWITCH_MAP[tn] ?? IN_BODY_MODE; // || operator
 
                 p._popTmplInsertionMode();
                 p._pushTmplInsertionMode(newInsertionMode);
