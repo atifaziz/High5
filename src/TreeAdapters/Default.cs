@@ -121,7 +121,7 @@ namespace ParseFive.TreeAdapters
         //Tree traversing
         public Node getFirstChild(Node node)
         {
-            return node.ChildNodes[0];
+            return node.ChildNodes.Count() > 0 ? node.ChildNodes[0] : null;
         }
 
         public List<Node> getChildNodes(Node node)
