@@ -740,7 +740,6 @@ namespace ParseFive.Parser
             //for (var i = 0, element = nextElement; element != formattingElement; i++, element = nextElement)
             for (var i = 0; element != formattingElement; i++)
             {
-                element = nextElement;
                 //NOTE: store next element for the next loop iteration (it may be deleted from the stack by step 9.5)
                 nextElement = p.openElements.getCommonAncestor(element);
 
@@ -767,6 +766,7 @@ namespace ParseFive.Parser
                     p.treeAdapter.appendChild(element, lastElement);
                     lastElement = element;
                 }
+                element = nextElement;
             }
 
             return lastElement;
