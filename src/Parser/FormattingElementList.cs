@@ -92,6 +92,7 @@ namespace ParseFive.Parser
 {
     class FormattingElementList
     {
+        //Const
         const int NOAH_ARK_CAPACITY = 3;
 
         public int length;
@@ -99,6 +100,7 @@ namespace ParseFive.Parser
         public TreeAdapter treeAdapter;
         public object bookmark;
 
+        //Entry types
         public const string MARKER_ENTRY = "MARKER_ENTRY";
         public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
 
@@ -109,6 +111,9 @@ namespace ParseFive.Parser
             entries = new List<IEntry>();
         }
 
+        //Noah Ark's condition
+        //OPTIMIZATION: at first we try to find possible candidates for exclusion using
+        //lightweight heuristics without thorough attributes check.
         private List<(int idx, List<Attr> attrs)> getNoahArkConditionCandidates(Element newElement)
         {
             var candidates = new List<(int idx, List<Attr> attrs)>();
@@ -151,6 +156,7 @@ namespace ParseFive.Parser
                 var neAttrsLength = neAttrs.length;
                 var neAttrsMap = new NeAttrsMap();
 
+                //NOTE: build attrs map for the new element so we can perform fast lookups
                 for (var i = 0; i < neAttrsLength; i++)
                 {
                     var neAttr = neAttrs[i];
@@ -158,7 +164,7 @@ namespace ParseFive.Parser
                     neAttrsMap.Add(neAttr.name, neAttr.value);
                     //neAttrsMap[neAttr.name] = neAttr.value;
                 }
-
+                
                 for (var i = 0; i < neAttrsLength; i++)
                 {
                     for (var j = 0; j < cLength; j++)
@@ -185,6 +191,7 @@ namespace ParseFive.Parser
             }
         }
 
+        //Mutations
         public void insertMarker()
         {
             entries.push(new MarkerEntry(MARKER_ENTRY));
@@ -197,6 +204,21 @@ namespace ParseFive.Parser
 
             this.entries.push(new ElementEntry(ELEMENT_ENTRY, element, token));
             length++;
+        }
+
+        internal void insertElementAfterBookmark(Element element, Token token)
+        {
+            var bookmarkIdx = this.length - 1;
+
+            for (; bookmarkIdx >= 0; bookmarkIdx--)
+            {
+                if (this.entries[bookmarkIdx] == this.bookmark)
+                    break;
+            }
+
+            this.entries.splice(bookmarkIdx + 1, 0, new ElementEntry(FormattingElementList.ELEMENT_ENTRY, element, token));
+
+            this.length++;
         }
 
         public void removeEntry(IEntry entry)
@@ -253,11 +275,6 @@ namespace ParseFive.Parser
             }
 
             return null;
-        }
-
-        internal void insertElementAfterBookmark(Element newElement, Token token)
-        {
-            throw new NotImplementedException();
         }
     }
 }
