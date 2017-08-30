@@ -29,7 +29,7 @@ namespace ParseFive.Parser
     {
         public class Options {
             public readonly bool locationInfo = false;
-            readonly TreeAdapter treeAdapter = defaultTreeAdapter; //TODO
+            readonly TreeAdapter treeAdapter = defaultTreeAdapter;
         }
 
         //Misc constants

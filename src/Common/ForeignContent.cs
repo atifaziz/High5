@@ -17,7 +17,7 @@ public class Attr
 
     public Attr(string name, string value)
     {
-        this.prefix = ""; //TODO check
+        this.prefix = "";
         this.name = name;
         this.@namespace = "";
         this.value = value;

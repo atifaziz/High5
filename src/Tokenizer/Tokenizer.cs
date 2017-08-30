@@ -102,7 +102,7 @@ namespace ParseFive.Tokenizer
         public string state { get ; set ; }
         private string returnState;
         private TempBuff tempBuff;
-        private int? additionalAllowedCp;
+        private int additionalAllowedCp;
         private string lastStartTagName;
         private int consumedAfterSnapshot;
         private bool active;
@@ -111,7 +111,6 @@ namespace ParseFive.Tokenizer
         private Attr currentAttr;
         private object options;
 
-        //public string state { get => _state; set => _state = value; }
 
         //Tokenizer
         public Tokenizer()
@@ -126,7 +125,7 @@ namespace ParseFive.Tokenizer
             this.returnState = "";
 
             this.tempBuff = new TempBuff();
-            this.additionalAllowedCp = null;//void 0; //TODO check void
+            this.additionalAllowedCp = 0; //void 0
             this.lastStartTagName = "";
 
             this.consumedAfterSnapshot = -1;
@@ -174,7 +173,7 @@ namespace ParseFive.Tokenizer
         //API
         public Token getNextToken()
         {
-            while (!this.tokenQueue.length.IsTruthy() && this.active) //TODO should work?
+            while (!this.tokenQueue.length.IsTruthy() && this.active)
             {
                 this.hibernationSnapshot();
 
@@ -254,7 +253,7 @@ namespace ParseFive.Tokenizer
             var patternLength = pattern.length;
             int patternPos = 0;
             int cp = startCp;
-            int? patternCp = null;//TODO void 0;
+            int? patternCp = null;//void 0;
 
             for (; patternPos < patternLength; patternPos++)
             {
@@ -272,7 +271,7 @@ namespace ParseFive.Tokenizer
 
                 patternCp = pattern[patternPos];
 
-                if (cp != patternCp && (caseSensitive || cp != Index.toAsciiLowerCodePoint(patternCp.Value))) //TODO
+                if (cp != patternCp && (caseSensitive || cp != Index.toAsciiLowerCodePoint(patternCp.Value)))
                 {
                     isMatch = false;
                     break;
@@ -447,13 +446,13 @@ namespace ParseFive.Tokenizer
         int consumeNumericEntity(bool isHex)
         {
             var digits = "";
-            int? nextCp = null; //TODOvoid 0;
+            var nextCp = 0;
 
             do
             {
                 digits += toChar(this.consume());
                 nextCp = this.lookahead();
-            } while (nextCp != ɑ.EOF && Index.isDigit(nextCp.Value, isHex)); //TODO Cp.Value ok?
+            } while (nextCp != ɑ.EOF && Index.isDigit(nextCp, isHex));
 
             if (this.lookahead() == ɑ.SEMICOLON)
                 this.consume();
@@ -474,9 +473,9 @@ namespace ParseFive.Tokenizer
         // https://github.com/inikulin/parse5/tree/master/scripts/generate_named_entity_data/README.md
         Array<int> consumeNamedEntity(bool inAttr)
         {
-            Array<int> referencedCodePoints = null; //TODO check int
+            Array<int> referencedCodePoints = null;
             int referenceSize = 0;
-            int? cp = null; //Not void 0!
+            int cp = 0;
             var consumedCount = 0;
             var semicolonTerminated = false;
 
@@ -509,7 +508,7 @@ namespace ParseFive.Tokenizer
                     break;
 
                 if (inNode)
-                    i = (current & Index.HAS_BRANCHES_FLAG) == Index.HAS_BRANCHES_FLAG ? Index.findNamedEntityTreeBranch(i, cp.Value) : -1; //TODO check cp.Value
+                    i = (current & Index.HAS_BRANCHES_FLAG) == Index.HAS_BRANCHES_FLAG ? Index.findNamedEntityTreeBranch(i, cp) : -1; 
 
                 else
                     i = cp == current ? ++i : -1;
@@ -616,7 +615,7 @@ namespace ParseFive.Tokenizer
         [_(Index.CHARACTER_REFERENCE_IN_DATA_STATE)] 
         void characterReferenceInDataState(int cp)
         {
-            this.additionalAllowedCp = null;//void 0;
+            this.additionalAllowedCp = 0; //void 0;
 
             var referencedCodePoints = this.consumeCharacterReference(cp, false);
 
@@ -661,7 +660,7 @@ namespace ParseFive.Tokenizer
         //------------------------------------------------------------------
         [_(Index.CHARACTER_REFERENCE_IN_RCDATA_STATE)] void characterReferenceInRcdataState(int cp)
         {
-            this.additionalAllowedCp = null; //TODO void 0;
+            this.additionalAllowedCp = 0; //void 0;
 
             var referencedCodePoints = this.consumeCharacterReference(cp, false);
 

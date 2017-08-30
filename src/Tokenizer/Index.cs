@@ -170,7 +170,7 @@ namespace ParseFive.Tokenizer
                 return String.fromCharCode(cp);
 
             cp -= 0x10000;
-            return (char) unchecked(String.fromCharCode((int)(((uint) cp) >> 10) & 0x3FF | 0xD800) + String.fromCharCode(0xDC00 | cp & 0x3FF)); //TODO >>>
+            return (char) unchecked(String.fromCharCode((int)(((uint) cp) >> 10) & 0x3FF | 0xD800) + String.fromCharCode(0xDC00 | cp & 0x3FF));
         }
 
         public static char toAsciiLowerChar(int cp)
@@ -186,7 +186,7 @@ namespace ParseFive.Tokenizer
 
             while (lo <= hi)
             {
-                var mid = unchecked((int) ((uint) lo + hi) >> 1); //TODO
+                var mid = unchecked((int) ((uint) lo + hi) >> 1);
                 var midCp = neTree[mid];
 
                 if (midCp < cp)
