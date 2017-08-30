@@ -501,7 +501,7 @@ namespace ParseFive.Parser
         void _resetInsertionMode()
         {
             bool last = false;
-            for (int i = this.openElements.items.length; i >= 0; i--) //this.openElements.stackTop
+            for (int i = this.openElements.stackTop; i >= 0; i--)
             {
                 var element = this.openElements.items[i];
 
