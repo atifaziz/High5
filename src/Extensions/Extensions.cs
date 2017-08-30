@@ -58,7 +58,7 @@ namespace ParseFive.Extensions
 
         public static void push<T>(this List<T> list, T elem)
         {
-            list.Insert(0, elem);
+            list.Add(elem);
         }
 
         public static T pop<T>(this List<T> list)
