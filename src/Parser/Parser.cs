@@ -670,7 +670,7 @@ namespace ParseFive.Parser
             var tn = this.treeAdapter.getTagName(element);
             var ns = this.treeAdapter.getNamespaceURI(element);
 
-            return HTML.SPECIAL_ELEMENTS[ns][tn];
+            return HTML.SPECIAL_ELEMENTS[ns].TryGetValue(tn, out var result) ? result : false;
         }
 
         //Adoption agency algorithm
