@@ -2705,7 +2705,7 @@ namespace ParseFive.Parser
 
             else
             {
-                var newInsertionMode = TEMPLATE_INSERTION_MODE_SWITCH_MAP[tn] ?? IN_BODY_MODE; // || operator
+                var newInsertionMode = TEMPLATE_INSERTION_MODE_SWITCH_MAP.TryGetValue(tn, out var result) ? result : IN_BODY_MODE; // || operator
 
                 p._popTmplInsertionMode();
                 p._pushTmplInsertionMode(newInsertionMode);
