@@ -11,11 +11,11 @@ namespace ParseFive.Parser
         {
             public readonly Func<Element, string> getNamespaceURI;
             public readonly Func<Element, string> getTagName;
-            public readonly Func<Element, Element> getTemplateContent;
+            public readonly Func<Element, Node> getTemplateContent;
 
             public TreeAdapter(Func<Element, string> getNamespaceUri,
                                Func<Element, string> getTagName,
-                               Func<Element, Element> getTemplateContent)
+                               Func<Element, Node> getTemplateContent)
             {
                 getNamespaceURI = getNamespaceUri;
                 this.getTagName = getTagName;
@@ -25,7 +25,7 @@ namespace ParseFive.Parser
 
 
         readonly TreeAdapter treeAdapter;
-        public Element currentTmplContent { get; set; }
+        public Node currentTmplContent { get; set; }
         public Node current { get; set; }
         public List<Element> items;
         public string currentTagName { get; private set; }

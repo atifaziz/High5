@@ -20,8 +20,8 @@ namespace ParseFive.TreeAdapters
 
         public DocumentFragment createDocumentFragment() => new DocumentFragment();
 
-        public Element createElement(string tagName, string namespaceURI, List<Attr> attrs) =>
-            new Element(tagName, namespaceURI, attrs);
+        public Element createElement(string tagName, string namespaceURI, List<Attr> attrs) => tagName == "template" ? 
+            new TemplateElement(tagName, namespaceURI, attrs) : new Element(tagName, namespaceURI, attrs);
 
         public Comment createCommentNode(string data) => new Comment(data);
 
@@ -39,14 +39,14 @@ namespace ParseFive.TreeAdapters
             parentNode.ChildNodes.Insert(i, newNode);
         }
 
-        public void setTemplateContent(object templateElement, object contentElement)
+        public void setTemplateContent(Node templateElement, Node contentElement)
         {
-            throw new NotImplementedException();
+            ((TemplateElement)templateElement).content = contentElement;
         }
 
-        public Element getTemplateContent(Element templateElement)
+        public Node getTemplateContent(Node templateElement)
         {
-            throw new NotImplementedException();
+            return ((TemplateElement)templateElement).content;
         }
 
         public void setDocumentType(Document document, string name, string publicId, string systemId)
