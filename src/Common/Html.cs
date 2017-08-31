@@ -8,12 +8,12 @@ static class HTML
     {
         public static class NAMESPACES
         {
-            public const string HTML = "http=//www.w3.org/1999/xhtml";
-            public const string MATHML = "http=//www.w3.org/1998/Math/MathML";
-            public const string SVG = "http=//www.w3.org/2000/svg";
-            public const string XLINK = "http=//www.w3.org/1999/xlink";
-            public const string XML = "http=//www.w3.org/XML/1998/namespace";
-            public const string XMLNS = "http=//www.w3.org/2000/xmlns/";
+            public const string HTML = "http://www.w3.org/1999/xhtml";
+            public const string MATHML = "http://www.w3.org/1998/Math/MathML";
+            public const string SVG = "http://www.w3.org/2000/svg";
+            public const string XLINK = "http://www.w3.org/1999/xlink";
+            public const string XML = "http://www.w3.org/XML/1998/namespace";
+            public const string XMLNS = "http://www.w3.org/2000/xmlns/";
         }
 
         public static class ATTRS
