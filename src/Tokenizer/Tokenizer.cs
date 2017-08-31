@@ -330,9 +330,9 @@ namespace ParseFive.Tokenizer
             this.currentToken = new Token(DOCTYPE_TOKEN, name: initialName, forceQuirks: false, publicId: null, systemId: null);
         }
 
-        void createCharacterToken(string type, char ch)
+        void createCharacterToken(string type, string ch)
         {
-            this.currentCharacterToken = new Token(type, ch);
+            this.currentCharacterToken = new Token(type, ch[0]);
         }
 
         //Tag attributes
@@ -404,7 +404,7 @@ namespace ParseFive.Tokenizer
         //1)NULL_CHARACTER_TOKEN - \u0000-character sequences (e.g. '\u0000\u0000\u0000')
         //2)WHITESPACE_CHARACTER_TOKEN - any whitespace/new-line character sequences (e.g. '\n  \r\t   \f')
         //3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#ɑ%^')
-        void appendCharToCurrentCharacterToken(string type, char ch)
+        void appendCharToCurrentCharacterToken(string type, string ch)
         {
             if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.type != type)
                 this.emitCurrentCharacterToken();
@@ -437,7 +437,8 @@ namespace ParseFive.Tokenizer
 
         //NOTE: used then we emit character explicitly. This is always a non-whitespace and a non-null character.
         //So we can avoid additional checks here.
-        void emitChar(char ch)
+        void emitChar(char ch) => emitChar(ch.ToString());
+        void emitChar(string ch)
         {
             this.appendCharToCurrentCharacterToken(CHARACTER_TOKEN, ch);
         }
@@ -1668,7 +1669,7 @@ namespace ParseFive.Tokenizer
         }
 
         else {
-            this.currentToken.data += (char) (cp == ɑ.NULL ? ɑ.REPLACEMENT_CHARACTER : toChar(cp));
+            this.currentToken.data += (cp == ɑ.NULL ? toChar(ɑ.REPLACEMENT_CHARACTER) : toChar(cp));
 
             this.hibernationSnapshot();
             cp = this.consume();

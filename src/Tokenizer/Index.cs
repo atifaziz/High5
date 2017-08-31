@@ -164,13 +164,13 @@ namespace ParseFive.Tokenizer
         //NOTE: String.fromCharCode() function can handle only characters from BMP subset.
         //So, we need to workaround this manually.
         //(see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/fromCharCode#Getting_it_to_work_with_higher_values)
-        public static char toChar(int cp) //TODO consider if cp can be typed as uint
+        public static string toChar(int cp) //TODO consider if cp can be typed as uint
         {
             if (cp <= 0xFFFF)
-                return String.fromCharCode(cp);
+                return ((char) cp).ToString();
 
             cp -= 0x10000;
-            return (char) unchecked(String.fromCharCode((int)(((uint) cp) >> 10) & 0x3FF | 0xD800) + String.fromCharCode(0xDC00 | cp & 0x3FF));
+            return new string(new[] { String.fromCharCode((int)(((uint)cp) >> 10) & 0x3FF | 0xD800), String.fromCharCode(0xDC00 | cp & 0x3FF) });
         }
 
         public static char toAsciiLowerChar(int cp)
