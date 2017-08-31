@@ -1668,7 +1668,7 @@ namespace ParseFive.Tokenizer
         }
 
         else {
-            this.currentToken.data += cp == ɑ.NULL ? ɑ.REPLACEMENT_CHARACTER : toChar(cp);
+            this.currentToken.data += (char) (cp == ɑ.NULL ? ɑ.REPLACEMENT_CHARACTER : toChar(cp));
 
             this.hibernationSnapshot();
             cp = this.consume();
