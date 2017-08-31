@@ -226,7 +226,7 @@ namespace ParseFive.Common
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.SIZE) != null ||
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.FACE) != null);
 
-            return isFontWithAttrs ? true : EXITS_FOREIGN_CONTENT[tn];
+            return isFontWithAttrs ? true : EXITS_FOREIGN_CONTENT.TryGetValue(tn, out var value) ? value : false;
         }
 
         //Token adjustments
