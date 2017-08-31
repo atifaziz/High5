@@ -306,7 +306,7 @@ namespace ParseFive.Parser
 
         void _insertTemplate(Token token)
         {
-            var tmpl = this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
+            var tmpl = (TemplateElement)this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
             var content = this.treeAdapter.createDocumentFragment();
 
             this.treeAdapter.setTemplateContent(tmpl, content);
@@ -796,7 +796,7 @@ namespace ParseFive.Parser
                 string ns = p.treeAdapter.getNamespaceURI(commonAncestor);
 
                 if (tn == ɑ.TEMPLATE && ns == NS.HTML)
-                    commonAncestor = p.treeAdapter.getTemplateContent(commonAncestor);
+                    commonAncestor = (Element)p.treeAdapter.getTemplateContent(commonAncestor);
 
                 p.treeAdapter.appendChild(commonAncestor, lastElement);
             }
