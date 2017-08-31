@@ -15,7 +15,7 @@ namespace ParseFive
         // Tree mutation
 
         void appendChild(Node parentNode, Node newNode);
-        void insertBefore(Node parentNode, Element newNode, Element referenceNode);
+        void insertBefore(Node parentNode, Node newNode, Node referenceNode);
         void setTemplateContent(object templateElement, object contentElement);
         Element getTemplateContent(Element templateElement);
         void setDocumentType(Document document, string name, string publicId, string systemId);
@@ -23,7 +23,7 @@ namespace ParseFive
         string getDocumentMode(Document document);
         void detachNode(Node node);
         void insertText(Node parentNode, string text);
-        void insertTextBefore(Node parentNode, string text, Element referenceNode);
+        void insertTextBefore(Node parentNode, string text, Node referenceNode);
         void adoptAttributes(Element recipient, List<Attr> attrs);
 
         // Tree traversing
