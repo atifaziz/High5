@@ -458,9 +458,9 @@ namespace ParseFive.Tokenizer
                 this.consume();
 
             int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
-            Int replacement = Index.NUMERIC_ENTITY_REPLACEMENTS[referencedCp];
+            
 
-            if (replacement)
+            if (Index.NUMERIC_ENTITY_REPLACEMENTS.TryGetValue(referencedCp, out var replacement))
                 return replacement;
 
             if (Index.isReservedCodePoint(referencedCp))
