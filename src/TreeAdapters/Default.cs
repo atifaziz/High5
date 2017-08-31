@@ -33,7 +33,7 @@ namespace ParseFive.TreeAdapters
             newNode.ParentNode = parentNode;
         }
 
-        public void insertBefore(Node parentNode, Element newNode, Element referenceNode)
+        public void insertBefore(Node parentNode, Node newNode, Node referenceNode)
         {
             var i = parentNode.ChildNodes.IndexOf(referenceNode);
             parentNode.ChildNodes.Insert(i, newNode);
@@ -94,9 +94,15 @@ namespace ParseFive.TreeAdapters
             appendChild(parentNode, createTextNode(text));
         }
 
-        public void insertTextBefore(Node parentNode, string text, Element referenceNode)
+        public void insertTextBefore(Node parentNode, string text, Node referenceNode)
         {
-            throw new NotImplementedException();
+            var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
+            var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
+
+            if (prevNode.IsTruthy() && isTextNode(prevNode))
+                ((Text)prevNode).Value += text;
+            else
+                insertBefore(parentNode, createTextNode(text), referenceNode);
         }
 
         public void adoptAttributes(Element recipient, List<Attr> attrs)
