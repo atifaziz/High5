@@ -793,13 +793,14 @@ namespace ParseFive.Parser
 
             else
             {
+                Node commonAncestorNode = commonAncestor;
                 var tn = p.treeAdapter.getTagName(commonAncestor);
                 string ns = p.treeAdapter.getNamespaceURI(commonAncestor);
 
                 if (tn == ɑ.TEMPLATE && ns == NS.HTML)
-                    commonAncestor = (Element)p.treeAdapter.getTemplateContent(commonAncestor);
+                    commonAncestorNode = p.treeAdapter.getTemplateContent(commonAncestor);
 
-                p.treeAdapter.appendChild(commonAncestor, lastElement);
+                p.treeAdapter.appendChild(commonAncestorNode, lastElement);
             }
         }
 
