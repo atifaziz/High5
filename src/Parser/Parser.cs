@@ -551,7 +551,7 @@ namespace ParseFive.Parser
                     break;
                 }
 
-                else if (last.IsTruthy())
+                else if (last)
                 {
                     this.insertionMode = IN_BODY_MODE;
                     break;
