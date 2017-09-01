@@ -15,3 +15,7 @@
 *.PDF   diff=astextplain
 *.rtf   diff=astextplain
 *.RTF   diff=astextplain
+
+# Exclude the HTML files from GitHub's language statistics
+# https://github.com/github/linguist#using-gitattributes
+tests/data/* linguist-vendored
