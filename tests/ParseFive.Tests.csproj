@@ -1,0 +1,134 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="data\tree_construction\adoption01.dat" />
+    <None Remove="data\tree_construction\adoption02.dat" />
+    <None Remove="data\tree_construction\comments01.dat" />
+    <None Remove="data\tree_construction\doctype01.dat" />
+    <None Remove="data\tree_construction\domjs-unsafe.dat" />
+    <None Remove="data\tree_construction\entities01.dat" />
+    <None Remove="data\tree_construction\entities02.dat" />
+    <None Remove="data\tree_construction\foreign-fragment.dat" />
+    <None Remove="data\tree_construction\html5test-com.dat" />
+    <None Remove="data\tree_construction\inbody01.dat" />
+    <None Remove="data\tree_construction\isindex.dat" />
+    <None Remove="data\tree_construction\main-element.dat" />
+    <None Remove="data\tree_construction\math.dat" />
+    <None Remove="data\tree_construction\menuitem-element.dat" />
+    <None Remove="data\tree_construction\namespace-sensitivity.dat" />
+    <None Remove="data\tree_construction\noscript01.dat" />
+    <None Remove="data\tree_construction\pending-spec-changes-plain-text-unsafe.dat" />
+    <None Remove="data\tree_construction\pending-spec-changes.dat" />
+    <None Remove="data\tree_construction\plain-text-unsafe.dat" />
+    <None Remove="data\tree_construction\ruby.dat" />
+    <None Remove="data\tree_construction\scriptdata01.dat" />
+    <None Remove="data\tree_construction\tables01.dat" />
+    <None Remove="data\tree_construction\template.dat" />
+    <None Remove="data\tree_construction\tests1.dat" />
+    <None Remove="data\tree_construction\tests10.dat" />
+    <None Remove="data\tree_construction\tests11.dat" />
+    <None Remove="data\tree_construction\tests12.dat" />
+    <None Remove="data\tree_construction\tests14.dat" />
+    <None Remove="data\tree_construction\tests15.dat" />
+    <None Remove="data\tree_construction\tests16.dat" />
+    <None Remove="data\tree_construction\tests17.dat" />
+    <None Remove="data\tree_construction\tests18.dat" />
+    <None Remove="data\tree_construction\tests19.dat" />
+    <None Remove="data\tree_construction\tests2.dat" />
+    <None Remove="data\tree_construction\tests20.dat" />
+    <None Remove="data\tree_construction\tests21.dat" />
+    <None Remove="data\tree_construction\tests22.dat" />
+    <None Remove="data\tree_construction\tests23.dat" />
+    <None Remove="data\tree_construction\tests24.dat" />
+    <None Remove="data\tree_construction\tests25.dat" />
+    <None Remove="data\tree_construction\tests26.dat" />
+    <None Remove="data\tree_construction\tests3.dat" />
+    <None Remove="data\tree_construction\tests4.dat" />
+    <None Remove="data\tree_construction\tests5.dat" />
+    <None Remove="data\tree_construction\tests6.dat" />
+    <None Remove="data\tree_construction\tests7.dat" />
+    <None Remove="data\tree_construction\tests8.dat" />
+    <None Remove="data\tree_construction\tests9.dat" />
+    <None Remove="data\tree_construction\tests_innerHTML_1.dat" />
+    <None Remove="data\tree_construction\tricky01.dat" />
+    <None Remove="data\tree_construction\webkit01.dat" />
+    <None Remove="data\tree_construction\webkit02.dat" />
+    <None Remove="data\tree_construction_regression\gh40_form_in_template.dat" />
+    <None Remove="data\tree_construction_scripting\document_write.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="data\tree_construction\adoption01.dat" />
+    <EmbeddedResource Include="data\tree_construction\adoption02.dat" />
+    <EmbeddedResource Include="data\tree_construction\comments01.dat" />
+    <EmbeddedResource Include="data\tree_construction\doctype01.dat" />
+    <EmbeddedResource Include="data\tree_construction\domjs-unsafe.dat" />
+    <EmbeddedResource Include="data\tree_construction\entities01.dat" />
+    <EmbeddedResource Include="data\tree_construction\entities02.dat" />
+    <EmbeddedResource Include="data\tree_construction\foreign-fragment.dat" />
+    <EmbeddedResource Include="data\tree_construction\html5test-com.dat" />
+    <EmbeddedResource Include="data\tree_construction\inbody01.dat" />
+    <EmbeddedResource Include="data\tree_construction\isindex.dat" />
+    <EmbeddedResource Include="data\tree_construction\main-element.dat" />
+    <EmbeddedResource Include="data\tree_construction\math.dat" />
+    <EmbeddedResource Include="data\tree_construction\menuitem-element.dat" />
+    <EmbeddedResource Include="data\tree_construction\namespace-sensitivity.dat" />
+    <EmbeddedResource Include="data\tree_construction\noscript01.dat" />
+    <EmbeddedResource Include="data\tree_construction\pending-spec-changes-plain-text-unsafe.dat" />
+    <EmbeddedResource Include="data\tree_construction\pending-spec-changes.dat" />
+    <EmbeddedResource Include="data\tree_construction\plain-text-unsafe.dat" />
+    <EmbeddedResource Include="data\tree_construction\ruby.dat" />
+    <EmbeddedResource Include="data\tree_construction\scriptdata01.dat" />
+    <EmbeddedResource Include="data\tree_construction\tables01.dat" />
+    <EmbeddedResource Include="data\tree_construction\template.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests1.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests10.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests11.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests12.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests14.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests15.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests16.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests17.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests18.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests19.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests2.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests20.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests21.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests22.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests23.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests24.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests25.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests26.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests3.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests4.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests5.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests6.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests7.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests8.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests9.dat" />
+    <EmbeddedResource Include="data\tree_construction\tests_innerHTML_1.dat" />
+    <EmbeddedResource Include="data\tree_construction\tricky01.dat" />
+    <EmbeddedResource Include="data\tree_construction\webkit01.dat" />
+    <EmbeddedResource Include="data\tree_construction\webkit02.dat" />
+    <EmbeddedResource Include="data\tree_construction_regression\gh40_form_in_template.dat" />
+    <EmbeddedResource Include="data\tree_construction_scripting\document_write.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
+    <PackageReference Include="morelinq" Version="2.7.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\ParseFive.csproj" />
+  </ItemGroup>
+
+</Project>
