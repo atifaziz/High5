@@ -307,7 +307,7 @@ namespace ParseFive.Parser
         public Element tryPeekProperlyNestedBodyElement()
         {
             //Properly nested <body> element (should be second element in stack).
-            var element = this.items[1];
+            var element = this.items.Count > 1 ? this.items[1] : null;
 
             return element.IsTruthy() && this.treeAdapter.getTagName(element) == ɑ.BODY ? element : null;
         }
