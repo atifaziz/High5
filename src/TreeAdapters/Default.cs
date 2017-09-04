@@ -37,6 +37,7 @@ namespace ParseFive.TreeAdapters
         {
             var i = parentNode.ChildNodes.IndexOf(referenceNode);
             parentNode.ChildNodes.Insert(i, newNode);
+            newNode.ParentNode = parentNode;
         }
 
         public void setTemplateContent(Node templateElement, Node contentElement)
