@@ -1290,7 +1290,8 @@ namespace ParseFive.Parser
 
         public static void tableStartTagInBody(Parser p, Token token)
         {
-            if (p.treeAdapter.getDocumentMode((Document) p.document) != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.hasInButtonScope(ɑ.P))
+            var mode = p.document is Document doc ? p.treeAdapter.getDocumentMode(doc) : null;
+            if (mode != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.hasInButtonScope(ɑ.P))
                 p._closePElement();
 
             p._insertElement(token, NS.HTML);
