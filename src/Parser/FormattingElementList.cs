@@ -171,7 +171,7 @@ namespace ParseFive.Parser
                     {
                         var cAttr = candidates[j].attrs[i];
 
-                        if (neAttrsMap[cAttr.name] != cAttr.value)
+                        if (neAttrsMap.TryGetValue(cAttr.name, out var v) && v != cAttr.value)
                         {
                             candidates.splice(j, 1);
                             cLength--;
