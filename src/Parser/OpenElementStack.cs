@@ -257,6 +257,7 @@ namespace ParseFive.Parser
             //NOTE: here we assume that root <html> element is always first in the open element stack, so
             //we perform this fast stack clean up.
             this.stackTop = 0;
+            this.items = new List<Element> { this.items[0] };
             this._updateCurrentElement();
         }
 
