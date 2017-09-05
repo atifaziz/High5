@@ -593,8 +593,9 @@ namespace ParseFive.Parser
         {
             this.tmplInsertionModeStack.pop();
             this.tmplInsertionModeStackTop--;
-            if(0 < this.tmplInsertionModeStackTop && this.tmplInsertionModeStackTop < tmplInsertionModeStack.Count)
-                this.currentTmplInsertionMode = this.tmplInsertionModeStack[this.tmplInsertionModeStackTop];
+            this.currentTmplInsertionMode = this.tmplInsertionModeStackTop >= 0 && this.tmplInsertionModeStackTop < tmplInsertionModeStack.Count
+                                          ? this.tmplInsertionModeStack[this.tmplInsertionModeStackTop]
+                                          : null;
         }
 
         //Foster parenting
