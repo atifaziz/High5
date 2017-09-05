@@ -151,6 +151,11 @@ namespace ParseFive.Tokenizer
                                                  cp >= ɑ.LATIN_SMALL_A && cp <= ɑ.LATIN_SMALL_F);
         }
 
+        public static bool isReservedCodePoint(long cp)
+        {
+            return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
+        }
+
         public static bool isReservedCodePoint(int cp)
         {
             return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
