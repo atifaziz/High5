@@ -458,8 +458,12 @@ namespace ParseFive.Tokenizer
             if (this.lookahead() == ɑ.SEMICOLON)
                 this.consume();
 
-            int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
-            
+            //int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
+            var referencedCpLong = long.Parse(digits, isHex ? System.Globalization.NumberStyles.AllowHexSpecifier : System.Globalization.NumberStyles.None);
+            if (Index.isReservedCodePoint(referencedCpLong))
+                return ɑ.REPLACEMENT_CHARACTER;
+
+            var referencedCp = unchecked((int) referencedCpLong);
 
             if (Index.NUMERIC_ENTITY_REPLACEMENTS.TryGetValue(referencedCp, out var replacement))
                 return replacement;
