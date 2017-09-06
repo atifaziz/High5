@@ -13,6 +13,8 @@ namespace ParseFive.TreeAdapters
 
     public sealed class DefaultTreeAdapter : TreeAdapter
     {
+        public static TreeAdapter Instance = new DefaultTreeAdapter();
+
         public Document createDocument()
         {
             throw new NotImplementedException();
