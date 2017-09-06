@@ -11,7 +11,7 @@ namespace ParseFive.TreeAdapters
         public static TreeAdapter defaultTreeAdapter = null;
     }
 
-    class DefaultTreeAdapter : TreeAdapter
+    public sealed class DefaultTreeAdapter : TreeAdapter
     {
         public Document createDocument()
         {
