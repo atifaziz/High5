@@ -79,6 +79,15 @@ public class DocumentType : Node
     }
 }
 
+public class TemplateElement : Element
+{
+    public Node content;
+
+    public TemplateElement(string tagName, string namespaceUri, List<Attr> attributes) : base(tagName, namespaceUri, attributes)
+    {
+    }
+}
+
 namespace ParseFive.Parser
 {
     class FormattingElementList
