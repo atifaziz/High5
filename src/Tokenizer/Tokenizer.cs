@@ -243,11 +243,11 @@ namespace ParseFive.Tokenizer
             this.unconsume();
         }
 
-        bool consumeSubsequentIfMatch(Array<int> pattern, int startCp, bool caseSensitive)
+        bool consumeSubsequentIfMatch(int[] pattern, int startCp, bool caseSensitive)
         {
             var consumedCount = 0;
             bool isMatch = true;
-            var patternLength = pattern.length;
+            var patternLength = pattern.Length;
             int patternPos = 0;
             int cp = startCp;
             int? patternCp = null;//void 0;
@@ -294,7 +294,7 @@ namespace ParseFive.Tokenizer
         //Temp buffer
         bool isTempBufferEqualToScriptString()
         {
-            if (this.tempBuff.length != ɑɑ.SCRIPT_STRING.length)
+            if (this.tempBuff.length != ɑɑ.SCRIPT_STRING.Length)
                 return false;
 
             for (var i = 0; i < this.tempBuff.length; i++)
