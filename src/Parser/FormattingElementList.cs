@@ -4,27 +4,27 @@ namespace ParseFive.Parser
     using NeAttrsMap = System.Collections.Generic.Dictionary<string, string>;
     using Tokenizer;
 
-    abstract class IEntry
+    abstract class Entry
     {
-        public string type { get; }
-        public Element element { get; set; }
-        public Token token { get; }
+        public string Type { get; }
+        public Element Element { get; set; }
+        public Token Token { get; }
 
-        protected IEntry(string type, Element element = null, Token token = null)
+        protected Entry(string type, Element element = null, Token token = null)
         {
-            this.type = type;
-            this.element = element;
-            this.token = token;
+            Type = type;
+            Element = element;
+            Token = token;
         }
     }
 
-    sealed class MarkerEntry : IEntry
+    sealed class MarkerEntry : Entry
     {
         public MarkerEntry(string type) :
             base(type) {}
     }
 
-    sealed class ElementEntry : IEntry
+    sealed class ElementEntry : Entry
     {
         public ElementEntry(string type, Element element, Token token) :
             base(type, element, token) {}
@@ -34,16 +34,15 @@ namespace ParseFive.Parser
     {
         // Const
 
-        const int NOAH_ARK_CAPACITY = 3;
+        const int NoahArkCapacity = 3;
 
         readonly TreeAdapter treeAdapter;
-
         int length;
-        readonly List<IEntry> entries;
-        public object bookmark { get; set; }
+        readonly List<Entry> entries;
 
+        public object Bookmark { get; set; }
         public int Length => this.length;
-        public IEntry this[int index] => this.entries[index];
+        public Entry this[int index] => this.entries[index];
 
         // Entry types
 
@@ -54,34 +53,34 @@ namespace ParseFive.Parser
         {
             this.treeAdapter = treeAdapter;
             length = 0;
-            entries = new List<IEntry>();
+            entries = new List<Entry>();
         }
 
         // Noah Ark's condition
         // OPTIMIZATION: at first we try to find possible candidates for exclusion using
         // lightweight heuristics without thorough attributes check.
 
-        List<(int idx, List<Attr> attrs)> getNoahArkConditionCandidates(Element newElement)
+        List<(int idx, List<Attr> attrs)> GetNoahArkConditionCandidates(Element newElement)
         {
             var candidates = new List<(int idx, List<Attr> attrs)>();
 
-            if (length >= NOAH_ARK_CAPACITY)
+            if (length >= NoahArkCapacity)
             {
                 var neAttrsLength = this.treeAdapter.getAttrList(newElement).length;
                 var neTagName = this.treeAdapter.getTagName(newElement);
-                var neNamespaceURI = this.treeAdapter.getNamespaceURI(newElement);
+                var neNamespaceUri = this.treeAdapter.getNamespaceURI(newElement);
 
                 for (var i = this.length - 1; i >= 0; i--)
                 {
                     var entry = this.entries[i];
 
-                    if (entry.type == MARKER_ENTRY)
+                    if (entry.Type == MARKER_ENTRY)
                         break;
 
-                    var element = entry.element;
+                    var element = entry.Element;
                     var elementAttrs = this.treeAdapter.getAttrList(element);
                     var isCandidate = this.treeAdapter.getTagName(element) == neTagName &&
-                                      this.treeAdapter.getNamespaceURI(element) == neNamespaceURI &&
+                                      this.treeAdapter.getNamespaceURI(element) == neNamespaceUri &&
                                       elementAttrs.length == neAttrsLength;
 
                     if (isCandidate)
@@ -89,12 +88,12 @@ namespace ParseFive.Parser
                 }
             }
 
-            return candidates.Count < NOAH_ARK_CAPACITY ? new List<(int, List<Attr>)>() : candidates;
+            return candidates.Count < NoahArkCapacity ? new List<(int, List<Attr>)>() : candidates;
         }
 
-        void ensureNoahArkCondition(Element newElement)
+        void EnsureNoahArkCondition(Element newElement)
         {
-            var candidates = this.getNoahArkConditionCandidates(newElement);
+            var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.length;
 
             if (cLength)
@@ -112,7 +111,7 @@ namespace ParseFive.Parser
                     neAttrsMap.Add(neAttr.name, neAttr.value);
                     // neAttrsMap[neAttr.name] = neAttr.value;
                 }
-                
+
                 for (var i = 0; i < neAttrsLength; i++)
                 {
                     for (var j = 0; j < cLength; j++)
@@ -125,14 +124,14 @@ namespace ParseFive.Parser
                             cLength--;
                         }
 
-                        if (candidates.length < NOAH_ARK_CAPACITY)
+                        if (candidates.length < NoahArkCapacity)
                             return;
                     }
                 }
 
                 // NOTE: remove bottommost candidates until Noah's Ark condition will not be met
 
-                for (var i = cLength - 1; i >= NOAH_ARK_CAPACITY - 1; i--)
+                for (var i = cLength - 1; i >= NoahArkCapacity - 1; i--)
                 {
                     this.entries.splice(candidates[i].idx, 1);
                     this.length--;
@@ -142,27 +141,27 @@ namespace ParseFive.Parser
 
         // Mutations
 
-        public void insertMarker()
+        public void InsertMarker()
         {
             entries.push(new MarkerEntry(MARKER_ENTRY));
             length++;
         }
 
-        public void pushElement(Element element, Token token)
+        public void PushElement(Element element, Token token)
         {
-            this.ensureNoahArkCondition(element);
+            this.EnsureNoahArkCondition(element);
 
             this.entries.push(new ElementEntry(ELEMENT_ENTRY, element, token));
             length++;
         }
 
-        internal void insertElementAfterBookmark(Element element, Token token)
+        internal void InsertElementAfterBookmark(Element element, Token token)
         {
             var bookmarkIdx = this.length - 1;
 
             for (; bookmarkIdx >= 0; bookmarkIdx--)
             {
-                if (this.entries[bookmarkIdx] == this.bookmark)
+                if (this.entries[bookmarkIdx] == this.Bookmark)
                     break;
             }
 
@@ -171,7 +170,7 @@ namespace ParseFive.Parser
             this.length++;
         }
 
-        public void removeEntry(IEntry entry)
+        public void RemoveEntry(Entry entry)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
@@ -184,7 +183,7 @@ namespace ParseFive.Parser
             }
         }
 
-        public void clearToLastMarker()
+        public void ClearToLastMarker()
         {
             while (this.length.IsTruthy())
             {
@@ -192,36 +191,36 @@ namespace ParseFive.Parser
 
                 this.length--;
 
-                if (entry.type == MARKER_ENTRY)
+                if (entry.Type == MARKER_ENTRY)
                     break;
             }
         }
 
         // Search
 
-        public IEntry getElementEntryInScopeWithTagName(string tagName)
+        public Entry GetElementEntryInScopeWithTagName(string tagName)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
                 var entry = this.entries[i];
 
-                if (entry.type == MARKER_ENTRY)
+                if (entry.Type == MARKER_ENTRY)
                     return null;
 
-                if (this.treeAdapter.getTagName(entry.element) == tagName)
+                if (this.treeAdapter.getTagName(entry.Element) == tagName)
                     return entry;
             }
 
             return null;
         }
 
-        public IEntry getElementEntry(Element element)
+        public Entry GetElementEntry(Element element)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
                 var entry = this.entries[i];
 
-                if (entry.type == ELEMENT_ENTRY && entry.element == element)
+                if (entry.Type == ELEMENT_ENTRY && entry.Element == element)
                     return entry;
             }
 

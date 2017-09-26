@@ -459,14 +459,14 @@ namespace ParseFive.Parser
             if (listLength.IsTruthy())
             {
                 var unopenIdx = listLength;
-                IEntry entry;
+                Entry entry;
 
                 do
                 {
                     unopenIdx--;
                     entry = this.activeFormattingElements[unopenIdx];
 
-                    if (entry.type == FormattingElementList.MARKER_ENTRY || this.openElements.contains(entry.element))
+                    if (entry.Type == FormattingElementList.MARKER_ENTRY || this.openElements.contains(entry.Element))
                     {
                         unopenIdx++;
                         break;
@@ -476,8 +476,8 @@ namespace ParseFive.Parser
                 for (var i = unopenIdx; i < listLength; i++)
                 {
                     entry = this.activeFormattingElements[i];
-                    this._insertElement(entry.token, this.treeAdapter.getNamespaceURI(entry.element));
-                    entry.element = (Element) this.openElements.current;
+                    this._insertElement(entry.Token, this.treeAdapter.getNamespaceURI(entry.Element));
+                    entry.Element = (Element) this.openElements.current;
                 }
             }
         }
@@ -487,7 +487,7 @@ namespace ParseFive.Parser
         {
             this.openElements.generateImpliedEndTags();
             this.openElements.popUntilTableCellPopped();
-            this.activeFormattingElements.clearToLastMarker();
+            this.activeFormattingElements.ClearToLastMarker();
             this.insertionMode = IN_ROW_MODE;
         }
 
@@ -680,15 +680,15 @@ namespace ParseFive.Parser
         //------------------------------------------------------------------
 
         //Steps 5-8 of the algorithm
-        static IEntry aaObtainFormattingElementEntry(Parser p, Token token)
+        static Entry aaObtainFormattingElementEntry(Parser p, Token token)
         {
-            var formattingElementEntry = p.activeFormattingElements.getElementEntryInScopeWithTagName(token.tagName);
+            var formattingElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(token.tagName);
 
             if (formattingElementEntry.IsTruthy())
             {
-                if (!p.openElements.contains(formattingElementEntry.element))
+                if (!p.openElements.contains(formattingElementEntry.Element))
                 {
-                    p.activeFormattingElements.removeEntry(formattingElementEntry);
+                    p.activeFormattingElements.RemoveEntry(formattingElementEntry);
                     formattingElementEntry = null;
                 }
 
@@ -702,13 +702,13 @@ namespace ParseFive.Parser
             return formattingElementEntry;
         }
 
-        static IEntry aaObtainFormattingElementEntry(Parser p, Token token, IEntry formattingElementEntry)
+        static Entry aaObtainFormattingElementEntry(Parser p, Token token, Entry formattingElementEntry)
         {
             return aaObtainFormattingElementEntry(p, token);
         }
 
         //Steps 9 and 10 of the algorithm
-        static Element aaObtainFurthestBlock(Parser p, IEntry formattingElementEntry)
+        static Element aaObtainFurthestBlock(Parser p, Entry formattingElementEntry)
         {
             Element furthestBlock = null;
 
@@ -716,7 +716,7 @@ namespace ParseFive.Parser
             {
                 var element = p.openElements.items[i];
 
-                if (element == formattingElementEntry.element)
+                if (element == formattingElementEntry.Element)
                     break;
 
                 if (p._isSpecialElement(element))
@@ -725,8 +725,8 @@ namespace ParseFive.Parser
 
             if (!furthestBlock.IsTruthy())
             {
-                p.openElements.popUntilElementPopped(formattingElementEntry.element);
-                p.activeFormattingElements.removeEntry(formattingElementEntry);
+                p.openElements.popUntilElementPopped(formattingElementEntry.Element);
+                p.activeFormattingElements.RemoveEntry(formattingElementEntry);
             }
 
             return furthestBlock;
@@ -745,14 +745,14 @@ namespace ParseFive.Parser
                 //NOTE: store next element for the next loop iteration (it may be deleted from the stack by step 9.5)
                 nextElement = p.openElements.getCommonAncestor(element);
 
-                var elementEntry = p.activeFormattingElements.getElementEntry(element);
+                var elementEntry = p.activeFormattingElements.GetElementEntry(element);
                 var counterOverflow = elementEntry.IsTruthy() && i >= AA_INNER_LOOP_ITER;
                 var shouldRemoveFromOpenElements = !elementEntry.IsTruthy() || counterOverflow;
 
                 if (shouldRemoveFromOpenElements)
                 {
                     if (counterOverflow.IsTruthy())
-                        p.activeFormattingElements.removeEntry(elementEntry);
+                        p.activeFormattingElements.RemoveEntry(elementEntry);
 
                     p.openElements.remove(element);
                 }
@@ -762,7 +762,7 @@ namespace ParseFive.Parser
                     element = aaRecreateElementFromEntry(p, elementEntry);
 
                     if (lastElement == furthestBlock)
-                        p.activeFormattingElements.bookmark = elementEntry;
+                        p.activeFormattingElements.Bookmark = elementEntry;
 
                     p.treeAdapter.detachNode(lastElement);
                     p.treeAdapter.appendChild(element, lastElement);
@@ -775,13 +775,13 @@ namespace ParseFive.Parser
         }
 
         //Step 13.7 of the algorithm
-        static Element aaRecreateElementFromEntry(Parser p, IEntry elementEntry)
+        static Element aaRecreateElementFromEntry(Parser p, Entry elementEntry)
         {
-            var ns = p.treeAdapter.getNamespaceURI(elementEntry.element);
-            var newElement = p.treeAdapter.createElement(elementEntry.token.tagName, ns, elementEntry.token.attrs);
+            var ns = p.treeAdapter.getNamespaceURI(elementEntry.Element);
+            var newElement = p.treeAdapter.createElement(elementEntry.Token.tagName, ns, elementEntry.Token.attrs);
 
-            p.openElements.replace(elementEntry.element, newElement);
-            elementEntry.element = newElement;
+            p.openElements.replace(elementEntry.Element, newElement);
+            elementEntry.Element = newElement;
 
             return newElement;
         }
@@ -806,26 +806,26 @@ namespace ParseFive.Parser
         }
 
         //Steps 15-19 of the algorithm
-        static void aaReplaceFormattingElement(Parser p, Element furthestBlock, IEntry formattingElementEntry)
+        static void aaReplaceFormattingElement(Parser p, Element furthestBlock, Entry formattingElementEntry)
         {
-            string ns = p.treeAdapter.getNamespaceURI(formattingElementEntry.element);
-            Token token = formattingElementEntry.token;
+            string ns = p.treeAdapter.getNamespaceURI(formattingElementEntry.Element);
+            Token token = formattingElementEntry.Token;
             Element newElement = p.treeAdapter.createElement(token.tagName, ns, token.attrs);
 
             p._adoptNodes(furthestBlock, newElement);
             p.treeAdapter.appendChild(furthestBlock, newElement);
 
-            p.activeFormattingElements.insertElementAfterBookmark(newElement, formattingElementEntry.token);
-            p.activeFormattingElements.removeEntry(formattingElementEntry);
+            p.activeFormattingElements.InsertElementAfterBookmark(newElement, formattingElementEntry.Token);
+            p.activeFormattingElements.RemoveEntry(formattingElementEntry);
 
-            p.openElements.remove(formattingElementEntry.element);
+            p.openElements.remove(formattingElementEntry.Element);
             p.openElements.insertAfter(furthestBlock, newElement);
         }
 
         //Algorithm entry point
         static void callAdoptionAgency(Parser p, Token token)
         {
-            IEntry formattingElementEntry = null;
+            Entry formattingElementEntry = null;
 
             for (var i = 0; i < AA_OUTER_LOOP_ITER; i++)
             {
@@ -839,10 +839,10 @@ namespace ParseFive.Parser
                 if (!furthestBlock.IsTruthy())
                     break;
 
-                p.activeFormattingElements.bookmark = formattingElementEntry;
+                p.activeFormattingElements.Bookmark = formattingElementEntry;
 
-                var lastElement = aaInnerLoop(p, furthestBlock, formattingElementEntry.element);
-                var commonAncestor = p.openElements.getCommonAncestor(formattingElementEntry.element);
+                var lastElement = aaInnerLoop(p, furthestBlock, formattingElementEntry.Element);
+                var commonAncestor = p.openElements.getCommonAncestor(formattingElementEntry.Element);
 
                 p.treeAdapter.detachNode(lastElement);
                 aaInsertLastNodeInCommonAncestor(p, commonAncestor, lastElement);
@@ -999,7 +999,7 @@ namespace ParseFive.Parser
             else if (tn == T.TEMPLATE)
             {
                 p._insertTemplate(token, NS.HTML);
-                p.activeFormattingElements.insertMarker();
+                p.activeFormattingElements.InsertMarker();
                 p.framesetOk = false;
                 p.insertionMode = IN_TEMPLATE_MODE;
                 p._pushTmplInsertionMode(IN_TEMPLATE_MODE);
@@ -1026,7 +1026,7 @@ namespace ParseFive.Parser
             {
                 p.openElements.generateImpliedEndTags();
                 p.openElements.popUntilTagNamePopped(T.TEMPLATE);
-                p.activeFormattingElements.clearToLastMarker();
+                p.activeFormattingElements.ClearToLastMarker();
                 p._popTmplInsertionMode();
                 p._resetInsertionMode();
             }
@@ -1246,25 +1246,25 @@ namespace ParseFive.Parser
 
         public static void aStartTagInBody(Parser p, Token token)
         {
-            var activeElementEntry = p.activeFormattingElements.getElementEntryInScopeWithTagName(T.A);
+            var activeElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(T.A);
 
             if (activeElementEntry.IsTruthy())
             {
                 callAdoptionAgency(p, token);
-                p.openElements.remove(activeElementEntry.element);
-                p.activeFormattingElements.removeEntry(activeElementEntry);
+                p.openElements.remove(activeElementEntry.Element);
+                p.activeFormattingElements.RemoveEntry(activeElementEntry);
             }
 
             p._reconstructActiveFormattingElements();
             p._insertElement(token, NS.HTML);
-            p.activeFormattingElements.pushElement((Element) p.openElements.current, token);
+            p.activeFormattingElements.PushElement((Element) p.openElements.current, token);
         }
 
         public static void bStartTagInBody(Parser p, Token token)
         {
             p._reconstructActiveFormattingElements();
             p._insertElement(token, NS.HTML);
-            p.activeFormattingElements.pushElement((Element) p.openElements.current, token);
+            p.activeFormattingElements.PushElement((Element) p.openElements.current, token);
         }
 
         public static void nobrStartTagInBody(Parser p, Token token)
@@ -1278,14 +1278,14 @@ namespace ParseFive.Parser
             }
 
             p._insertElement(token, NS.HTML);
-            p.activeFormattingElements.pushElement((Element) p.openElements.current, token);
+            p.activeFormattingElements.PushElement((Element) p.openElements.current, token);
         }
 
         public static void appletStartTagInBody(Parser p, Token token)
         {
             p._reconstructActiveFormattingElements();
             p._insertElement(token, NS.HTML);
-            p.activeFormattingElements.insertMarker();
+            p.activeFormattingElements.InsertMarker();
             p.framesetOk = false;
         }
 
@@ -1847,7 +1847,7 @@ namespace ParseFive.Parser
             {
                 p.openElements.generateImpliedEndTags();
                 p.openElements.popUntilTagNamePopped(tn);
-                p.activeFormattingElements.clearToLastMarker();
+                p.activeFormattingElements.ClearToLastMarker();
             }
         }
 
@@ -2079,7 +2079,7 @@ namespace ParseFive.Parser
         public static void captionStartTagInTable(Parser p, Token token)
         {
             p.openElements.clearBackToTableContext();
-            p.activeFormattingElements.insertMarker();
+            p.activeFormattingElements.InsertMarker();
             p._insertElement(token, NS.HTML);
             p.insertionMode = IN_CAPTION_MODE;
         }
@@ -2311,7 +2311,7 @@ namespace ParseFive.Parser
                 {
                     p.openElements.generateImpliedEndTags();
                     p.openElements.popUntilTagNamePopped(T.CAPTION);
-                    p.activeFormattingElements.clearToLastMarker();
+                    p.activeFormattingElements.ClearToLastMarker();
                     p.insertionMode = IN_TABLE_MODE;
                     p._processToken(token);
                 }
@@ -2331,7 +2331,7 @@ namespace ParseFive.Parser
                 {
                     p.openElements.generateImpliedEndTags();
                     p.openElements.popUntilTagNamePopped(T.CAPTION);
-                    p.activeFormattingElements.clearToLastMarker();
+                    p.activeFormattingElements.ClearToLastMarker();
                     p.insertionMode = IN_TABLE_MODE;
 
                     if (tn == T.TABLE)
@@ -2473,7 +2473,7 @@ namespace ParseFive.Parser
                 p.openElements.clearBackToTableRowContext();
                 p._insertElement(token, NS.HTML);
                 p.insertionMode = IN_CELL_MODE;
-                p.activeFormattingElements.insertMarker();
+                p.activeFormattingElements.InsertMarker();
             }
 
             else if (tn == T.CAPTION || tn == T.COL || tn == T.COLGROUP || tn == T.TBODY ||
@@ -2565,7 +2565,7 @@ namespace ParseFive.Parser
                 {
                     p.openElements.generateImpliedEndTags();
                     p.openElements.popUntilTagNamePopped(tn);
-                    p.activeFormattingElements.clearToLastMarker();
+                    p.activeFormattingElements.ClearToLastMarker();
                     p.insertionMode = IN_ROW_MODE;
                 }
             }
@@ -2729,7 +2729,7 @@ namespace ParseFive.Parser
             if (p.openElements.tmplCount > 0)
             {
                 p.openElements.popUntilTagNamePopped(T.TEMPLATE);
-                p.activeFormattingElements.clearToLastMarker();
+                p.activeFormattingElements.ClearToLastMarker();
                 p._popTmplInsertionMode();
                 p._resetInsertionMode();
                 p._processToken(token);
