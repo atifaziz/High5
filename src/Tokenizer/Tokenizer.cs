@@ -204,7 +204,7 @@ namespace ParseFive.Tokenizer
 
         public bool ensureHibernation()
         {
-            if (this.preprocessor.endOfChunkHit)
+            if (this.preprocessor.EndOfChunkHit)
             {
                 for (; this.consumedAfterSnapshot > 0; this.consumedAfterSnapshot--)
                     this.preprocessor.retreat();

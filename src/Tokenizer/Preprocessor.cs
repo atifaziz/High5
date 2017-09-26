@@ -21,9 +21,9 @@ namespace ParseFive.Tokenizer
         bool skipNextNewLine;
 
         bool lastChunkWritten;
-        public bool endOfChunkHit;
         int bufferWaterline;
 
+        public bool EndOfChunkHit { get; private set; }
 
         bool isSurrogatePair(int cp1, int cp2)
         {
@@ -48,7 +48,7 @@ namespace ParseFive.Tokenizer
             this.skipNextNewLine = false;
 
             this.lastChunkWritten = false;
-            this.endOfChunkHit = false;
+            this.EndOfChunkHit = false;
             this.bufferWaterline = DEFAULT_BUFFER_WATERLINE;
         }
 
@@ -91,7 +91,7 @@ namespace ParseFive.Tokenizer
             // NOTE: we've hit the end of chunk, stop processing at this point
             else if (!this.lastChunkWritten)
             {
-                this.endOfChunkHit = true;
+                this.EndOfChunkHit = true;
                 return CP.EOF;
             }
             return cp;
@@ -106,7 +106,7 @@ namespace ParseFive.Tokenizer
                 this.html = chunk;
 
             this.lastCharPos = this.html.Length - 1;
-            this.endOfChunkHit = false;
+            this.EndOfChunkHit = false;
             this.lastChunkWritten = isLastChunk;
         }
 
@@ -117,7 +117,7 @@ namespace ParseFive.Tokenizer
                         this.html.substring(this.pos + 1, this.html.Length);
 
             this.lastCharPos = this.html.Length - 1;
-            this.endOfChunkHit = false;
+            this.EndOfChunkHit = false;
         }
 
         public int advance()
@@ -127,7 +127,7 @@ namespace ParseFive.Tokenizer
             if (this.pos > this.lastCharPos)
             {
                 if (!this.lastChunkWritten)
-                    this.endOfChunkHit = true;
+                    this.EndOfChunkHit = true;
 
                 return CP.EOF;
             }
