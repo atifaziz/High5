@@ -4,7 +4,7 @@ namespace ParseFive.Tokenizer
 
     sealed class Token
     {
-        public TokenType type { get; set; }
+        public TokenType type { get; }
         public string tagName { get; set; }
         public List<Attr> attrs { get; set; }
         public bool selfClosing { get; set; }
