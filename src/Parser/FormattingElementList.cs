@@ -30,7 +30,7 @@ namespace ParseFive.Parser
             base(type, element, token) {}
     }
 
-    class FormattingElementList
+    sealed class FormattingElementList
     {
         //Const
         const int NOAH_ARK_CAPACITY = 3;
