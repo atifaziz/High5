@@ -7,6 +7,7 @@ namespace ParseFive.Tokenizer
     using System.Runtime.CompilerServices;
     using Extensions;
     using static NamedEntityData;
+    using static NamedEntityTreeFlags;
     using String = Compatibility.String;
     using Attrs = Extensions.List<Attr>;
     using TempBuff = Extensions.List<int>;
@@ -22,6 +23,14 @@ namespace ParseFive.Tokenizer
         public _Attribute(string state) => State = state;
     }
 
+    static class NamedEntityTreeFlags
+    {
+        public const int HAS_DATA_FLAG = 1 << 0;
+        public const int DATA_DUPLET_FLAG = 1 << 1;
+        public const int HAS_BRANCHES_FLAG = 1 << 2;
+        public const int MAX_BRANCH_MARKER_VALUE = HAS_DATA_FLAG | DATA_DUPLET_FLAG | HAS_BRANCHES_FLAG;
+    }
+
     sealed class Tokenizer
     {
         // Replacement code points for numeric entities
@@ -34,13 +43,6 @@ namespace ParseFive.Tokenizer
             { 0x93, 0x201C }, { 0x94, 0x201D }, { 0x95, 0x2022 }, { 0x96, 0x2013 }, { 0x97, 0x2014 }, { 0x98, 0x02DC }, { 0x99, 0x2122 },
             { 0x9A, 0x0161 }, { 0x9B, 0x203A }, { 0x9C, 0x0153 }, { 0x9D, 0x009D }, { 0x9E, 0x017E }, { 0x9F, 0x0178 }
         };
-
-        // Named entity tree flags
-
-        const int HAS_DATA_FLAG = 1 << 0;
-        const int DATA_DUPLET_FLAG = 1 << 1;
-        const int HAS_BRANCHES_FLAG = 1 << 2;
-        const int MAX_BRANCH_MARKER_VALUE = HAS_DATA_FLAG | DATA_DUPLET_FLAG | HAS_BRANCHES_FLAG;
 
         // States
 
