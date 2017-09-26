@@ -7,7 +7,6 @@ using MODE = ParseFive.Tokenizer.Tokenizer.MODE;
 using static ParseFive.Tokenizer.Tokenizer.MODE;
 using ParseFive.Tokenizer;
 using ParseFive.Extensions;
-using static ParseFive.Parser.Index;
 using static ParseFive.Common.ForeignContent;
 using static ParseFive.Common.Doctype;
 using Unicode = ParseFive.Common.Unicode;
@@ -16,11 +15,349 @@ using Unicode = ParseFive.Common.Unicode;
 
 namespace ParseFive.Parser
 {
+    using System.Collections.Generic;
     using TreeAdapters;
     using Tokenizer = Tokenizer.Tokenizer;
 
     public class Parser
     {
+        /*
+        public class Options {
+            public readonly bool locationInfo = false;
+            readonly TreeAdapter treeAdapter = defaultTreeAdapter;
+        }
+        */
+
+        //Misc constants
+        const string HIDDEN_INPUT_TYPE = "hidden";
+
+        //Adoption agency loops iteration count
+        const int AA_OUTER_LOOP_ITER = 8;
+        const int AA_INNER_LOOP_ITER = 3;
+
+        //Insertion modes
+        const string INITIAL_MODE = "INITIAL_MODE";
+        const string BEFORE_HTML_MODE = "BEFORE_HTML_MODE";
+        const string BEFORE_HEAD_MODE = "BEFORE_HEAD_MODE";
+        const string IN_HEAD_MODE = "IN_HEAD_MODE";
+        const string AFTER_HEAD_MODE = "AFTER_HEAD_MODE";
+        const string IN_BODY_MODE = "IN_BODY_MODE";
+        const string TEXT_MODE = "TEXT_MODE";
+        const string IN_TABLE_MODE = "IN_TABLE_MODE";
+        const string IN_TABLE_TEXT_MODE = "IN_TABLE_TEXT_MODE";
+        const string IN_CAPTION_MODE = "IN_CAPTION_MODE";
+        const string IN_COLUMN_GROUP_MODE = "IN_COLUMN_GROUP_MODE";
+        const string IN_TABLE_BODY_MODE = "IN_TABLE_BODY_MODE";
+        const string IN_ROW_MODE = "IN_ROW_MODE";
+        const string IN_CELL_MODE = "IN_CELL_MODE";
+        const string IN_SELECT_MODE = "IN_SELECT_MODE";
+        const string IN_SELECT_IN_TABLE_MODE = "IN_SELECT_IN_TABLE_MODE";
+        const string IN_TEMPLATE_MODE = "IN_TEMPLATE_MODE";
+        const string AFTER_BODY_MODE = "AFTER_BODY_MODE";
+        const string IN_FRAMESET_MODE = "IN_FRAMESET_MODE";
+        const string AFTER_FRAMESET_MODE = "AFTER_FRAMESET_MODE";
+        const string AFTER_AFTER_BODY_MODE = "AFTER_AFTER_BODY_MODE";
+        const string AFTER_AFTER_FRAMESET_MODE = "AFTER_AFTER_FRAMESET_MODE";
+
+        //Insertion mode reset map
+        static readonly IDictionary<string, string> INSERTION_MODE_RESET_MAP = new Dictionary<string, string>
+        {
+            [T.TR] =  IN_ROW_MODE,
+            [T.TBODY] = IN_TABLE_BODY_MODE,
+            [T.THEAD] = IN_TABLE_BODY_MODE,
+            [T.TFOOT] =  IN_TABLE_BODY_MODE,
+            [T.CAPTION] =  IN_CAPTION_MODE,
+            [T.COLGROUP] =  IN_COLUMN_GROUP_MODE,
+            [T.TABLE] =  IN_TABLE_MODE,
+            [T.BODY] =  IN_BODY_MODE,
+            [T.FRAMESET] =  IN_FRAMESET_MODE,
+        };
+
+
+
+        //Template insertion mode switch map
+        static readonly IDictionary<string, string> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, string>
+        {
+            [T.CAPTION] = IN_TABLE_MODE,
+            [T.COLGROUP] = IN_TABLE_MODE,
+            [T.TBODY] = IN_TABLE_MODE,
+            [T.TFOOT] = IN_TABLE_MODE,
+            [T.THEAD] = IN_TABLE_MODE,
+            [T.COL] = IN_COLUMN_GROUP_MODE,
+            [T.TR] = IN_TABLE_BODY_MODE,
+            [T.TD] = IN_ROW_MODE,
+            [T.TH] = IN_ROW_MODE,
+        };
+
+        //Token handlers map for insertion modes
+        static readonly IDictionary<string, IDictionary<string, Action<Parser, Token>>> _ =
+            new Dictionary<string, IDictionary<string, Action<Parser, Token>>>
+            {
+                [INITIAL_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenInInitialMode,
+                    [NULL_CHARACTER_TOKEN] = tokenInInitialMode,
+                    [WHITESPACE_CHARACTER_TOKEN] = ignoreToken,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = doctypeInInitialMode,
+                    [START_TAG_TOKEN] = tokenInInitialMode,
+                    [END_TAG_TOKEN] = tokenInInitialMode,
+                    [EOF_TOKEN] = tokenInInitialMode,
+                },
+
+                [BEFORE_HTML_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenBeforeHtml,
+                    [NULL_CHARACTER_TOKEN] = tokenBeforeHtml,
+                    [WHITESPACE_CHARACTER_TOKEN] = ignoreToken,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagBeforeHtml,
+                    [END_TAG_TOKEN] = endTagBeforeHtml,
+                    [EOF_TOKEN] = tokenBeforeHtml,
+                },
+
+                [BEFORE_HEAD_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenBeforeHead,
+                    [NULL_CHARACTER_TOKEN] = tokenBeforeHead,
+                    [WHITESPACE_CHARACTER_TOKEN] = ignoreToken,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagBeforeHead,
+                    [END_TAG_TOKEN] = endTagBeforeHead,
+                    [EOF_TOKEN] = tokenBeforeHead,
+                },
+
+                [IN_HEAD_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenInHead,
+                    [NULL_CHARACTER_TOKEN] = tokenInHead,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInHead,
+                    [END_TAG_TOKEN] = endTagInHead,
+                    [EOF_TOKEN] = tokenInHead,
+                },
+
+                [AFTER_HEAD_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenAfterHead,
+                    [NULL_CHARACTER_TOKEN] = tokenAfterHead,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagAfterHead,
+                    [END_TAG_TOKEN] = endTagAfterHead,
+                    [EOF_TOKEN] = tokenAfterHead,
+                },
+
+                [IN_BODY_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInBody,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInBody,
+                    [END_TAG_TOKEN] = endTagInBody,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [TEXT_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = insertCharacters,
+                    [NULL_CHARACTER_TOKEN] = insertCharacters,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = ignoreToken,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = ignoreToken,
+                    [END_TAG_TOKEN] = endTagInText,
+                    [EOF_TOKEN] = eofInText,
+                },
+
+                [IN_TABLE_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInTable,
+                    [NULL_CHARACTER_TOKEN] = characterInTable,
+                    [WHITESPACE_CHARACTER_TOKEN] = characterInTable,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInTable,
+                    [END_TAG_TOKEN] = endTagInTable,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_TABLE_TEXT_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInTableText,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInTableText,
+                    [COMMENT_TOKEN] = tokenInTableText,
+                    [DOCTYPE_TOKEN] = tokenInTableText,
+                    [START_TAG_TOKEN] = tokenInTableText,
+                    [END_TAG_TOKEN] = tokenInTableText,
+                    [EOF_TOKEN] = tokenInTableText,
+                },
+
+                [IN_CAPTION_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInBody,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInCaption,
+                    [END_TAG_TOKEN] = endTagInCaption,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_COLUMN_GROUP_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenInColumnGroup,
+                    [NULL_CHARACTER_TOKEN] = tokenInColumnGroup,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInColumnGroup,
+                    [END_TAG_TOKEN] = endTagInColumnGroup,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_TABLE_BODY_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInTable,
+                    [NULL_CHARACTER_TOKEN] = characterInTable,
+                    [WHITESPACE_CHARACTER_TOKEN] = characterInTable,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInTableBody,
+                    [END_TAG_TOKEN] = endTagInTableBody,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_ROW_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInTable,
+                    [NULL_CHARACTER_TOKEN] = characterInTable,
+                    [WHITESPACE_CHARACTER_TOKEN] = characterInTable,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInRow,
+                    [END_TAG_TOKEN] = endTagInRow,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_CELL_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInBody,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInCell,
+                    [END_TAG_TOKEN] = endTagInCell,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_SELECT_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = insertCharacters,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInSelect,
+                    [END_TAG_TOKEN] = endTagInSelect,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_SELECT_IN_TABLE_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = insertCharacters,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInSelectInTable,
+                    [END_TAG_TOKEN] = endTagInSelectInTable,
+                    [EOF_TOKEN] = eofInBody,
+                },
+
+                [IN_TEMPLATE_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = characterInBody,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInTemplate,
+                    [END_TAG_TOKEN] = endTagInTemplate,
+                    [EOF_TOKEN] = eofInTemplate,
+                },
+
+                [AFTER_BODY_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenAfterBody,
+                    [NULL_CHARACTER_TOKEN] = tokenAfterBody,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendCommentToRootHtmlElement,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagAfterBody,
+                    [END_TAG_TOKEN] = endTagAfterBody,
+                    [EOF_TOKEN] = stopParsing,
+                },
+
+                [IN_FRAMESET_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = ignoreToken,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagInFrameset,
+                    [END_TAG_TOKEN] = endTagInFrameset,
+                    [EOF_TOKEN] = stopParsing,
+                },
+
+                [AFTER_FRAMESET_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = ignoreToken,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = insertCharacters,
+                    [COMMENT_TOKEN] = appendComment,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagAfterFrameset,
+                    [END_TAG_TOKEN] = endTagAfterFrameset,
+                    [EOF_TOKEN] = stopParsing,
+                },
+
+                [AFTER_AFTER_BODY_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = tokenAfterAfterBody,
+                    [NULL_CHARACTER_TOKEN] = tokenAfterAfterBody,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendCommentToDocument,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagAfterAfterBody,
+                    [END_TAG_TOKEN] = tokenAfterAfterBody,
+                    [EOF_TOKEN] = stopParsing,
+                },
+
+                [AFTER_AFTER_FRAMESET_MODE] = new Dictionary<string, Action<Parser, Token>>
+                {
+                    [CHARACTER_TOKEN] = ignoreToken,
+                    [NULL_CHARACTER_TOKEN] = ignoreToken,
+                    [WHITESPACE_CHARACTER_TOKEN] = whitespaceCharacterInBody,
+                    [COMMENT_TOKEN] = appendCommentToDocument,
+                    [DOCTYPE_TOKEN] = ignoreToken,
+                    [START_TAG_TOKEN] = startTagAfterAfterFrameset,
+                    [END_TAG_TOKEN] = ignoreToken,
+                    [EOF_TOKEN] = stopParsing,
+                },
+            };
+
         readonly TreeAdapter treeAdapter;
         Element pendingScript;
         string originalInsertionMode;
@@ -28,20 +365,20 @@ namespace ParseFive.Parser
         Element formElement;
         OpenElementStack openElements;
         FormattingElementList activeFormattingElements;
-        List<string> tmplInsertionModeStack;
+        Extensions.List<string> tmplInsertionModeStack;
         int tmplInsertionModeStackTop;
         string currentTmplInsertionMode;
-        List<Token> pendingCharacterTokens;
+        Extensions.List<Token> pendingCharacterTokens;
         bool hasNonWhitespacePendingCharacterToken;
         bool framesetOk;
         bool skipNextNewLine;
         bool fosterParentingEnabled;
 
         Tokenizer tokenizer;
-        public bool stopped { get; private set; }
-        public string insertionMode { get; private set; }
-        Node document { get; set; }
-        public Node fragmentContext { get; private set; }
+        bool stopped;
+        string insertionMode;
+        Node document;
+        Node fragmentContext;
 
         internal class Location
         {
@@ -84,12 +421,12 @@ namespace ParseFive.Parser
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
             if (!fragmentContext.IsTruthy())
-                fragmentContext = this.treeAdapter.createElement(T.TEMPLATE, NS.HTML, new List<Attr>());
+                fragmentContext = this.treeAdapter.createElement(T.TEMPLATE, NS.HTML, new Extensions.List<Attr>());
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
             //This is important for jsdom there 'document' can't be recreated, therefore
             //fragment parsing causes messing of the main `document`.
-            var documentMock = this.treeAdapter.createElement("documentmock", NS.HTML, new List<Attr>());
+            var documentMock = this.treeAdapter.createElement("documentmock", NS.HTML, new Extensions.List<Attr>());
 
             this._bootstrap(documentMock, fragmentContext);
 
@@ -130,11 +467,11 @@ namespace ParseFive.Parser
             this.openElements = new OpenElementStack(this.document, this.treeAdapter);
             this.activeFormattingElements = new FormattingElementList(this.treeAdapter);
 
-            this.tmplInsertionModeStack = new List<string>();
+            this.tmplInsertionModeStack = new Extensions.List<string>();
             this.tmplInsertionModeStackTop = -1;
             this.currentTmplInsertionMode = null;
 
-            this.pendingCharacterTokens = new List<Token>();
+            this.pendingCharacterTokens = new Extensions.List<Token>();
             this.hasNonWhitespacePendingCharacterToken = false;
 
             this.framesetOk = true;
@@ -298,7 +635,7 @@ namespace ParseFive.Parser
 
         void _insertFakeElement(string tagName)
         {
-            var element = this.treeAdapter.createElement(tagName, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.createElement(tagName, NS.HTML, new Extensions.List<Attr>());
 
             this._attachElementToTree(element);
             this.openElements.push(element);
@@ -321,7 +658,7 @@ namespace ParseFive.Parser
 
         void _insertFakeRootElement()
         {
-            var element = this.treeAdapter.createElement(T.HTML, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.createElement(T.HTML, NS.HTML, new Extensions.List<Attr>());
 
             this.treeAdapter.appendChild(this.openElements.current, element);
             this.openElements.push(element);
@@ -2065,7 +2402,7 @@ namespace ParseFive.Parser
 
             if (curTn == T.TABLE || curTn == T.TBODY || curTn == T.TFOOT || curTn == T.THEAD || curTn == T.TR)
             {
-                p.pendingCharacterTokens = new List<Token>();
+                p.pendingCharacterTokens = new Extensions.List<Token>();
                 p.hasNonWhitespacePendingCharacterToken = false;
                 p.originalInsertionMode = p.insertionMode;
                 p.insertionMode = IN_TABLE_TEXT_MODE;
