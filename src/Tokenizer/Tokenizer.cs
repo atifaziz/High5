@@ -552,7 +552,6 @@ namespace ParseFive.Tokenizer
             if (this.Lookahead() == CP.SEMICOLON)
                 this.Consume();
 
-            // int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
             var referencedCpLong = long.Parse(digits, isHex ? System.Globalization.NumberStyles.AllowHexSpecifier : System.Globalization.NumberStyles.None);
             if (IsReservedCodePoint(referencedCpLong))
                 return CP.REPLACEMENT_CHARACTER;
