@@ -15,8 +15,6 @@ namespace ParseFive.Extensions
             return str.ToLower();
         }
 
-        public static int length<T>(this T[] array) => array.Length;
-
         public static void push<T>(this List<T> list, T elem)
         {
             list.Add(elem);
@@ -59,10 +57,6 @@ namespace ParseFive.Extensions
         //public static int length(this string s) => s.Length;
 
         public static char toChar(int n) => (char)n;
-
-        public static int length<T>(this Queue<T> q) => q.Count;
-
-        public static int length<T>(this List<T> l) => l.Count;
 
         public static int charCodeAt(this string str, int index) => (int)str[index];
 
