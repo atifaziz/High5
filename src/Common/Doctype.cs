@@ -118,7 +118,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static string getDocumentMode(string name, string publicId, string systemId)
+        public static string GetDocumentMode(string name, string publicId, string systemId)
         {
             if (name != ValidDoctypeName)
                 return DOCUMENT_MODE.QUIRKS;
@@ -157,7 +157,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static string serializeContent(string name, string publicId, string systemId)
+        public static string SerializeContent(string name, string publicId, string systemId)
         {
             string str = "!DOCTYPE";
 

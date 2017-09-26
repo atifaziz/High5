@@ -889,7 +889,7 @@ namespace ParseFive.Parser
 
             var mode = token.forceQuirks ?
                 HTML.DOCUMENT_MODE.QUIRKS :
-                getDocumentMode(token.name, token.publicId, token.systemId);
+                GetDocumentMode(token.name, token.publicId, token.systemId);
 
             p.treeAdapter.setDocumentMode((Document) p.document, mode);
 
