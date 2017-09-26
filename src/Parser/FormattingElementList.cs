@@ -8,7 +8,7 @@ namespace ParseFive.Parser
     {
         public string type { get; }
         public Element element { get; set; }
-        public Token token { get; set; }
+        public Token token { get; }
 
         protected IEntry(string type, Element element = null, Token token = null)
         {
