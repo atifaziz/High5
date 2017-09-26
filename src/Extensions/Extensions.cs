@@ -43,11 +43,6 @@ namespace ParseFive.Extensions
             return str.ToLower();
         }
 
-        public static T[] concat<T>(this T[] first, T[] second)
-        {
-            return first.Concat(second).ToArray();
-        }
-
         public static int length<T>(this T[] array) => array.Length;
 
         public static int indexOf<T> (this T[] first, T e)

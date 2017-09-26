@@ -1,5 +1,6 @@
 namespace ParseFive.Common
 {
+    using System;
     using Extensions;
     using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
 
@@ -86,11 +87,9 @@ namespace ParseFive.Common
                 "-//webtechs//dtd mozilla html//en"
             };
 
-            QuirksModeNoSystemIdPublicIdPrefixes = QuirksModePublicIdPrefixes.concat(new[]
-            {
+            QuirksModeNoSystemIdPublicIdPrefixes = Append(QuirksModePublicIdPrefixes,
                 "-//w3c//dtd html 4.01 frameset//",
-                "-//w3c//dtd html 4.01 transitional//"
-            });
+                "-//w3c//dtd html 4.01 transitional//");
 
             QuirksModePublicIds = new[]
             {
@@ -105,11 +104,17 @@ namespace ParseFive.Common
                 "-//W3C//DTD XHTML 1.0 Transitional//"
             };
 
-            LimitedQuirksWithSystemIdPublicIdPrefixes = LimitedQuirksPublicIdPrefixes.concat(new[]
-            {
+            LimitedQuirksWithSystemIdPublicIdPrefixes = Append(LimitedQuirksPublicIdPrefixes,
                 "-//W3C//DTD HTML 4.01 Frameset//",
-                "-//W3C//DTD HTML 4.01 Transitional//"
-            });
+                "-//W3C//DTD HTML 4.01 Transitional//");
+
+            T[] Append<T>(T[] array, params T[] values)
+            {
+                var result = new T[array.Length + values.Length];
+                Array.Copy(array, result, array.Length);
+                Array.Copy(values, 0, result, array.Length, values.Length);
+                return result;
+            }
         }
 
         static string enquoteDoctypeId(string id)
