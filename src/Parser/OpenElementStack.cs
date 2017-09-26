@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using ParseFive.Extensions;
-using T = HTML.TAG_NAMES;
-using NS = HTML.NAMESPACES;
-
 namespace ParseFive.Parser
 {
+    using System;
+    using System.Collections.Generic;
+    using Extensions;
+    using T = Common.HTML.TAG_NAMES;
+    using NS = Common.HTML.NAMESPACES;
+
     sealed class OpenElementStack
     {
         sealed class TreeAdapter

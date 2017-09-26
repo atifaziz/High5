@@ -1,10 +1,8 @@
-using System.Collections.Generic;
-using ParseFive.Extensions;
-using CP = ParseFive.Common.Unicode.CodePoints;
-
 namespace ParseFive.Tokenizer
 {
-    using Compatibility;
+    using System.Collections.Generic;
+    using Extensions;
+    using CP = Common.Unicode.CodePoints;
 
     sealed class Preprocessor
     {

@@ -1,8 +1,6 @@
-using System.Collections.Generic; // TODO move under namespace delcaration
-
 namespace ParseFive.Common
 {
-    using Compatibility;
+    using System.Collections.Generic;
     using Extensions;
     using Tokenizer;
     using Tokenizer = Tokenizer.Tokenizer;

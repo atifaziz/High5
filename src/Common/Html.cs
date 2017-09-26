@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using NS = HTML.NAMESPACES;
-using T = HTML.TAG_NAMES;
+namespace ParseFive.Common
+{
+    using System.Collections.Generic;
+    using NS = HTML.NAMESPACES;
+    using T = HTML.TAG_NAMES;
 
-//namespace ParseFive.Common
-//{
-static class HTML
+    static class HTML
     {
         public static class NAMESPACES
         {
@@ -286,4 +286,4 @@ static class HTML
             }
         };
     }
-//}
+}
