@@ -785,7 +785,7 @@ namespace ParseFive.Parser
         //Active formatting elements reconstruction
         void ReconstructActiveFormattingElements()
         {
-            int listLength = this.activeFormattingElements.Length;
+            var listLength = this.activeFormattingElements.Length;
 
             if (listLength.IsTruthy())
             {
@@ -831,8 +831,8 @@ namespace ParseFive.Parser
         //Insertion modes
         void ResetInsertionMode()
         {
-            bool last = false;
-            for (int i = this.openElements.StackTop; i >= 0; i--)
+            var last = false;
+            for (var i = this.openElements.StackTop; i >= 0; i--)
             {
                 var element = this.openElements[i];
 
@@ -1127,7 +1127,7 @@ namespace ParseFive.Parser
             {
                 Node commonAncestorNode = commonAncestor;
                 var tn = p.treeAdapter.GetTagName(commonAncestor);
-                string ns = p.treeAdapter.GetNamespaceUri(commonAncestor);
+                var ns = p.treeAdapter.GetNamespaceUri(commonAncestor);
 
                 if (tn == T.TEMPLATE && ns == NS.HTML)
                     commonAncestorNode = p.treeAdapter.GetTemplateContent(commonAncestor);
@@ -1139,9 +1139,9 @@ namespace ParseFive.Parser
         //Steps 15-19 of the algorithm
         static void AaReplaceFormattingElement(Parser p, Element furthestBlock, Entry formattingElementEntry)
         {
-            string ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
-            Token token = formattingElementEntry.Token;
-            Element newElement = p.treeAdapter.CreateElement(token.tagName, ns, token.attrs);
+            var ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
+            var token = formattingElementEntry.Token;
+            var newElement = p.treeAdapter.CreateElement(token.tagName, ns, token.attrs);
 
             p.AdoptNodes(furthestBlock, newElement);
             p.treeAdapter.AppendChild(furthestBlock, newElement);
@@ -1527,7 +1527,7 @@ namespace ParseFive.Parser
             for (var i = p.openElements.StackTop; i >= 0; i--)
             {
                 var element = p.openElements[i];
-                string elementTn = p.treeAdapter.GetTagName(element);
+                var elementTn = p.treeAdapter.GetTagName(element);
                 string closeTn = null;
 
                 if (tn == T.LI && elementTn == T.LI)
@@ -3207,7 +3207,7 @@ namespace ParseFive.Parser
             else
             {
                 var current = (Element) p.GetAdjustedCurrentElement();
-                string currentNs = p.treeAdapter.GetNamespaceUri(current);
+                var currentNs = p.treeAdapter.GetNamespaceUri(current);
 
                 if (currentNs == NS.MATHML)
                     AdjustTokenMathMlAttrs(token);

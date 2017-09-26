@@ -351,10 +351,10 @@ namespace ParseFive.Tokenizer
         bool ConsumeSubsequentIfMatch(int[] pattern, int startCp, bool caseSensitive)
         {
             var consumedCount = 0;
-            bool isMatch = true;
+            var isMatch = true;
             var patternLength = pattern.Length;
-            int patternPos = 0;
-            int cp = startCp;
+            var patternPos = 0;
+            var cp = startCp;
             int? patternCp = null;// void 0;
 
             for (; patternPos < patternLength; patternPos++)
@@ -591,8 +591,8 @@ namespace ParseFive.Tokenizer
         int[] ConsumeNamedEntity(bool inAttr)
         {
             int[] referencedCodePoints = null;
-            int referenceSize = 0;
-            int cp = 0;
+            var referenceSize = 0;
+            var cp = 0;
             var consumedCount = 0;
             var semicolonTerminated = false;
 
@@ -676,8 +676,8 @@ namespace ParseFive.Tokenizer
             if (startCp == CP.NUMBER_SIGN)
             {
                 // NOTE: we have a numeric entity candidate, now we should determine if it's hex or decimal
-                bool isHex = false;
-                int nextCp = this.Lookahead();
+                var isHex = false;
+                var nextCp = this.Lookahead();
 
                 if (nextCp == CP.LATIN_SMALL_X || nextCp == CP.LATIN_CAPITAL_X)
                 {
