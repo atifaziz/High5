@@ -36,7 +36,7 @@ namespace ParseFive.Parser
 
         const int NoahArkCapacity = 3;
 
-        readonly TreeAdapter treeAdapter;
+        readonly ITreeAdapter treeAdapter;
         int length;
         readonly List<Entry> entries;
 
@@ -49,7 +49,7 @@ namespace ParseFive.Parser
         public const string MARKER_ENTRY = "MARKER_ENTRY";
         public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
 
-        public FormattingElementList(TreeAdapter treeAdapter)
+        public FormattingElementList(ITreeAdapter treeAdapter)
         {
             this.treeAdapter = treeAdapter;
             length = 0;

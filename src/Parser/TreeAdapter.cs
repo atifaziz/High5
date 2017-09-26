@@ -2,7 +2,7 @@ namespace ParseFive
 {
     using System.Collections.Generic;
 
-    public interface TreeAdapter
+    public interface ITreeAdapter
     {
         // Node construction
 
