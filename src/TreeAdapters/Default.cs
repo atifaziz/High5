@@ -81,9 +81,9 @@ namespace ParseFive.TreeAdapters
 
         public void insertText(Node parentNode, string text)
         {
-            if (parentNode.ChildNodes.length.IsTruthy())
+            if (parentNode.ChildNodes.Count.IsTruthy())
             {
-                if (parentNode.ChildNodes[parentNode.ChildNodes.length - 1] is Text tn)
+                if (parentNode.ChildNodes[parentNode.ChildNodes.Count - 1] is Text tn)
                 {
                     tn.Value += text;
                     return;

@@ -66,7 +66,7 @@ namespace ParseFive.Parser
 
             if (length >= NoahArkCapacity)
             {
-                var neAttrsLength = this.treeAdapter.getAttrList(newElement).length;
+                var neAttrsLength = this.treeAdapter.getAttrList(newElement).Count;
                 var neTagName = this.treeAdapter.getTagName(newElement);
                 var neNamespaceUri = this.treeAdapter.getNamespaceURI(newElement);
 
@@ -81,7 +81,7 @@ namespace ParseFive.Parser
                     var elementAttrs = this.treeAdapter.getAttrList(element);
                     var isCandidate = this.treeAdapter.getTagName(element) == neTagName &&
                                       this.treeAdapter.getNamespaceURI(element) == neNamespaceUri &&
-                                      elementAttrs.length == neAttrsLength;
+                                      elementAttrs.Count == neAttrsLength;
 
                     if (isCandidate)
                         candidates.push((idx: i, attrs: elementAttrs));
@@ -94,12 +94,12 @@ namespace ParseFive.Parser
         void EnsureNoahArkCondition(Element newElement)
         {
             var candidates = this.GetNoahArkConditionCandidates(newElement);
-            var cLength = candidates.length;
+            var cLength = candidates.Count;
 
             if (cLength.IsTruthy())
             {
                 var neAttrs = this.treeAdapter.getAttrList(newElement);
-                var neAttrsLength = neAttrs.length;
+                var neAttrsLength = neAttrs.Count;
                 var neAttrsMap = new NeAttrsMap();
 
                 // NOTE: build attrs map for the new element so we can perform fast lookups
@@ -124,7 +124,7 @@ namespace ParseFive.Parser
                             cLength--;
                         }
 
-                        if (candidates.length < NoahArkCapacity)
+                        if (candidates.Count < NoahArkCapacity)
                             return;
                     }
                 }

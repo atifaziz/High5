@@ -225,7 +225,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenMathMlAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.length; i++)
+            for (var i = 0; i < token.attrs.Count; i++)
             {
                 if (token.attrs[i].name == DefinitionUrlAttr)
                 {
@@ -237,7 +237,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenSvgAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.length; i++)
+            for (var i = 0; i < token.attrs.Count; i++)
             {
                 if (SvgAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrName))
                     token.attrs[i].name = adjustedAttrName;
@@ -246,7 +246,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenXmlAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.length; i++)
+            for (var i = 0; i < token.attrs.Count; i++)
             {
                 if (XmlAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrEntry))
                 {
@@ -274,7 +274,7 @@ namespace ParseFive.Common
         {
             if (ns == NS.MATHML && tn == T.ANNOTATION_XML)
             {
-                for (var i = 0; i < attrs.length; i++)
+                for (var i = 0; i < attrs.Count; i++)
                 {
                     if (attrs[i].name == ATTRS.ENCODING)
                     {
