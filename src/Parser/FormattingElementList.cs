@@ -6,27 +6,28 @@ namespace ParseFive.Parser
 
     abstract class IEntry
     {
-        public string type { get; set; }
+        public string type { get; }
         public Element element { get; set; }
         public Token token { get; set; }
-    }
 
-    class MarkerEntry : IEntry
-    {
-        public MarkerEntry(string type)
-        {
-            this.type = type;
-        }
-    }
-
-    class ElementEntry : IEntry
-    {
-        public ElementEntry(string type, Element element, Token token)
+        protected IEntry(string type, Element element = null, Token token = null)
         {
             this.type = type;
             this.element = element;
             this.token = token;
         }
+    }
+
+    class MarkerEntry : IEntry
+    {
+        public MarkerEntry(string type) :
+            base(type) {}
+    }
+
+    class ElementEntry : IEntry
+    {
+        public ElementEntry(string type, Element element, Token token) :
+            base(type, element, token) {}
     }
 
     class FormattingElementList
