@@ -36,10 +36,14 @@ namespace ParseFive.Parser
 
         const int NOAH_ARK_CAPACITY = 3;
 
-        public int length;
-        public List<IEntry> entries;
-        public TreeAdapter treeAdapter;
-        public object bookmark;
+        readonly TreeAdapter treeAdapter;
+
+        int length;
+        readonly List<IEntry> entries;
+        public object bookmark { get; set; }
+
+        public int Length => this.length;
+        public IEntry this[int index] => this.entries[index];
 
         // Entry types
 

@@ -454,7 +454,7 @@ namespace ParseFive.Parser
         //Active formatting elements reconstruction
         void _reconstructActiveFormattingElements()
         {
-            int listLength = this.activeFormattingElements.length;
+            int listLength = this.activeFormattingElements.Length;
 
             if (listLength.IsTruthy())
             {
@@ -464,7 +464,7 @@ namespace ParseFive.Parser
                 do
                 {
                     unopenIdx--;
-                    entry = this.activeFormattingElements.entries[unopenIdx];
+                    entry = this.activeFormattingElements[unopenIdx];
 
                     if (entry.type == FormattingElementList.MARKER_ENTRY || this.openElements.contains(entry.element))
                     {
@@ -475,7 +475,7 @@ namespace ParseFive.Parser
 
                 for (var i = unopenIdx; i < listLength; i++)
                 {
-                    entry = this.activeFormattingElements.entries[i];
+                    entry = this.activeFormattingElements[i];
                     this._insertElement(entry.token, this.treeAdapter.getNamespaceURI(entry.element));
                     entry.element = (Element) this.openElements.current;
                 }
