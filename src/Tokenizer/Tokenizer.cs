@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
-using Attrs = ParseFive.Extensions.List<Attr>;
-using TempBuff = ParseFive.Extensions.List<int>;
-using TokenQueue = ParseFive.Extensions.List<ParseFive.Tokenizer.Token>;
-using CP = ParseFive.Common.Unicode.CodePoints;
-using CPS = ParseFive.Common.Unicode.CodePointSequences;
-using ParseFive.Extensions;
-using static ParseFive.Tokenizer.NamedEntityData;
-
 namespace ParseFive.Tokenizer
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Extensions;
+    using static NamedEntityData;
     using String = Compatibility.String;
+    using Attrs = Extensions.List<Attr>;
+    using TempBuff = Extensions.List<int>;
+    using TokenQueue = Extensions.List<Token>;
+    using CP = Common.Unicode.CodePoints;
+    using CPS = Common.Unicode.CodePointSequences;
 
     [AttributeUsage(AttributeTargets.Method)]
     sealed class _Attribute : Attribute
@@ -22,33 +21,28 @@ namespace ParseFive.Tokenizer
         public _Attribute(string state) => State = state;
     }
 
-
     class Tokenizer
     {
-        //var Preprocessor = require('./preprocessor'),
-        //    UNICODE = require('../common/unicode'),
-        //    neTree = require('./named_entity_data');
+        // Replacement code points for numeric entities
 
-        //Aliases
-        //var ɑ = UNICODE.CODE_POINTS,
-        //ɑɑ = UNICODE.CODE_POINT_SEQUENCES;
-
-        //Replacement code points for numeric entities
-        static IDictionary<int, int> NUMERIC_ENTITY_REPLACEMENTS = new Dictionary<int, int> {
-            {0x00, 0xFFFD}, {0x0D, 0x000D}, {0x80, 0x20AC}, {0x81, 0x0081}, {0x82, 0x201A}, {0x83, 0x0192}, {0x84, 0x201E},
-            {0x85, 0x2026}, {0x86, 0x2020}, {0x87, 0x2021}, {0x88, 0x02C6}, {0x89, 0x2030}, {0x8A, 0x0160}, {0x8B, 0x2039},
-            {0x8C, 0x0152}, {0x8D, 0x008D}, {0x8E, 0x017D}, {0x8F, 0x008F}, {0x90, 0x0090}, {0x91, 0x2018}, {0x92, 0x2019},
-            {0x93, 0x201C}, {0x94, 0x201D}, {0x95, 0x2022}, {0x96, 0x2013}, {0x97, 0x2014}, {0x98, 0x02DC}, {0x99, 0x2122},
-            {0x9A, 0x0161}, {0x9B, 0x203A}, {0x9C, 0x0153}, {0x9D, 0x009D}, {0x9E, 0x017E}, {0x9F, 0x0178}
+        static IDictionary<int, int> NUMERIC_ENTITY_REPLACEMENTS = new Dictionary<int, int>
+        {
+            { 0x00, 0xFFFD }, { 0x0D, 0x000D }, { 0x80, 0x20AC }, { 0x81, 0x0081 }, { 0x82, 0x201A }, { 0x83, 0x0192 }, { 0x84, 0x201E },
+            { 0x85, 0x2026 }, { 0x86, 0x2020 }, { 0x87, 0x2021 }, { 0x88, 0x02C6 }, { 0x89, 0x2030 }, { 0x8A, 0x0160 }, { 0x8B, 0x2039 },
+            { 0x8C, 0x0152 }, { 0x8D, 0x008D }, { 0x8E, 0x017D }, { 0x8F, 0x008F }, { 0x90, 0x0090 }, { 0x91, 0x2018 }, { 0x92, 0x2019 },
+            { 0x93, 0x201C }, { 0x94, 0x201D }, { 0x95, 0x2022 }, { 0x96, 0x2013 }, { 0x97, 0x2014 }, { 0x98, 0x02DC }, { 0x99, 0x2122 },
+            { 0x9A, 0x0161 }, { 0x9B, 0x203A }, { 0x9C, 0x0153 }, { 0x9D, 0x009D }, { 0x9E, 0x017E }, { 0x9F, 0x0178 }
         };
 
         // Named entity tree flags
+
         const int HAS_DATA_FLAG = 1 << 0;
         const int DATA_DUPLET_FLAG = 1 << 1;
         const int HAS_BRANCHES_FLAG = 1 << 2;
         const int MAX_BRANCH_MARKER_VALUE = HAS_DATA_FLAG | DATA_DUPLET_FLAG | HAS_BRANCHES_FLAG;
 
-        //States
+        // States
+
         const string DATA_STATE = "DATA_STATE";
         const string CHARACTER_REFERENCE_IN_DATA_STATE = "CHARACTER_REFERENCE_IN_DATA_STATE";
         const string RCDATA_STATE = "RCDATA_STATE";
@@ -115,11 +109,12 @@ namespace ParseFive.Tokenizer
         const string BOGUS_DOCTYPE_STATE = "BOGUS_DOCTYPE_STATE";
         const string CDATA_SECTION_STATE = "CDATA_SECTION_STATE";
 
-        //Utils
+        // Utils
 
-        //OPTIMIZATION: these utility functions should not be moved out of this module. V8 Crankshaft will not inline
-        //this functions if they will be situated in another module due to context switch.
-        //Always perform inlining check before modifying this functions ("node --trace-inlining").
+        // OPTIMIZATION: these utility functions should not be moved out of this module. V8 Crankshaft will not inline
+        // this functions if they will be situated in another module due to context switch.
+        // Always perform inlining check before modifying this functions ("node --trace-inlining").
+
         static bool isWhitespace(int cp)
         {
             return cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
@@ -171,10 +166,11 @@ namespace ParseFive.Tokenizer
             return cp + 0x0020;
         }
 
-        //NOTE: String.fromCharCode() function can handle only characters from BMP subset.
-        //So, we need to workaround this manually.
-        //(see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/fromCharCode#Getting_it_to_work_with_higher_values)
-        static string toChar(int cp) //TODO consider if cp can be typed as uint
+        // NOTE: String.fromCharCode() function can handle only characters from BMP subset.
+        // So, we need to workaround this manually.
+        // (see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/fromCharCode#Getting_it_to_work_with_higher_values)
+
+        static string toChar(int cp) // TODO consider if cp can be typed as uint
         {
             if (cp <= 0xFFFF)
                 return ((char) cp).ToString();
@@ -212,7 +208,8 @@ namespace ParseFive.Tokenizer
             return -1;
         }
 
-        //Token types
+        // Token types
+
         public const string CHARACTER_TOKEN = "CHARACTER_TOKEN";
         public const string NULL_CHARACTER_TOKEN = "NULL_CHARACTER_TOKEN";
         public const string WHITESPACE_CHARACTER_TOKEN = "WHITESPACE_CHARACTER_TOKEN";
@@ -223,12 +220,13 @@ namespace ParseFive.Tokenizer
         public const string EOF_TOKEN = "EOF_TOKEN";
         public const string HIBERNATION_TOKEN = "HIBERNATION_TOKEN";
 
-        //Fields
+        // Fields
+
         Preprocessor preprocessor;
 
         TokenQueue tokenQueue;
         public bool allowCDATA;
-        public string state { get ; set ; }
+        public string state { get; set; }
         string returnState;
         TempBuff tempBuff;
         int additionalAllowedCp;
@@ -239,8 +237,8 @@ namespace ParseFive.Tokenizer
         Token currentToken;
         Attr currentAttr;
 
+        // Tokenizer
 
-        //Tokenizer
         public Tokenizer()
         {
             this.preprocessor = new Preprocessor();
@@ -253,7 +251,7 @@ namespace ParseFive.Tokenizer
             this.returnState = "";
 
             this.tempBuff = new TempBuff();
-            this.additionalAllowedCp = 0; //void 0
+            this.additionalAllowedCp = 0; // void 0
             this.lastStartTagName = "";
 
             this.consumedAfterSnapshot = -1;
@@ -276,7 +274,8 @@ namespace ParseFive.Tokenizer
             where !string.IsNullOrEmpty(e.State)
             select (e.State, (Action<int>) e.Method.CreateDelegate(typeof(Action<int>), this));
 
-        //Tokenizer initial states for different modes
+        // Tokenizer initial states for different modes
+
         public static class MODE
         {
             public static string DATA = DATA_STATE;
@@ -286,7 +285,8 @@ namespace ParseFive.Tokenizer
             public static string PLAINTEXT = PLAINTEXT_STATE;
         }
 
-        //Static
+        // Static
+
         public static string getTokenAttr(Token token, string attrName)
         {
             for (var i = token.attrs.length - 1; i >= 0; i--)
@@ -298,7 +298,8 @@ namespace ParseFive.Tokenizer
             return null;
         }
 
-        //API
+        // API
+
         public Token getNextToken()
         {
             while (!this.tokenQueue.length.IsTruthy() && this.active)
@@ -326,7 +327,8 @@ namespace ParseFive.Tokenizer
             this.preprocessor.InsertHtmlAtCurrentPos(chunk);
         }
 
-        //Hibernation
+        // Hibernation
+
         public void hibernationSnapshot()
         {
             this.consumedAfterSnapshot = 0;
@@ -348,8 +350,8 @@ namespace ParseFive.Tokenizer
             return false;
         }
 
+        // Consumption
 
-        //Consumption
         public int consume()
         {
             this.consumedAfterSnapshot++;
@@ -381,7 +383,7 @@ namespace ParseFive.Tokenizer
             var patternLength = pattern.Length;
             int patternPos = 0;
             int cp = startCp;
-            int? patternCp = null;//void 0;
+            int? patternCp = null;// void 0;
 
             for (; patternPos < patternLength; patternPos++)
             {
@@ -412,7 +414,8 @@ namespace ParseFive.Tokenizer
             return isMatch;
         }
 
-        //Lookahead
+        // Lookahead
+
         int lookahead()
         {
             var cp = this.consume();
@@ -422,7 +425,8 @@ namespace ParseFive.Tokenizer
             return cp;
         }
 
-        //Temp buffer
+        // Temp buffer
+
         bool isTempBufferEqualToScriptString()
         {
             if (this.tempBuff.length != CPS.SCRIPT_STRING.Length)
@@ -437,7 +441,8 @@ namespace ParseFive.Tokenizer
             return true;
         }
 
-        //Token creation
+        // Token creation
+
         void createStartTagToken()
         {
             this.currentToken = new Token(START_TAG_TOKEN, "", false, new Attrs());
@@ -463,8 +468,9 @@ namespace ParseFive.Tokenizer
             this.currentCharacterToken = new Token(type, ch[0]);
         }
 
-        //Tag attributes
-        void createAttr(string attrNameFirstCh) //TODO Check if string or char
+        // Tag attributes
+
+        void createAttr(string attrNameFirstCh) // TODO Check if string or char
         {
             this.currentAttr = new Attr(attrNameFirstCh, "");
         }
@@ -487,19 +493,21 @@ namespace ParseFive.Tokenizer
             this.state = toState;
         }
 
-        //Appropriate end tag token
-        //(see: http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html#appropriate-end-tag-token)
+        // Appropriate end tag token
+        // (see: http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html#appropriate-end-tag-token)
+
         bool isAppropriateEndTagToken()
         {
             return this.lastStartTagName == this.currentToken.tagName;
         }
 
-        //Token emission
+        // Token emission
+
         void emitCurrentToken()
         {
             this.emitCurrentCharacterToken();
 
-            //NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
+            // NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
             if (this.currentToken.type == START_TAG_TOKEN)
                 this.lastStartTagName = this.currentToken.tagName;
 
@@ -522,16 +530,17 @@ namespace ParseFive.Tokenizer
             this.tokenQueue.push(new Token(EOF_TOKEN));
         }
 
-        //Characters emission
+        // Characters emission
 
-        //OPTIMIZATION: specification uses only one type of character tokens (one token per character).
-        //This causes a huge memory overhead and a lot of unnecessary parser loops. parse5 uses 3 groups of characters.
-        //If we have a sequence of characters that belong to the same group, parser can process it
-        //as a single solid character token.
-        //So, there are 3 types of character tokens in parse5:
-        //1)NULL_CHARACTER_TOKEN - \u0000-character sequences (e.g. '\u0000\u0000\u0000')
-        //2)WHITESPACE_CHARACTER_TOKEN - any whitespace/new-line character sequences (e.g. '\n  \r\t   \f')
-        //3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#ɑ%^')
+        // OPTIMIZATION: specification uses only one type of character tokens (one token per character).
+        // This causes a huge memory overhead and a lot of unnecessary parser loops. parse5 uses 3 groups of characters.
+        // If we have a sequence of characters that belong to the same group, parser can process it
+        // as a single solid character token.
+        // So, there are 3 types of character tokens in parse5:
+        // 1)NULL_CHARACTER_TOKEN - \u0000-character sequences (e.g. '\u0000\u0000\u0000')
+        // 2)WHITESPACE_CHARACTER_TOKEN - any whitespace/new-line character sequences (e.g. '\n  \r\t   \f')
+        // 3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#ɑ%^')
+
         void appendCharToCurrentCharacterToken(string type, string ch)
         {
             if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.type != type)
@@ -563,15 +572,17 @@ namespace ParseFive.Tokenizer
                 this.emitCodePoint(codePoints[i]);
         }
 
-        //NOTE: used then we emit character explicitly. This is always a non-whitespace and a non-null character.
-        //So we can avoid additional checks here.
+        // NOTE: used then we emit character explicitly. This is always a non-whitespace and a non-null character.
+        // So we can avoid additional checks here.
+
         void emitChar(char ch) => emitChar(ch.ToString());
         void emitChar(string ch)
         {
             this.appendCharToCurrentCharacterToken(CHARACTER_TOKEN, ch);
         }
 
-        //Character reference tokenization
+        // Character reference tokenization
+
         int consumeNumericEntity(bool isHex)
         {
             var digits = "";
@@ -586,7 +597,7 @@ namespace ParseFive.Tokenizer
             if (this.lookahead() == CP.SEMICOLON)
                 this.consume();
 
-            //int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
+            // int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
             var referencedCpLong = long.Parse(digits, isHex ? System.Globalization.NumberStyles.AllowHexSpecifier : System.Globalization.NumberStyles.None);
             if (isReservedCodePoint(referencedCpLong))
                 return CP.REPLACEMENT_CHARACTER;
@@ -604,6 +615,7 @@ namespace ParseFive.Tokenizer
 
         // NOTE: for the details on this algorithm see
         // https://github.com/inikulin/parse5/tree/master/scripts/generate_named_entity_data/README.md
+
         Array<int> consumeNamedEntity(bool inAttr)
         {
             Array<int> referencedCodePoints = null;
@@ -629,11 +641,9 @@ namespace ParseFive.Tokenizer
                         break;
                     }
 
-
                 }
 
                 cp = this.consume();
-
 
                 consumedCount++;
 
@@ -641,27 +651,26 @@ namespace ParseFive.Tokenizer
                     break;
 
                 if (inNode)
-                    i = (current & HAS_BRANCHES_FLAG) == HAS_BRANCHES_FLAG ? findNamedEntityTreeBranch(i, cp) : -1; 
+                    i = (current & HAS_BRANCHES_FLAG) == HAS_BRANCHES_FLAG ? findNamedEntityTreeBranch(i, cp) : -1;
 
                 else
                     i = cp == current ? ++i : -1;
             }
 
-
             if (referencedCodePoints.IsTruthy())
             {
                 if (!semicolonTerminated)
                 {
-                    //NOTE: unconsume excess (e.g. 'it' in '&notit')
+                    // NOTE: unconsume excess (e.g. 'it' in '&notit')
                     this.unconsumeSeveral(consumedCount - referenceSize);
 
-                    //NOTE: If the character reference is being consumed as part of an attribute and the next character
-                    //is either a U+003D EQUALS SIGN character (=) or an alphanumeric ASCII character, then, for historical
-                    //reasons, all the characters that were matched after the U+0026 AMPERSAND character (&) must be
-                    //unconsumed, and nothing is returned.
-                    //However, if this next character is in fact a U+003D EQUALS SIGN character (=), then this is a
-                    //parse error, because some legacy user agents will misinterpret the markup in those cases.
-                    //(see: http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html#tokenizing-character-references)
+                    // NOTE: If the character reference is being consumed as part of an attribute and the next character
+                    // is either a U+003D EQUALS SIGN character (=) or an alphanumeric ASCII character, then, for historical
+                    // reasons, all the characters that were matched after the U+0026 AMPERSAND character (&) must be
+                    // unconsumed, and nothing is returned.
+                    // However, if this next character is in fact a U+003D EQUALS SIGN character (=), then this is a
+                    // parse error, because some legacy user agents will misinterpret the markup in those cases.
+                    // (see: http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html#tokenizing-character-references)
                     if (inAttr)
                     {
                         var nextCp = this.lookahead();
@@ -687,14 +696,14 @@ namespace ParseFive.Tokenizer
             if (isWhitespace(startCp) || startCp == CP.GREATER_THAN_SIGN ||
                 startCp == CP.AMPERSAND || startCp == this.additionalAllowedCp || startCp == CP.EOF)
             {
-                //NOTE: not a character reference. No characters are consumed, and nothing is returned.
+                // NOTE: not a character reference. No characters are consumed, and nothing is returned.
                 this.unconsume();
                 return null;
             }
 
             if (startCp == CP.NUMBER_SIGN)
             {
-                //NOTE: we have a numeric entity candidate, now we should determine if it's hex or decimal
+                // NOTE: we have a numeric entity candidate, now we should determine if it's hex or decimal
                 bool isHex = false;
                 int nextCp = this.lookahead();
 
@@ -706,12 +715,12 @@ namespace ParseFive.Tokenizer
 
                 nextCp = this.lookahead();
 
-                //NOTE: if we have at least one digit this is a numeric entity for sure, so we consume it
+                // NOTE: if we have at least one digit this is a numeric entity for sure, so we consume it
                 if (nextCp != CP.EOF && isDigit(nextCp, isHex))
                     return new Array<int>(new[] { this.consumeNumericEntity(isHex) });
 
-                //NOTE: otherwise this is a bogus number entity and a parse error. Unconsume the number sign
-                //and the 'x'-character if appropriate.
+                // NOTE: otherwise this is a bogus number entity and a parse error. Unconsume the number sign
+                // and the 'x'-character if appropriate.
                 this.unconsumeSeveral(isHex ? 2 : 1);
                 return null;
             }
@@ -721,10 +730,11 @@ namespace ParseFive.Tokenizer
             return this.consumeNamedEntity(inAttr);
         }
 
-        //12.2.4.1 Data state
-        //------------------------------------------------------------------
+        // 12.2.4.1 Data state
+        // ------------------------------------------------------------------
         [_(DATA_STATE)]
-        void dataState(int cp) {
+        void dataState(int cp)
+        {
             this.preprocessor.DropParsedChunk();
 
             if (cp == CP.AMPERSAND)
@@ -743,12 +753,12 @@ namespace ParseFive.Tokenizer
                 this.emitCodePoint(cp);
         }
 
-        //12.2.4.2 Character reference in data state
-        //------------------------------------------------------------------
-        [_(CHARACTER_REFERENCE_IN_DATA_STATE)] 
+        // 12.2.4.2 Character reference in data state
+        // ------------------------------------------------------------------
+        [_(CHARACTER_REFERENCE_IN_DATA_STATE)]
         void characterReferenceInDataState(int cp)
         {
-            this.additionalAllowedCp = 0; //void 0;
+            this.additionalAllowedCp = 0; // void 0;
 
             var referencedCodePoints = this.consumeCharacterReference(cp, false);
 
@@ -764,36 +774,35 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.3 RCDATA state
-        //------------------------------------------------------------------
+        // 12.2.4.3 RCDATA state
+        // ------------------------------------------------------------------
         [_(RCDATA_STATE)]
         void rcdataState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
             if (cp == CP.AMPERSAND)
-        this.state = CHARACTER_REFERENCE_IN_RCDATA_STATE;
+                this.state = CHARACTER_REFERENCE_IN_RCDATA_STATE;
 
-    else if (cp == CP.LESS_THAN_SIGN)
-        this.state = RCDATA_LESS_THAN_SIGN_STATE;
+            else if (cp == CP.LESS_THAN_SIGN)
+                this.state = RCDATA_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.NULL)
-        this.emitChar((char)CP.REPLACEMENT_CHARACTER);
+            else if (cp == CP.NULL)
+                this.emitChar((char)CP.REPLACEMENT_CHARACTER);
 
-    else if (cp == CP.EOF)
-        this.emitEOFToken();
+            else if (cp == CP.EOF)
+                this.emitEOFToken();
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.4 Character reference in RCDATA state
-        //------------------------------------------------------------------
-        [_(CHARACTER_REFERENCE_IN_RCDATA_STATE)] void characterReferenceInRcdataState(int cp)
+        // 12.2.4.4 Character reference in RCDATA state
+        // ------------------------------------------------------------------
+        [_(CHARACTER_REFERENCE_IN_RCDATA_STATE)]
+        void characterReferenceInRcdataState(int cp)
         {
-            this.additionalAllowedCp = 0; //void 0;
+            this.additionalAllowedCp = 0; // void 0;
 
             var referencedCodePoints = this.consumeCharacterReference(cp, false);
 
@@ -809,93 +818,94 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.5 RAWTEXT state
-        //------------------------------------------------------------------
-        [_(RAWTEXT_STATE)] void rawtextState(int cp)
+        // 12.2.4.5 RAWTEXT state
+        // ------------------------------------------------------------------
+        [_(RAWTEXT_STATE)]
+        void rawtextState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
             if (cp == CP.LESS_THAN_SIGN)
-        this.state = RAWTEXT_LESS_THAN_SIGN_STATE;
+                this.state = RAWTEXT_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.NULL)
-        this.emitChar((char)CP.REPLACEMENT_CHARACTER);
+            else if (cp == CP.NULL)
+                this.emitChar((char)CP.REPLACEMENT_CHARACTER);
 
-    else if (cp == CP.EOF)
-        this.emitEOFToken();
+            else if (cp == CP.EOF)
+                this.emitEOFToken();
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.6 Script data state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_STATE)] void scriptDataState(int cp)
+        // 12.2.4.6 Script data state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_STATE)]
+        void scriptDataState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
             if (cp == CP.LESS_THAN_SIGN)
-        this.state = SCRIPT_DATA_LESS_THAN_SIGN_STATE;
+                this.state = SCRIPT_DATA_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.NULL)
-        this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
+            else if (cp == CP.NULL)
+                this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
 
-    else if (cp == CP.EOF)
-        this.emitEOFToken();
+            else if (cp == CP.EOF)
+                this.emitEOFToken();
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.7 PLAINTEXT state
-        //------------------------------------------------------------------
-        [_(PLAINTEXT_STATE)] void plaintextState(int cp)
+        // 12.2.4.7 PLAINTEXT state
+        // ------------------------------------------------------------------
+        [_(PLAINTEXT_STATE)]
+        void plaintextState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
             if (cp == CP.NULL)
-        this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
+                this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
 
-    else if (cp == CP.EOF)
-        this.emitEOFToken();
+            else if (cp == CP.EOF)
+                this.emitEOFToken();
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.8 Tag open state
-        //------------------------------------------------------------------
-        [_(TAG_OPEN_STATE)] void tagOpenState(int cp)
+        // 12.2.4.8 Tag open state
+        // ------------------------------------------------------------------
+        [_(TAG_OPEN_STATE)]
+        void tagOpenState(int cp)
         {
             if (cp == CP.EXCLAMATION_MARK)
-        this.state = MARKUP_DECLARATION_OPEN_STATE;
+                this.state = MARKUP_DECLARATION_OPEN_STATE;
 
-    else if (cp == CP.SOLIDUS)
-        this.state = END_TAG_OPEN_STATE;
+            else if (cp == CP.SOLIDUS)
+                this.state = END_TAG_OPEN_STATE;
 
-    else if (isAsciiLetter(cp))
+            else if (isAsciiLetter(cp))
             {
                 this.createStartTagToken();
                 this.reconsumeInState(TAG_NAME_STATE);
             }
 
             else if (cp == CP.QUESTION_MARK)
-        this.reconsumeInState(BOGUS_COMMENT_STATE);
+                this.reconsumeInState(BOGUS_COMMENT_STATE);
 
-    else {
+            else
+            {
                 this.emitChar('<');
                 this.reconsumeInState(DATA_STATE);
             }
         }
 
-
-        //12.2.4.9 End tag open state
-        //------------------------------------------------------------------
-        [_(END_TAG_OPEN_STATE)] void endTagOpenState(int cp)
+        // 12.2.4.9 End tag open state
+        // ------------------------------------------------------------------
+        [_(END_TAG_OPEN_STATE)]
+        void endTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -904,67 +914,71 @@ namespace ParseFive.Tokenizer
             }
 
             else if (cp == CP.GREATER_THAN_SIGN)
-        this.state = DATA_STATE;
+                this.state = DATA_STATE;
 
-    else if (cp == CP.EOF) {
+            else if (cp == CP.EOF)
+            {
                 this.reconsumeInState(DATA_STATE);
                 this.emitChar('<');
                 this.emitChar('/');
             }
 
-    else
-        this.reconsumeInState(BOGUS_COMMENT_STATE);
+            else
+                this.reconsumeInState(BOGUS_COMMENT_STATE);
         }
 
-
-        //12.2.4.10 Tag name state
-        //------------------------------------------------------------------
-        [_(TAG_NAME_STATE)] void tagNameState(int cp)
+        // 12.2.4.10 Tag name state
+        // ------------------------------------------------------------------
+        [_(TAG_NAME_STATE)]
+        void tagNameState(int cp)
         {
             if (isWhitespace(cp))
                 this.state = BEFORE_ATTRIBUTE_NAME_STATE;
 
             else if (cp == CP.SOLIDUS)
-        this.state = SELF_CLOSING_START_TAG_STATE;
+                this.state = SELF_CLOSING_START_TAG_STATE;
 
-    else if (cp == CP.GREATER_THAN_SIGN) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = DATA_STATE;
                 this.emitCurrentToken();
             }
 
-    else if (isAsciiUpper(cp))
+            else if (isAsciiUpper(cp))
                 this.currentToken.tagName += toAsciiLowerChar(cp);
 
             else if (cp == CP.NULL)
-        this.currentToken.tagName += CP.REPLACEMENT_CHARACTER;
+                this.currentToken.tagName += CP.REPLACEMENT_CHARACTER;
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.currentToken.tagName += toChar(cp);
+            else
+                this.currentToken.tagName += toChar(cp);
         }
 
-
-        //12.2.4.11 RCDATA less-than sign state
-        //------------------------------------------------------------------
-        [_(RCDATA_LESS_THAN_SIGN_STATE)] void rcdataLessThanSignState(int cp)
+        // 12.2.4.11 RCDATA less-than sign state
+        // ------------------------------------------------------------------
+        [_(RCDATA_LESS_THAN_SIGN_STATE)]
+        void rcdataLessThanSignState(int cp)
         {
-            if (cp == CP.SOLIDUS) {
+            if (cp == CP.SOLIDUS)
+            {
                 this.tempBuff = new TempBuff();
                 this.state = RCDATA_END_TAG_OPEN_STATE;
             }
 
-    else {
+            else
+            {
                 this.emitChar('<');
                 this.reconsumeInState(RCDATA_STATE);
             }
         }
 
-
-        //12.2.4.12 RCDATA end tag open state
-        //------------------------------------------------------------------
-        [_(RCDATA_END_TAG_OPEN_STATE)] void rcdataEndTagOpenState(int cp)
+        // 12.2.4.12 RCDATA end tag open state
+        // ------------------------------------------------------------------
+        [_(RCDATA_END_TAG_OPEN_STATE)]
+        void rcdataEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -980,10 +994,10 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.13 RCDATA end tag name state
-        //------------------------------------------------------------------
-        [_(RCDATA_END_TAG_NAME_STATE)] void rcdataEndTagNameState(int cp)
+        // 12.2.4.13 RCDATA end tag name state
+        // ------------------------------------------------------------------
+        [_(RCDATA_END_TAG_NAME_STATE)]
+        void rcdataEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1007,12 +1021,14 @@ namespace ParseFive.Tokenizer
                         return;
                     }
 
-                    if (cp == CP.SOLIDUS) {
+                    if (cp == CP.SOLIDUS)
+                    {
                         this.state = SELF_CLOSING_START_TAG_STATE;
                         return;
                     }
 
-                    if (cp == CP.GREATER_THAN_SIGN) {
+                    if (cp == CP.GREATER_THAN_SIGN)
+                    {
                         this.state = DATA_STATE;
                         this.emitCurrentToken();
                         return;
@@ -1026,26 +1042,28 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.14 RAWTEXT less-than sign state
-        //------------------------------------------------------------------
-        [_(RAWTEXT_LESS_THAN_SIGN_STATE)] void rawtextLessThanSignState(int cp)
+        // 12.2.4.14 RAWTEXT less-than sign state
+        // ------------------------------------------------------------------
+        [_(RAWTEXT_LESS_THAN_SIGN_STATE)]
+        void rawtextLessThanSignState(int cp)
         {
-            if (cp == CP.SOLIDUS) {
+            if (cp == CP.SOLIDUS)
+            {
                 this.tempBuff = new TempBuff();
                 this.state = RAWTEXT_END_TAG_OPEN_STATE;
             }
 
-    else {
+            else
+            {
                 this.emitChar('<');
                 this.reconsumeInState(RAWTEXT_STATE);
             }
         }
 
-
-        //12.2.4.15 RAWTEXT end tag open state
-        //------------------------------------------------------------------
-        [_(RAWTEXT_END_TAG_OPEN_STATE)] void rawtextEndTagOpenState(int cp)
+        // 12.2.4.15 RAWTEXT end tag open state
+        // ------------------------------------------------------------------
+        [_(RAWTEXT_END_TAG_OPEN_STATE)]
+        void rawtextEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -1061,10 +1079,10 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.16 RAWTEXT end tag name state
-        //------------------------------------------------------------------
-        [_(RAWTEXT_END_TAG_NAME_STATE)] void rawtextEndTagNameState(int cp)
+        // 12.2.4.16 RAWTEXT end tag name state
+        // ------------------------------------------------------------------
+        [_(RAWTEXT_END_TAG_NAME_STATE)]
+        void rawtextEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1088,12 +1106,14 @@ namespace ParseFive.Tokenizer
                         return;
                     }
 
-                    if (cp == CP.SOLIDUS) {
+                    if (cp == CP.SOLIDUS)
+                    {
                         this.state = SELF_CLOSING_START_TAG_STATE;
                         return;
                     }
 
-                    if (cp == CP.GREATER_THAN_SIGN) {
+                    if (cp == CP.GREATER_THAN_SIGN)
+                    {
                         this.emitCurrentToken();
                         this.state = DATA_STATE;
                         return;
@@ -1107,32 +1127,35 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.17 Script data less-than sign state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_LESS_THAN_SIGN_STATE)] void scriptDataLessThanSignState(int cp)
+        // 12.2.4.17 Script data less-than sign state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_LESS_THAN_SIGN_STATE)]
+        void scriptDataLessThanSignState(int cp)
         {
-            if (cp == CP.SOLIDUS) {
+            if (cp == CP.SOLIDUS)
+            {
                 this.tempBuff = new TempBuff();
                 this.state = SCRIPT_DATA_END_TAG_OPEN_STATE;
             }
 
-    else if (cp == CP.EXCLAMATION_MARK) {
+            else if (cp == CP.EXCLAMATION_MARK)
+            {
                 this.state = SCRIPT_DATA_ESCAPE_START_STATE;
                 this.emitChar('<');
                 this.emitChar('!');
             }
 
-    else {
+            else
+            {
                 this.emitChar('<');
                 this.reconsumeInState(SCRIPT_DATA_STATE);
             }
         }
 
-
-        //12.2.4.18 Script data end tag open state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_END_TAG_OPEN_STATE)] void scriptDataEndTagOpenState(int cp)
+        // 12.2.4.18 Script data end tag open state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_END_TAG_OPEN_STATE)]
+        void scriptDataEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -1148,10 +1171,10 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.19 Script data end tag name state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_END_TAG_NAME_STATE)] void scriptDataEndTagNameState(int cp)
+        // 12.2.4.19 Script data end tag name state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_END_TAG_NAME_STATE)]
+        void scriptDataEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1175,12 +1198,14 @@ namespace ParseFive.Tokenizer
                         return;
                     }
 
-                    else if (cp == CP.SOLIDUS) {
+                    else if (cp == CP.SOLIDUS)
+                    {
                         this.state = SELF_CLOSING_START_TAG_STATE;
                         return;
                     }
 
-            else if (cp == CP.GREATER_THAN_SIGN) {
+                    else if (cp == CP.GREATER_THAN_SIGN)
+                    {
                         this.emitCurrentToken();
                         this.state = DATA_STATE;
                         return;
@@ -1194,125 +1219,135 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.20 Script data escape start state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPE_START_STATE)] void scriptDataEscapeStartState(int cp)
+        // 12.2.4.20 Script data escape start state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPE_START_STATE)]
+        void scriptDataEscapeStartState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_ESCAPE_START_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else
-        this.reconsumeInState(SCRIPT_DATA_STATE);
+            else
+                this.reconsumeInState(SCRIPT_DATA_STATE);
         }
 
-
-        //12.2.4.21 Script data escape start dash state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPE_START_DASH_STATE)] void scriptDataEscapeStartDashState(int cp)
+        // 12.2.4.21 Script data escape start dash state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPE_START_DASH_STATE)]
+        void scriptDataEscapeStartDashState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else
-        this.reconsumeInState(SCRIPT_DATA_STATE);
+            else
+                this.reconsumeInState(SCRIPT_DATA_STATE);
         }
 
-
-        //12.2.4.22 Script data escaped state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_STATE)] void scriptDataEscapedState(int cp)
+        // 12.2.4.22 Script data escaped state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_STATE)]
+        void scriptDataEscapedState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else if (cp == CP.LESS_THAN_SIGN)
-        this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+            else if (cp == CP.LESS_THAN_SIGN)
+                this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.NULL)
-        this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
+            else if (cp == CP.NULL)
+                this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.23 Script data escaped dash state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_DASH_STATE)] void scriptDataEscapedDashState(int cp)
+        // 12.2.4.23 Script data escaped dash state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_DASH_STATE)]
+        void scriptDataEscapedDashState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else if (cp == CP.LESS_THAN_SIGN)
-        this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+            else if (cp == CP.LESS_THAN_SIGN)
+                this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.NULL) {
+            else if (cp == CP.NULL)
+            {
                 this.state = SCRIPT_DATA_ESCAPED_STATE;
                 this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
             }
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else {
+            else
+            {
                 this.state = SCRIPT_DATA_ESCAPED_STATE;
                 this.emitCodePoint(cp);
             }
         }
 
-
-        //12.2.4.24 Script data escaped dash dash state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_DASH_DASH_STATE)] void scriptDataEscapedDashDashState(int cp)
+        // 12.2.4.24 Script data escaped dash dash state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_DASH_DASH_STATE)]
+        void scriptDataEscapedDashDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS)
-        this.emitChar('-');
+                this.emitChar('-');
 
-    else if (cp == CP.LESS_THAN_SIGN)
-        this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+            else if (cp == CP.LESS_THAN_SIGN)
+                this.state = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
 
-    else if (cp == CP.GREATER_THAN_SIGN) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = SCRIPT_DATA_STATE;
                 this.emitChar('>');
             }
 
-    else if (cp == CP.NULL) {
+            else if (cp == CP.NULL)
+            {
                 this.state = SCRIPT_DATA_ESCAPED_STATE;
                 this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
             }
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else {
+            else
+            {
                 this.state = SCRIPT_DATA_ESCAPED_STATE;
                 this.emitCodePoint(cp);
             }
         }
 
-
-        //12.2.4.25 Script data escaped less-than sign state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataEscapedLessThanSignState(int cp)
+        // 12.2.4.25 Script data escaped less-than sign state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE)]
+        void scriptDataEscapedLessThanSignState(int cp)
         {
-            if (cp == CP.SOLIDUS) {
+            if (cp == CP.SOLIDUS)
+            {
                 this.tempBuff = new TempBuff();
                 this.state = SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
             }
 
-    else if (isAsciiLetter(cp))
+            else if (isAsciiLetter(cp))
             {
                 this.tempBuff = new TempBuff();
                 this.emitChar('<');
@@ -1326,10 +1361,10 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.26 Script data escaped end tag open state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE)] void scriptDataEscapedEndTagOpenState(int cp)
+        // 12.2.4.26 Script data escaped end tag open state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE)]
+        void scriptDataEscapedEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -1345,10 +1380,10 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.27 Script data escaped end tag name state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE)] void scriptDataEscapedEndTagNameState(int cp)
+        // 12.2.4.27 Script data escaped end tag name state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE)]
+        void scriptDataEscapedEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1372,12 +1407,14 @@ namespace ParseFive.Tokenizer
                         return;
                     }
 
-                    if (cp == CP.SOLIDUS) {
+                    if (cp == CP.SOLIDUS)
+                    {
                         this.state = SELF_CLOSING_START_TAG_STATE;
                         return;
                     }
 
-                    if (cp == CP.GREATER_THAN_SIGN) {
+                    if (cp == CP.GREATER_THAN_SIGN)
+                    {
                         this.emitCurrentToken();
                         this.state = DATA_STATE;
                         return;
@@ -1391,17 +1428,18 @@ namespace ParseFive.Tokenizer
             }
         }
 
-
-        //12.2.4.28 Script data double escape start state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE)] void scriptDataDoubleEscapeStartState(int cp)
+        // 12.2.4.28 Script data double escape start state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE)]
+        void scriptDataDoubleEscapeStartState(int cp)
         {
-            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN) {
+            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = this.isTempBufferEqualToScriptString() ? SCRIPT_DATA_DOUBLE_ESCAPED_STATE : SCRIPT_DATA_ESCAPED_STATE;
                 this.emitCodePoint(cp);
             }
 
-    else if (isAsciiUpper(cp))
+            else if (isAsciiUpper(cp))
             {
                 this.tempBuff.push(toAsciiLowerCodePoint(cp));
                 this.emitCodePoint(cp);
@@ -1417,119 +1455,131 @@ namespace ParseFive.Tokenizer
                 this.reconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
         }
 
-
-        //12.2.4.29 Script data double escaped state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_STATE)] void scriptDataDoubleEscapedState(int cp)
+        // 12.2.4.29 Script data double escaped state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_STATE)]
+        void scriptDataDoubleEscapedState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else if (cp == CP.LESS_THAN_SIGN) {
+            else if (cp == CP.LESS_THAN_SIGN)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
                 this.emitChar('<');
             }
 
-    else if (cp == CP.NULL)
-        this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
+            else if (cp == CP.NULL)
+                this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.emitCodePoint(cp);
+            else
+                this.emitCodePoint(cp);
         }
 
-
-        //12.2.4.30 Script data double escaped dash state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE)] void scriptDataDoubleEscapedDashState(int cp)
+        // 12.2.4.30 Script data double escaped dash state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE)]
+        void scriptDataDoubleEscapedDashState(int cp)
         {
-            if (cp == CP.HYPHEN_MINUS) {
+            if (cp == CP.HYPHEN_MINUS)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
                 this.emitChar('-');
             }
 
-    else if (cp == CP.LESS_THAN_SIGN) {
+            else if (cp == CP.LESS_THAN_SIGN)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
                 this.emitChar('<');
             }
 
-    else if (cp == CP.NULL) {
+            else if (cp == CP.NULL)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
             }
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else {
+            else
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 this.emitCodePoint(cp);
             }
         }
 
-
-        //12.2.4.31 Script data double escaped dash dash state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE)] void scriptDataDoubleEscapedDashDashState(int cp)
+        // 12.2.4.31 Script data double escaped dash dash state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE)]
+        void scriptDataDoubleEscapedDashDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS)
-        this.emitChar('-');
+                this.emitChar('-');
 
-    else if (cp == CP.LESS_THAN_SIGN) {
+            else if (cp == CP.LESS_THAN_SIGN)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
                 this.emitChar('<');
             }
 
-    else if (cp == CP.GREATER_THAN_SIGN) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = SCRIPT_DATA_STATE;
                 this.emitChar('>');
             }
 
-    else if (cp == CP.NULL) {
+            else if (cp == CP.NULL)
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 this.emitChar(((char)CP.REPLACEMENT_CHARACTER));
             }
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else {
+            else
+            {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 this.emitCodePoint(cp);
             }
         }
 
-
-        //12.2.4.32 Script data double escaped less-than sign state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataDoubleEscapedLessThanSignState(int cp)
+        // 12.2.4.32 Script data double escaped less-than sign state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE)]
+        void scriptDataDoubleEscapedLessThanSignState(int cp)
         {
-            if (cp == CP.SOLIDUS) {
+            if (cp == CP.SOLIDUS)
+            {
                 this.tempBuff = new TempBuff();
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
                 this.emitChar('/');
             }
 
-    else
-        this.reconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
+            else
+                this.reconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
         }
 
-
-        //12.2.4.33 Script data double escape end state
-        //------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE)] void scriptDataDoubleEscapeEndState(int cp)
+        // 12.2.4.33 Script data double escape end state
+        // ------------------------------------------------------------------
+        [_(SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE)]
+        void scriptDataDoubleEscapeEndState(int cp)
         {
-            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN) {
+            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = this.isTempBufferEqualToScriptString() ? SCRIPT_DATA_ESCAPED_STATE : SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
 
                 this.emitCodePoint(cp);
             }
 
-    else if (isAsciiUpper(cp))
+            else if (isAsciiUpper(cp))
             {
                 this.tempBuff.push(toAsciiLowerCodePoint(cp));
                 this.emitCodePoint(cp);
@@ -1545,789 +1595,887 @@ namespace ParseFive.Tokenizer
                 this.reconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
         }
 
-
-        //12.2.4.34 Before attribute name state
-        //------------------------------------------------------------------
-        [_(BEFORE_ATTRIBUTE_NAME_STATE)] void beforeAttributeNameState(int cp)
+        // 12.2.4.34 Before attribute name state
+        // ------------------------------------------------------------------
+        [_(BEFORE_ATTRIBUTE_NAME_STATE)]
+        void beforeAttributeNameState(int cp)
         {
             if (isWhitespace(cp))
                 return;
 
             if (cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
-        this.reconsumeInState(AFTER_ATTRIBUTE_NAME_STATE);
+                this.reconsumeInState(AFTER_ATTRIBUTE_NAME_STATE);
 
-    else if (cp == CP.EQUALS_SIGN) {
+            else if (cp == CP.EQUALS_SIGN)
+            {
                 this.createAttr("=");
                 this.state = ATTRIBUTE_NAME_STATE;
             }
 
-    else {
+            else
+            {
                 this.createAttr("");
                 this.reconsumeInState(ATTRIBUTE_NAME_STATE);
             }
         }
 
-
-        //12.2.4.35 Attribute name state
-        //------------------------------------------------------------------
-        [_(ATTRIBUTE_NAME_STATE)] void attributeNameState(int cp)
+        // 12.2.4.35 Attribute name state
+        // ------------------------------------------------------------------
+        [_(ATTRIBUTE_NAME_STATE)]
+        void attributeNameState(int cp)
         {
-            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF) {
+            if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
+            {
                 this.leaveAttrName(AFTER_ATTRIBUTE_NAME_STATE);
                 this.unconsume();
             }
 
-    else if (cp == CP.EQUALS_SIGN)
-        this.leaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
+            else if (cp == CP.EQUALS_SIGN)
+                this.leaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
 
-    else if (isAsciiUpper(cp))
+            else if (isAsciiUpper(cp))
                 this.currentAttr.name += toAsciiLowerChar(cp);
 
             else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN)
-        this.currentAttr.name += toChar(cp);
+                this.currentAttr.name += toChar(cp);
 
-    else if (cp == CP.NULL)
-        this.currentAttr.name += CP.REPLACEMENT_CHARACTER;
+            else if (cp == CP.NULL)
+                this.currentAttr.name += CP.REPLACEMENT_CHARACTER;
 
-    else
-        this.currentAttr.name += toChar(cp);
+            else
+                this.currentAttr.name += toChar(cp);
         }
 
-
-        //12.2.4.36 After attribute name state
-        //------------------------------------------------------------------
-        [_(AFTER_ATTRIBUTE_NAME_STATE)] void afterAttributeNameState(int cp)
+        // 12.2.4.36 After attribute name state
+        // ------------------------------------------------------------------
+        [_(AFTER_ATTRIBUTE_NAME_STATE)]
+        void afterAttributeNameState(int cp)
         {
             if (isWhitespace(cp))
                 return;
 
             if (cp == CP.SOLIDUS)
-        this.state = SELF_CLOSING_START_TAG_STATE;
+                this.state = SELF_CLOSING_START_TAG_STATE;
 
-    else if (cp == CP.EQUALS_SIGN)
-        this.state = BEFORE_ATTRIBUTE_VALUE_STATE;
+            else if (cp == CP.EQUALS_SIGN)
+                this.state = BEFORE_ATTRIBUTE_VALUE_STATE;
 
-    else if (cp == CP.GREATER_THAN_SIGN) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = DATA_STATE;
                 this.emitCurrentToken();
             }
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else {
+            else
+            {
                 this.createAttr("");
                 this.reconsumeInState(ATTRIBUTE_NAME_STATE);
             }
         }
 
-
-        //12.2.4.37 Before attribute value state
-        //------------------------------------------------------------------
-        [_(BEFORE_ATTRIBUTE_VALUE_STATE)] void beforeAttributeValueState(int cp)
+        // 12.2.4.37 Before attribute value state
+        // ------------------------------------------------------------------
+        [_(BEFORE_ATTRIBUTE_VALUE_STATE)]
+        void beforeAttributeValueState(int cp)
         {
             if (isWhitespace(cp))
                 return;
 
             if (cp == CP.QUOTATION_MARK)
-        this.state = ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
+                this.state = ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
 
-    else if (cp == CP.APOSTROPHE)
-        this.state = ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
+            else if (cp == CP.APOSTROPHE)
+                this.state = ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
 
-    else
-        this.reconsumeInState(ATTRIBUTE_VALUE_UNQUOTED_STATE);
+            else
+                this.reconsumeInState(ATTRIBUTE_VALUE_UNQUOTED_STATE);
         }
 
-
-        //12.2.4.38 Attribute value (double-quoted) state
-        //------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE)] void attributeValueDoubleQuotedState(int cp)
+        // 12.2.4.38 Attribute value (double-quoted) state
+        // ------------------------------------------------------------------
+        [_(ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE)]
+        void attributeValueDoubleQuotedState(int cp)
         {
             if (cp == CP.QUOTATION_MARK)
-        this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
+                this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
 
-    else if (cp == CP.AMPERSAND) {
+            else if (cp == CP.AMPERSAND)
+            {
                 this.additionalAllowedCp = CP.QUOTATION_MARK;
                 this.returnState = this.state;
                 this.state = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
             }
 
-    else if (cp == CP.NULL)
-        this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+            else if (cp == CP.NULL)
+                this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.currentAttr.value += toChar(cp);
+            else
+                this.currentAttr.value += toChar(cp);
         }
 
-
-        //12.2.4.39 Attribute value (single-quoted) state
-        //------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE)] void attributeValueSingleQuotedState(int cp)
+        // 12.2.4.39 Attribute value (single-quoted) state
+        // ------------------------------------------------------------------
+        [_(ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE)]
+        void attributeValueSingleQuotedState(int cp)
         {
             if (cp == CP.APOSTROPHE)
-        this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
+                this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
 
-    else if (cp == CP.AMPERSAND) {
+            else if (cp == CP.AMPERSAND)
+            {
                 this.additionalAllowedCp = CP.APOSTROPHE;
                 this.returnState = this.state;
                 this.state = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
             }
 
-    else if (cp == CP.NULL)
-        this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+            else if (cp == CP.NULL)
+                this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.currentAttr.value += toChar(cp);
+            else
+                this.currentAttr.value += toChar(cp);
         }
 
-
-        //12.2.4.40 Attribute value (unquoted) state
-        //------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_UNQUOTED_STATE)] void attributeValueUnquotedState(int cp)
+        // 12.2.4.40 Attribute value (unquoted) state
+        // ------------------------------------------------------------------
+        [_(ATTRIBUTE_VALUE_UNQUOTED_STATE)]
+        void attributeValueUnquotedState(int cp)
         {
             if (isWhitespace(cp))
                 this.leaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
 
-            else if (cp == CP.AMPERSAND) {
+            else if (cp == CP.AMPERSAND)
+            {
                 this.additionalAllowedCp = CP.GREATER_THAN_SIGN;
                 this.returnState = this.state;
                 this.state = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
             }
 
-    else if (cp == CP.GREATER_THAN_SIGN) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.leaveAttrValue(DATA_STATE);
                 this.emitCurrentToken();
             }
 
-    else if (cp == CP.NULL)
-        this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+            else if (cp == CP.NULL)
+                this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
 
-    else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
-             cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
-        this.currentAttr.value += toChar(cp);
+            else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
+                     cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
+                this.currentAttr.value += toChar(cp);
 
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
 
-    else
-        this.currentAttr.value += toChar(cp);
-}
-
-
-//12.2.4.41 Character reference in attribute value state
-//------------------------------------------------------------------
-[_(CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE)] void characterReferenceInAttributeValueState(int cp) {
-    var referencedCodePoints = this.consumeCharacterReference(cp, true);
-
-    if (!this.ensureHibernation()) {
-        if (referencedCodePoints.IsTruthy()) {
-            for (var i = 0; i < referencedCodePoints.length; i++)
-                this.currentAttr.value += toChar(referencedCodePoints[i]);
-        }
-        else
-            this.currentAttr.value += '&';
-
-        this.state = this.returnState;
-    }
-}
-
-
-//12.2.4.42 After attribute value (quoted) state
-//------------------------------------------------------------------
-[_(AFTER_ATTRIBUTE_VALUE_QUOTED_STATE)] void afterAttributeValueQuotedState(int cp) {
-    if (isWhitespace(cp))
-        this.leaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
-
-    else if (cp == CP.SOLIDUS)
-        this.leaveAttrValue(SELF_CLOSING_START_TAG_STATE);
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.leaveAttrValue(DATA_STATE);
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
-
-    else
-        this.reconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
-}
-
-
-//12.2.4.43 Self-closing start tag state
-//------------------------------------------------------------------
-[_(SELF_CLOSING_START_TAG_STATE)] void selfClosingStartTagState(int cp) {
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.currentToken.selfClosing = true;
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.EOF)
-        this.reconsumeInState(DATA_STATE);
-
-    else
-        this.reconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
-}
-
-
-//12.2.4.44 Bogus comment state
-//------------------------------------------------------------------
-[_(BOGUS_COMMENT_STATE)] void bogusCommentState(int cp) {
-    this.createCommentToken();
-    this.reconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
-}
-
-//HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
-//introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
-//comment token on each call.
-[_(BOGUS_COMMENT_STATE_CONTINUATION)] void bogusCommentStateContinuation(int cp) {
-    while (true) {
-        if (cp == CP.GREATER_THAN_SIGN) {
-            this.state = DATA_STATE;
-            break;
+            else
+                this.currentAttr.value += toChar(cp);
         }
 
-        else if (cp == CP.EOF) {
-            this.reconsumeInState(DATA_STATE);
-            break;
+        // 12.2.4.41 Character reference in attribute value state
+        // ------------------------------------------------------------------
+        [_(CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE)]
+        void characterReferenceInAttributeValueState(int cp)
+        {
+            var referencedCodePoints = this.consumeCharacterReference(cp, true);
+
+            if (!this.ensureHibernation())
+            {
+                if (referencedCodePoints.IsTruthy())
+                {
+                    for (var i = 0; i < referencedCodePoints.length; i++)
+                        this.currentAttr.value += toChar(referencedCodePoints[i]);
+                }
+                else
+                    this.currentAttr.value += '&';
+
+                this.state = this.returnState;
+            }
         }
 
-        else {
-            this.currentToken.data += (cp == CP.NULL ? toChar(CP.REPLACEMENT_CHARACTER) : toChar(cp));
+        // 12.2.4.42 After attribute value (quoted) state
+        // ------------------------------------------------------------------
+        [_(AFTER_ATTRIBUTE_VALUE_QUOTED_STATE)]
+        void afterAttributeValueQuotedState(int cp)
+        {
+            if (isWhitespace(cp))
+                this.leaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
 
-            this.hibernationSnapshot();
-            cp = this.consume();
+            else if (cp == CP.SOLIDUS)
+                this.leaveAttrValue(SELF_CLOSING_START_TAG_STATE);
 
-            if (this.ensureHibernation())
-                return;
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.leaveAttrValue(DATA_STATE);
+                this.emitCurrentToken();
+            }
+
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
+
+            else
+                this.reconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
         }
-    }
 
-    this.emitCurrentToken();
-}
+        // 12.2.4.43 Self-closing start tag state
+        // ------------------------------------------------------------------
+        [_(SELF_CLOSING_START_TAG_STATE)]
+        void selfClosingStartTagState(int cp)
+        {
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.currentToken.selfClosing = true;
+                this.state = DATA_STATE;
+                this.emitCurrentToken();
+            }
 
-//12.2.4.45 Markup declaration open state
-//------------------------------------------------------------------
-[_(MARKUP_DECLARATION_OPEN_STATE)] void markupDeclarationOpenState(int cp) {
+            else if (cp == CP.EOF)
+                this.reconsumeInState(DATA_STATE);
+
+            else
+                this.reconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
+        }
+
+        // 12.2.4.44 Bogus comment state
+        // ------------------------------------------------------------------
+        [_(BOGUS_COMMENT_STATE)]
+        void bogusCommentState(int cp)
+        {
+            this.createCommentToken();
+            this.reconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
+        }
+
+        // HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
+        // introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
+        // comment token on each call.
+        [_(BOGUS_COMMENT_STATE_CONTINUATION)]
+        void bogusCommentStateContinuation(int cp)
+        {
+            while (true)
+            {
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    this.state = DATA_STATE;
+                    break;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    this.reconsumeInState(DATA_STATE);
+                    break;
+                }
+
+                else
+                {
+                    this.currentToken.data += (cp == CP.NULL ? toChar(CP.REPLACEMENT_CHARACTER) : toChar(cp));
+
+                    this.hibernationSnapshot();
+                    cp = this.consume();
+
+                    if (this.ensureHibernation())
+                        return;
+                }
+            }
+
+            this.emitCurrentToken();
+        }
+
+        // 12.2.4.45 Markup declaration open state
+        // ------------------------------------------------------------------
+        [_(MARKUP_DECLARATION_OPEN_STATE)]
+        void markupDeclarationOpenState(int cp)
+        {
             var dashDashMatch = this.consumeSubsequentIfMatch(CPS.DASH_DASH_STRING, cp, true);
             var doctypeMatch = !dashDashMatch && this.consumeSubsequentIfMatch(CPS.DOCTYPE_STRING, cp, false);
-        var cdataMatch = !dashDashMatch && !doctypeMatch &&
-                     this.allowCDATA &&
-                     this.consumeSubsequentIfMatch(CPS.CDATA_START_STRING, cp, true);
+            var cdataMatch = !dashDashMatch && !doctypeMatch &&
+                         this.allowCDATA &&
+                         this.consumeSubsequentIfMatch(CPS.CDATA_START_STRING, cp, true);
 
-    if (!this.ensureHibernation()) {
-        if (dashDashMatch) {
-            this.createCommentToken();
-            this.state = COMMENT_START_STATE;
-        }
+            if (!this.ensureHibernation())
+            {
+                if (dashDashMatch)
+                {
+                    this.createCommentToken();
+                    this.state = COMMENT_START_STATE;
+                }
 
-        else if (doctypeMatch)
-            this.state = DOCTYPE_STATE;
+                else if (doctypeMatch)
+                    this.state = DOCTYPE_STATE;
 
-        else if (cdataMatch)
-            this.state = CDATA_SECTION_STATE;
+                else if (cdataMatch)
+                    this.state = CDATA_SECTION_STATE;
 
-        else
-            this.reconsumeInState(BOGUS_COMMENT_STATE);
-    }
-}
-
-
-//12.2.4.46 Comment start state
-//------------------------------------------------------------------
-[_(COMMENT_START_STATE)] void commentStartState(int cp) {
-    if (cp == CP.HYPHEN_MINUS)
-        this.state = COMMENT_START_DASH_STATE;
-
-    else if (cp == CP.NULL) {
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-        this.state = COMMENT_STATE;
-    }
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else {
-        this.currentToken.data += toChar(cp);
-        this.state = COMMENT_STATE;
-    }
-}
-
-
-//12.2.4.47 Comment start dash state
-//------------------------------------------------------------------
-[_(COMMENT_START_DASH_STATE)] void commentStartDashState(int cp) {
-    if (cp == CP.HYPHEN_MINUS)
-        this.state = COMMENT_END_STATE;
-
-    else if (cp == CP.NULL) {
-        this.currentToken.data += '-';
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-        this.state = COMMENT_STATE;
-    }
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else {
-        this.currentToken.data += '-';
-        this.currentToken.data += toChar(cp);
-        this.state = COMMENT_STATE;
-    }
-}
-
-
-//12.2.4.48 Comment state
-//------------------------------------------------------------------
-[_(COMMENT_STATE)] void commentState(int cp) {
-    if (cp == CP.HYPHEN_MINUS)
-        this.state = COMMENT_END_DASH_STATE;
-
-    else if (cp == CP.NULL)
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.currentToken.data += toChar(cp);
-}
-
-
-//12.2.4.49 Comment end dash state
-//------------------------------------------------------------------
-[_(COMMENT_END_DASH_STATE)] void commentEndDashState(int cp) {
-    if (cp == CP.HYPHEN_MINUS)
-        this.state = COMMENT_END_STATE;
-
-    else if (cp == CP.NULL) {
-        this.currentToken.data += '-';
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-        this.state = COMMENT_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else {
-        this.currentToken.data += '-';
-        this.currentToken.data += toChar(cp);
-        this.state = COMMENT_STATE;
-    }
-}
-
-
-//12.2.4.50 Comment end state
-//------------------------------------------------------------------
-[_(COMMENT_END_STATE)] void commentEndState(int cp) {
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.EXCLAMATION_MARK)
-        this.state = COMMENT_END_BANG_STATE;
-
-    else if (cp == CP.HYPHEN_MINUS)
-        this.currentToken.data += '-';
-
-    else if (cp == CP.NULL) {
-        this.currentToken.data += "--";
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-        this.state = COMMENT_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.reconsumeInState(DATA_STATE);
-        this.emitCurrentToken();
-    }
-
-    else {
-        this.currentToken.data += "--";
-        this.currentToken.data += toChar(cp);
-        this.state = COMMENT_STATE;
-    }
-}
-
-
-//12.2.4.51 Comment end bang state
-//------------------------------------------------------------------
-[_(COMMENT_END_BANG_STATE)] void commentEndBangState(int cp) {
-    if (cp == CP.HYPHEN_MINUS) {
-        this.currentToken.data += "--!";
-        this.state = COMMENT_END_DASH_STATE;
-    }
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else if (cp == CP.NULL) {
-        this.currentToken.data += "--!";
-        this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-        this.state = COMMENT_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else {
-        this.currentToken.data += "--!";
-        this.currentToken.data += toChar(cp);
-        this.state = COMMENT_STATE;
-    }
-}
-
-
-//12.2.4.52 DOCTYPE state
-//------------------------------------------------------------------
-[_(DOCTYPE_STATE)] void doctypeState(int cp) {
-    if (isWhitespace(cp))
-        return;
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.createDoctypeToken(null);
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.createDoctypeToken(null);
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-    else {
-        this.createDoctypeToken("");
-        this.reconsumeInState(DOCTYPE_NAME_STATE);
-    }
-}
-
-
-//12.2.4.54 DOCTYPE name state
-//------------------------------------------------------------------
-[_(DOCTYPE_NAME_STATE)] void doctypeNameState(int cp) {
-    if (isWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
-        this.reconsumeInState(AFTER_DOCTYPE_NAME_STATE);
-
-    else if (isAsciiUpper(cp))
-        this.currentToken.name += toAsciiLowerChar(cp);
-
-    else if (cp == CP.NULL)
-        this.currentToken.name += CP.REPLACEMENT_CHARACTER;
-
-    else
-        this.currentToken.name += toChar(cp);
-}
-
-
-//12.2.4.55 After DOCTYPE name state
-//------------------------------------------------------------------
-[_(AFTER_DOCTYPE_NAME_STATE)] void afterDoctypeNameState(int cp) {
-    if (isWhitespace(cp))
-        return;
-
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.state = DATA_STATE;
-        this.emitCurrentToken();
-    }
-
-    else {
-            var publicMatch = this.consumeSubsequentIfMatch(CPS.PUBLIC_STRING, cp, false);
-            var systemMatch = !publicMatch && this.consumeSubsequentIfMatch(CPS.SYSTEM_STRING, cp, false);
-
-        if (!this.ensureHibernation()) {
-            if (publicMatch)
-                this.state = BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
-
-            else if (systemMatch)
-                this.state = BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
-
-            else {
-                this.currentToken.forceQuirks = true;
-                this.state = BOGUS_DOCTYPE_STATE;
+                else
+                    this.reconsumeInState(BOGUS_COMMENT_STATE);
             }
         }
-    }
-}
 
+        // 12.2.4.46 Comment start state
+        // ------------------------------------------------------------------
+        [_(COMMENT_START_STATE)]
+        void commentStartState(int cp)
+        {
+            if (cp == CP.HYPHEN_MINUS)
+                this.state = COMMENT_START_DASH_STATE;
 
-//12.2.4.57 Before DOCTYPE public identifier state
-//------------------------------------------------------------------
-[_(BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE)] void beforeDoctypePublicIdentifierState(int cp) {
-    if (isWhitespace(cp))
-        return;
+            else if (cp == CP.NULL)
+            {
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                this.state = COMMENT_STATE;
+            }
 
-    if (cp == CP.QUOTATION_MARK) {
-        this.currentToken.publicId = "";
-        this.state = DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
-    }
-
-    else if (cp == CP.APOSTROPHE) {
-        this.currentToken.publicId = "";
-        this.state = DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
-    }
-
-    else {
-        this.currentToken.forceQuirks = true;
-        this.reconsumeInState(BOGUS_DOCTYPE_STATE);
-    }
-}
-
-
-//12.2.4.58 DOCTYPE public identifier (double-quoted) state
-//------------------------------------------------------------------
-[_(DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypePublicIdentifierDoubleQuotedState(int cp) {
-    if (cp == CP.QUOTATION_MARK)
-        this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
-
-    else if (cp == CP.NULL)
-        this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.currentToken.publicId += toChar(cp);
-}
-
-
-//12.2.4.59 DOCTYPE public identifier (single-quoted) state
-//------------------------------------------------------------------
-[_(DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypePublicIdentifierSingleQuotedState(int cp) {
-    if (cp == CP.APOSTROPHE)
-        this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
-
-    else if (cp == CP.NULL)
-        this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.currentToken.publicId += toChar(cp);
-}
-
-
-//12.2.4.61 Between DOCTYPE public and system identifiers state
-//------------------------------------------------------------------
-[_(BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE)] void betweenDoctypePublicAndSystemIdentifiersState(int cp) {
-    if (isWhitespace(cp))
-        return;
-
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.QUOTATION_MARK) {
-        this.currentToken.systemId = "";
-        this.state = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
-    }
-
-
-    else if (cp == CP.APOSTROPHE) {
-        this.currentToken.systemId = "";
-        this.state = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
-    }
-
-    else {
-        this.currentToken.forceQuirks = true;
-        this.reconsumeInState(BOGUS_DOCTYPE_STATE);
-    }
-}
-
-
-//12.2.4.63 Before DOCTYPE system identifier state
-//------------------------------------------------------------------
-[_(BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void beforeDoctypeSystemIdentifierState(int cp) {
-    if (isWhitespace(cp))
-        return;
-
-    if (cp == CP.QUOTATION_MARK) {
-        this.currentToken.systemId = "";
-        this.state = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
-    }
-
-    else if (cp == CP.APOSTROPHE) {
-        this.currentToken.systemId = "";
-        this.state = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
-    }
-
-    else {
-        this.currentToken.forceQuirks = true;
-        this.reconsumeInState(BOGUS_DOCTYPE_STATE);
-    }
-}
-
-
-//12.2.4.64 DOCTYPE system identifier (double-quoted) state
-//------------------------------------------------------------------
-[_(DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypeSystemIdentifierDoubleQuotedState(int cp) {
-    if (cp == CP.QUOTATION_MARK)
-        this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.NULL)
-        this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
-
-    else if (cp == CP.EOF) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.currentToken.systemId += toChar(cp);
-}
-
-
-//12.2.4.65 DOCTYPE system identifier (single-quoted) state
-//------------------------------------------------------------------
-[_(DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypeSystemIdentifierSingleQuotedState(int cp) {
-    if (cp == CP.APOSTROPHE)
-        this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
-
-    else if (cp == CP.GREATER_THAN_SIGN) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.NULL)
-        this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
-
-    else if (cp == CP.EOF) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.currentToken.systemId += toChar(cp);
-}
-
-
-//12.2.4.66 After DOCTYPE system identifier state
-//------------------------------------------------------------------
-[_(AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void afterDoctypeSystemIdentifierState(int cp) {
-    if (isWhitespace(cp))
-        return;
-
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.currentToken.forceQuirks = true;
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-
-    else
-        this.state = BOGUS_DOCTYPE_STATE;
-}
-
-
-//12.2.4.67 Bogus DOCTYPE state
-//------------------------------------------------------------------
-[_(BOGUS_DOCTYPE_STATE)] void bogusDoctypeState(int cp) {
-    if (cp == CP.GREATER_THAN_SIGN) {
-        this.emitCurrentToken();
-        this.state = DATA_STATE;
-    }
-
-    else if (cp == CP.EOF) {
-        this.emitCurrentToken();
-        this.reconsumeInState(DATA_STATE);
-    }
-}
-
-
-//12.2.4.68 CDATA section state
-//------------------------------------------------------------------
-[_(CDATA_SECTION_STATE)] void cdataSectionState(int cp) {
-    while (true) {
-        if (cp == CP.EOF) {
-            this.reconsumeInState(DATA_STATE);
-            break;
-        }
-
-        else {
-            var cdataEndMatch = this.consumeSubsequentIfMatch(CPS.CDATA_END_STRING, cp, true);
-
-            if (this.ensureHibernation())
-                break;
-
-            if (cdataEndMatch) {
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
                 this.state = DATA_STATE;
-                break;
+                this.emitCurrentToken();
             }
 
-            this.emitCodePoint(cp);
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
 
-            this.hibernationSnapshot();
-            cp = this.consume();
-
-            if (this.ensureHibernation())
-                break;
+            else
+            {
+                this.currentToken.data += toChar(cp);
+                this.state = COMMENT_STATE;
+            }
         }
-    }
-}
 
+        // 12.2.4.47 Comment start dash state
+        // ------------------------------------------------------------------
+        [_(COMMENT_START_DASH_STATE)]
+        void commentStartDashState(int cp)
+        {
+            if (cp == CP.HYPHEN_MINUS)
+                this.state = COMMENT_END_STATE;
+
+            else if (cp == CP.NULL)
+            {
+                this.currentToken.data += '-';
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                this.state = COMMENT_STATE;
+            }
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.state = DATA_STATE;
+                this.emitCurrentToken();
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+            {
+                this.currentToken.data += '-';
+                this.currentToken.data += toChar(cp);
+                this.state = COMMENT_STATE;
+            }
+        }
+
+        // 12.2.4.48 Comment state
+        // ------------------------------------------------------------------
+        [_(COMMENT_STATE)]
+        void commentState(int cp)
+        {
+            if (cp == CP.HYPHEN_MINUS)
+                this.state = COMMENT_END_DASH_STATE;
+
+            else if (cp == CP.NULL)
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.currentToken.data += toChar(cp);
+        }
+
+        // 12.2.4.49 Comment end dash state
+        // ------------------------------------------------------------------
+        [_(COMMENT_END_DASH_STATE)]
+        void commentEndDashState(int cp)
+        {
+            if (cp == CP.HYPHEN_MINUS)
+                this.state = COMMENT_END_STATE;
+
+            else if (cp == CP.NULL)
+            {
+                this.currentToken.data += '-';
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                this.state = COMMENT_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+            {
+                this.currentToken.data += '-';
+                this.currentToken.data += toChar(cp);
+                this.state = COMMENT_STATE;
+            }
+        }
+
+        // 12.2.4.50 Comment end state
+        // ------------------------------------------------------------------
+        [_(COMMENT_END_STATE)]
+        void commentEndState(int cp)
+        {
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.state = DATA_STATE;
+                this.emitCurrentToken();
+            }
+
+            else if (cp == CP.EXCLAMATION_MARK)
+                this.state = COMMENT_END_BANG_STATE;
+
+            else if (cp == CP.HYPHEN_MINUS)
+                this.currentToken.data += '-';
+
+            else if (cp == CP.NULL)
+            {
+                this.currentToken.data += "--";
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                this.state = COMMENT_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.reconsumeInState(DATA_STATE);
+                this.emitCurrentToken();
+            }
+
+            else
+            {
+                this.currentToken.data += "--";
+                this.currentToken.data += toChar(cp);
+                this.state = COMMENT_STATE;
+            }
+        }
+
+        // 12.2.4.51 Comment end bang state
+        // ------------------------------------------------------------------
+        [_(COMMENT_END_BANG_STATE)]
+        void commentEndBangState(int cp)
+        {
+            if (cp == CP.HYPHEN_MINUS)
+            {
+                this.currentToken.data += "--!";
+                this.state = COMMENT_END_DASH_STATE;
+            }
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.state = DATA_STATE;
+                this.emitCurrentToken();
+            }
+
+            else if (cp == CP.NULL)
+            {
+                this.currentToken.data += "--!";
+                this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                this.state = COMMENT_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+            {
+                this.currentToken.data += "--!";
+                this.currentToken.data += toChar(cp);
+                this.state = COMMENT_STATE;
+            }
+        }
+
+        // 12.2.4.52 DOCTYPE state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_STATE)]
+        void doctypeState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.createDoctypeToken(null);
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.createDoctypeToken(null);
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+            else
+            {
+                this.createDoctypeToken("");
+                this.reconsumeInState(DOCTYPE_NAME_STATE);
+            }
+        }
+
+        // 12.2.4.54 DOCTYPE name state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_NAME_STATE)]
+        void doctypeNameState(int cp)
+        {
+            if (isWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
+                this.reconsumeInState(AFTER_DOCTYPE_NAME_STATE);
+
+            else if (isAsciiUpper(cp))
+                this.currentToken.name += toAsciiLowerChar(cp);
+
+            else if (cp == CP.NULL)
+                this.currentToken.name += CP.REPLACEMENT_CHARACTER;
+
+            else
+                this.currentToken.name += toChar(cp);
+        }
+
+        // 12.2.4.55 After DOCTYPE name state
+        // ------------------------------------------------------------------
+        [_(AFTER_DOCTYPE_NAME_STATE)]
+        void afterDoctypeNameState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.state = DATA_STATE;
+                this.emitCurrentToken();
+            }
+
+            else
+            {
+                var publicMatch = this.consumeSubsequentIfMatch(CPS.PUBLIC_STRING, cp, false);
+                var systemMatch = !publicMatch && this.consumeSubsequentIfMatch(CPS.SYSTEM_STRING, cp, false);
+
+                if (!this.ensureHibernation())
+                {
+                    if (publicMatch)
+                        this.state = BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
+
+                    else if (systemMatch)
+                        this.state = BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+                    else
+                    {
+                        this.currentToken.forceQuirks = true;
+                        this.state = BOGUS_DOCTYPE_STATE;
+                    }
+                }
+            }
+        }
+
+        // 12.2.4.57 Before DOCTYPE public identifier state
+        // ------------------------------------------------------------------
+        [_(BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE)]
+        void beforeDoctypePublicIdentifierState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            if (cp == CP.QUOTATION_MARK)
+            {
+                this.currentToken.publicId = "";
+                this.state = DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
+            }
+
+            else if (cp == CP.APOSTROPHE)
+            {
+                this.currentToken.publicId = "";
+                this.state = DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
+            }
+
+            else
+            {
+                this.currentToken.forceQuirks = true;
+                this.reconsumeInState(BOGUS_DOCTYPE_STATE);
+            }
+        }
+
+        // 12.2.4.58 DOCTYPE public identifier (double-quoted) state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE)]
+        void doctypePublicIdentifierDoubleQuotedState(int cp)
+        {
+            if (cp == CP.QUOTATION_MARK)
+                this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
+
+            else if (cp == CP.NULL)
+                this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.currentToken.publicId += toChar(cp);
+        }
+
+        // 12.2.4.59 DOCTYPE public identifier (single-quoted) state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE)]
+        void doctypePublicIdentifierSingleQuotedState(int cp)
+        {
+            if (cp == CP.APOSTROPHE)
+                this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
+
+            else if (cp == CP.NULL)
+                this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.currentToken.publicId += toChar(cp);
+        }
+
+        // 12.2.4.61 Between DOCTYPE public and system identifiers state
+        // ------------------------------------------------------------------
+        [_(BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE)]
+        void betweenDoctypePublicAndSystemIdentifiersState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.QUOTATION_MARK)
+            {
+                this.currentToken.systemId = "";
+                this.state = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+            }
+
+            else if (cp == CP.APOSTROPHE)
+            {
+                this.currentToken.systemId = "";
+                this.state = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+            }
+
+            else
+            {
+                this.currentToken.forceQuirks = true;
+                this.reconsumeInState(BOGUS_DOCTYPE_STATE);
+            }
+        }
+
+        // 12.2.4.63 Before DOCTYPE system identifier state
+        // ------------------------------------------------------------------
+        [_(BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE)]
+        void beforeDoctypeSystemIdentifierState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            if (cp == CP.QUOTATION_MARK)
+            {
+                this.currentToken.systemId = "";
+                this.state = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+            }
+
+            else if (cp == CP.APOSTROPHE)
+            {
+                this.currentToken.systemId = "";
+                this.state = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+            }
+
+            else
+            {
+                this.currentToken.forceQuirks = true;
+                this.reconsumeInState(BOGUS_DOCTYPE_STATE);
+            }
+        }
+
+        // 12.2.4.64 DOCTYPE system identifier (double-quoted) state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE)]
+        void doctypeSystemIdentifierDoubleQuotedState(int cp)
+        {
+            if (cp == CP.QUOTATION_MARK)
+                this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.NULL)
+                this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+
+            else if (cp == CP.EOF)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.currentToken.systemId += toChar(cp);
+        }
+
+        // 12.2.4.65 DOCTYPE system identifier (single-quoted) state
+        // ------------------------------------------------------------------
+        [_(DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE)]
+        void doctypeSystemIdentifierSingleQuotedState(int cp)
+        {
+            if (cp == CP.APOSTROPHE)
+                this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+            else if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.NULL)
+                this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+
+            else if (cp == CP.EOF)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.currentToken.systemId += toChar(cp);
+        }
+
+        // 12.2.4.66 After DOCTYPE system identifier state
+        // ------------------------------------------------------------------
+        [_(AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE)]
+        void afterDoctypeSystemIdentifierState(int cp)
+        {
+            if (isWhitespace(cp))
+                return;
+
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.currentToken.forceQuirks = true;
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+
+            else
+                this.state = BOGUS_DOCTYPE_STATE;
+        }
+
+        // 12.2.4.67 Bogus DOCTYPE state
+        // ------------------------------------------------------------------
+        [_(BOGUS_DOCTYPE_STATE)]
+        void bogusDoctypeState(int cp)
+        {
+            if (cp == CP.GREATER_THAN_SIGN)
+            {
+                this.emitCurrentToken();
+                this.state = DATA_STATE;
+            }
+
+            else if (cp == CP.EOF)
+            {
+                this.emitCurrentToken();
+                this.reconsumeInState(DATA_STATE);
+            }
+        }
+
+        // 12.2.4.68 CDATA section state
+        // ------------------------------------------------------------------
+        [_(CDATA_SECTION_STATE)]
+        void cdataSectionState(int cp)
+        {
+            while (true)
+            {
+                if (cp == CP.EOF)
+                {
+                    this.reconsumeInState(DATA_STATE);
+                    break;
+                }
+
+                else
+                {
+                    var cdataEndMatch = this.consumeSubsequentIfMatch(CPS.CDATA_END_STRING, cp, true);
+
+                    if (this.ensureHibernation())
+                        break;
+
+                    if (cdataEndMatch)
+                    {
+                        this.state = DATA_STATE;
+                        break;
+                    }
+
+                    this.emitCodePoint(cp);
+
+                    this.hibernationSnapshot();
+                    cp = this.consume();
+
+                    if (this.ensureHibernation())
+                        break;
+                }
+            }
+        }
     }
 }
