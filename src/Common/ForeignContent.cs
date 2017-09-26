@@ -17,16 +17,16 @@ namespace ParseFive.Common
         //var HTML = require("./html");
 
         //MIME types
-        static class MIME_TYPES
+        static class MimeTypes
         {
-            public const string TEXT_HTML = "text/html";
-            public const string APPLICATION_XML = "application/xhtml+xml";
+            public const string TextHtml = "text/html";
+            public const string ApplicationXml = "application/xhtml+xml";
         }
 
         //Attributes
-        const string DEFINITION_URL_ATTR = "definitionurl";
-        const string ADJUSTED_DEFINITION_URL_ATTR = "definitionURL";
-        static readonly IDictionary<string, string> SVG_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, string>
+        const string DefinitionUrlAttr = "definitionurl";
+        const string AdjustedDefinitionUrlAttr = "definitionURL";
+        static readonly IDictionary<string, string> SvgAttrsAdjustmentMap = new Dictionary<string, string>
         {
             {"attributename", "attributeName"},
             {"attributetype", "attributeType"},
@@ -90,18 +90,19 @@ namespace ParseFive.Common
 
         sealed class XmlAdjustment
         {
-            public readonly string prefix;
-            public readonly string name;
-            public readonly string @namespace;
+            public readonly string Prefix;
+            public readonly string Name;
+            public readonly string Namespace;
+
             public XmlAdjustment(string prefix, string name, string @namespace)
             {
-                this.prefix = prefix;
-                this.name = name;
-                this.@namespace = @namespace;
+                Prefix = prefix;
+                Name = name;
+                Namespace = @namespace;
             }
         }
 
-        static readonly IDictionary<string, XmlAdjustment> XML_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, XmlAdjustment>
+        static readonly IDictionary<string, XmlAdjustment> XmlAttrsAdjustmentMap = new Dictionary<string, XmlAdjustment>
         {
             ["xlink:actuate"] = new XmlAdjustment("xlink", "actuate", NS.XLINK),
             ["xlink:arcrole"] = new XmlAdjustment("xlink", "arcrole", NS.XLINK),
@@ -120,7 +121,7 @@ namespace ParseFive.Common
 
 
         //SVG tag names adjustment map
-        static readonly IDictionary<string, string> SVG_TAG_NAMES_ADJUSTMENT_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, string> SvgTagNamesAdjustmentMap = new Dictionary<string, string>
         {
             ["altglyph"] = "altGlyph",
             ["altglyphdef"] = "altGlyphDef",
@@ -161,8 +162,7 @@ namespace ParseFive.Common
         };
 
         //Tags that causes exit from foreign content
-        //public static IDictionary<string, IDictionary<string, bool>> SPECIAL_ELEMENTS = new Dictionary<string, IDictionary<string, bool>>
-        static readonly IDictionary<string, bool> EXITS_FOREIGN_CONTENT = new Dictionary<string, bool>
+        static readonly IDictionary<string, bool> ExitsForeignContent = new Dictionary<string, bool>
         {
             [ɑ.B] = true,
             [ɑ.BIG] = true,
@@ -220,7 +220,7 @@ namespace ParseFive.Common
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.SIZE) != null ||
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.FACE) != null);
 
-            return isFontWithAttrs ? true : EXITS_FOREIGN_CONTENT.TryGetValue(tn, out var value) ? value : false;
+            return isFontWithAttrs ? true : ExitsForeignContent.TryGetValue(tn, out var value) ? value : false;
         }
 
         //Token adjustments
@@ -228,9 +228,9 @@ namespace ParseFive.Common
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
-                if (token.attrs[i].name == DEFINITION_URL_ATTR)
+                if (token.attrs[i].name == DefinitionUrlAttr)
                 {
-                    token.attrs[i].name = ADJUSTED_DEFINITION_URL_ATTR;
+                    token.attrs[i].name = AdjustedDefinitionUrlAttr;
                     break;
                 }
             }
@@ -240,7 +240,7 @@ namespace ParseFive.Common
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
-                if (SVG_ATTRS_ADJUSTMENT_MAP.TryGetValue(token.attrs[i].name, out var adjustedAttrName))
+                if (SvgAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrName))
                     token.attrs[i].name = adjustedAttrName;
             }
         }
@@ -249,11 +249,11 @@ namespace ParseFive.Common
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
-                if (XML_ATTRS_ADJUSTMENT_MAP.TryGetValue(token.attrs[i].name, out var adjustedAttrEntry))
+                if (XmlAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrEntry))
                 {
-                    token.attrs[i].prefix = adjustedAttrEntry.prefix;
-                    token.attrs[i].name = adjustedAttrEntry.name;
-                    token.attrs[i].@namespace = adjustedAttrEntry.@namespace;
+                    token.attrs[i].prefix = adjustedAttrEntry.Prefix;
+                    token.attrs[i].name = adjustedAttrEntry.Name;
+                    token.attrs[i].@namespace = adjustedAttrEntry.Namespace;
                 }
             }
         }
@@ -261,7 +261,7 @@ namespace ParseFive.Common
 
         public static void adjustTokenSVGTagName(Token token)
         {
-            if (SVG_TAG_NAMES_ADJUSTMENT_MAP.TryGetValue(token.tagName, out var adjustedTagName))
+            if (SvgTagNamesAdjustmentMap.TryGetValue(token.tagName, out var adjustedTagName))
                 token.tagName = adjustedTagName;
         }
 
@@ -281,7 +281,7 @@ namespace ParseFive.Common
                     {
                         var value = attrs[i].value.toLowerCase();
 
-                        return value == MIME_TYPES.TEXT_HTML || value == MIME_TYPES.APPLICATION_XML;
+                        return value == MimeTypes.TextHtml || value == MimeTypes.ApplicationXml;
                     }
                 }
             }
