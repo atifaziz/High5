@@ -96,7 +96,7 @@ namespace ParseFive.Parser
             var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.length;
 
-            if (cLength)
+            if (cLength.IsTruthy())
             {
                 var neAttrs = this.treeAdapter.getAttrList(newElement);
                 var neAttrsLength = neAttrs.length;
