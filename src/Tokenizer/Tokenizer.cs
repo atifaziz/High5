@@ -107,7 +107,6 @@ namespace ParseFive.Tokenizer
         private Token currentCharacterToken;
         private Token currentToken;
         private Attr currentAttr;
-        private object options;
 
 
         //Tokenizer
