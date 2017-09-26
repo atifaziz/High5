@@ -2,7 +2,7 @@ namespace ParseFive.Tokenizer
 {
     using System.Collections.Generic;
 
-    public class Token
+    sealed class Token
     {
         public string type { get; set; }
         public string tagName { get; set; }
