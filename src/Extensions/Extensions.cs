@@ -27,7 +27,7 @@ namespace ParseFive.Extensions
         public static T Pop<T>(this List<T> list)
         {
             if (list.Count == 0)
-                throw new IndexOutOfRangeException("Array is empty");
+                throw new InvalidOperationException("Array is empty.");
             var temp = list[list.Count - 1];
             list.RemoveAt(list.Count - 1);
             return temp;
@@ -47,7 +47,7 @@ namespace ParseFive.Extensions
         public static T Shift<T> (this List<T> list)
         {
             if (list.Count == 0)
-                throw new IndexOutOfRangeException("Array is empty");
+                throw new InvalidOperationException("Array is empty.");
             var temp = list[0];
             list.RemoveAt(0);
             return temp;
