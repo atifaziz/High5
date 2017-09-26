@@ -32,7 +32,8 @@ namespace ParseFive.Parser
 
     sealed class FormattingElementList
     {
-        //Const
+        // Const
+
         const int NOAH_ARK_CAPACITY = 3;
 
         public int length;
@@ -40,7 +41,8 @@ namespace ParseFive.Parser
         public TreeAdapter treeAdapter;
         public object bookmark;
 
-        //Entry types
+        // Entry types
+
         public const string MARKER_ENTRY = "MARKER_ENTRY";
         public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
 
@@ -51,9 +53,10 @@ namespace ParseFive.Parser
             entries = new List<IEntry>();
         }
 
-        //Noah Ark's condition
-        //OPTIMIZATION: at first we try to find possible candidates for exclusion using
-        //lightweight heuristics without thorough attributes check.
+        // Noah Ark's condition
+        // OPTIMIZATION: at first we try to find possible candidates for exclusion using
+        // lightweight heuristics without thorough attributes check.
+
         List<(int idx, List<Attr> attrs)> getNoahArkConditionCandidates(Element newElement)
         {
             var candidates = new List<(int idx, List<Attr> attrs)>();
@@ -96,13 +99,14 @@ namespace ParseFive.Parser
                 var neAttrsLength = neAttrs.length;
                 var neAttrsMap = new NeAttrsMap();
 
-                //NOTE: build attrs map for the new element so we can perform fast lookups
+                // NOTE: build attrs map for the new element so we can perform fast lookups
+
                 for (var i = 0; i < neAttrsLength; i++)
                 {
                     var neAttr = neAttrs[i];
 
                     neAttrsMap.Add(neAttr.name, neAttr.value);
-                    //neAttrsMap[neAttr.name] = neAttr.value;
+                    // neAttrsMap[neAttr.name] = neAttr.value;
                 }
                 
                 for (var i = 0; i < neAttrsLength; i++)
@@ -122,7 +126,8 @@ namespace ParseFive.Parser
                     }
                 }
 
-                //NOTE: remove bottommost candidates until Noah's Ark condition will not be met
+                // NOTE: remove bottommost candidates until Noah's Ark condition will not be met
+
                 for (var i = cLength - 1; i >= NOAH_ARK_CAPACITY - 1; i--)
                 {
                     this.entries.splice(candidates[i].idx, 1);
@@ -131,7 +136,8 @@ namespace ParseFive.Parser
             }
         }
 
-        //Mutations
+        // Mutations
+
         public void insertMarker()
         {
             entries.push(new MarkerEntry(MARKER_ENTRY));
@@ -187,7 +193,8 @@ namespace ParseFive.Parser
             }
         }
 
-        //Search
+        // Search
+
         public IEntry getElementEntryInScopeWithTagName(string tagName)
         {
             for (var i = this.length - 1; i >= 0; i--)
