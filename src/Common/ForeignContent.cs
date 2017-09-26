@@ -27,7 +27,7 @@ namespace ParseFive.Common
     using Extensions;
     using Tokenizer = Tokenizer.Tokenizer;
 
-    class ForeignContent
+    static class ForeignContent
     {
         //var Tokenizer = require("../tokenizer"),
         //var HTML = require("./html");
@@ -40,9 +40,9 @@ namespace ParseFive.Common
         }
 
         //Attributes
-        public const string DEFINITION_URL_ATTR = "definitionurl";
-        public const string ADJUSTED_DEFINITION_URL_ATTR = "definitionURL";
-        public static IDictionary<string, string> SVG_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, string>
+        const string DEFINITION_URL_ATTR = "definitionurl";
+        const string ADJUSTED_DEFINITION_URL_ATTR = "definitionURL";
+        static readonly IDictionary<string, string> SVG_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, string>
         {
             {"attributename", "attributeName"},
             {"attributetype", "attributeType"},
@@ -104,7 +104,7 @@ namespace ParseFive.Common
             {"zoomandpan", "zoomAndPan" },
         };
 
-        public static IDictionary<string, XmlAdjustment> XML_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, XmlAdjustment>
+        static readonly IDictionary<string, XmlAdjustment> XML_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, XmlAdjustment>
         {
             ["xlink:actuate"] = new XmlAdjustment("xlink", "actuate", NS.XLINK),
             ["xlink:arcrole"] = new XmlAdjustment("xlink", "arcrole", NS.XLINK),
@@ -123,7 +123,7 @@ namespace ParseFive.Common
 
 
         //SVG tag names adjustment map
-        public static IDictionary<string, string> SVG_TAG_NAMES_ADJUSTMENT_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, string> SVG_TAG_NAMES_ADJUSTMENT_MAP = new Dictionary<string, string>
         {
             ["altglyph"] = "altGlyph",
             ["altglyphdef"] = "altGlyphDef",
@@ -165,7 +165,7 @@ namespace ParseFive.Common
 
         //Tags that causes exit from foreign content
         //public static IDictionary<string, IDictionary<string, bool>> SPECIAL_ELEMENTS = new Dictionary<string, IDictionary<string, bool>>
-        public static IDictionary<string, bool> EXITS_FOREIGN_CONTENT = new Dictionary<string, bool>
+        static readonly IDictionary<string, bool> EXITS_FOREIGN_CONTENT = new Dictionary<string, bool>
         {
             [ɑ.B] = true,
             [ɑ.BIG] = true,
