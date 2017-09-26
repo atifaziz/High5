@@ -538,10 +538,10 @@ namespace ParseFive.Tokenizer
             this.AppendCharToCurrentCharacterToken(type, ToChar(cp));
         }
 
-        void EmitSeveralCodePoints(IList<int> codePoints)
+        void EmitSeveralCodePoints(IEnumerable<int> codePoints)
         {
-            for (var i = 0; i < codePoints.Count; i++)
-                this.EmitCodePoint(codePoints[i]);
+            foreach (var cp in codePoints)
+                this.EmitCodePoint(cp);
         }
 
         // NOTE: used then we emit character explicitly. This is always a non-whitespace and a non-null character.
@@ -1762,8 +1762,8 @@ namespace ParseFive.Tokenizer
             {
                 if (referencedCodePoints.IsTruthy())
                 {
-                    for (var i = 0; i < referencedCodePoints.Length; i++)
-                        @this.currentAttr.value += ToChar(referencedCodePoints[i]);
+                    foreach (var rcp in referencedCodePoints)
+                        @this.currentAttr.value += ToChar(rcp);
                 }
                 else
                     @this.currentAttr.value += '&';
