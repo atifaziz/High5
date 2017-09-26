@@ -21,7 +21,7 @@ namespace ParseFive.Tokenizer
         bool skipNextNewLine;
 
         bool lastChunkWritten;
-        int bufferWaterline;
+        readonly int bufferWaterline;
 
         public bool EndOfChunkHit { get; private set; }
 
