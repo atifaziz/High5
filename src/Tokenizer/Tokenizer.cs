@@ -2,8 +2,6 @@ namespace ParseFive.Tokenizer
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
     using Extensions;
     using static NamedEntityData;
@@ -11,14 +9,6 @@ namespace ParseFive.Tokenizer
     using String = Compatibility.String;
     using CP = Common.Unicode.CodePoints;
     using CPS = Common.Unicode.CodePointSequences;
-
-    [AttributeUsage(AttributeTargets.Method)]
-    sealed class _Attribute : Attribute
-    {
-        public string State { get; }
-
-        public _Attribute(string state) => State = state;
-    }
 
     static class NamedEntityTreeFlags
     {
@@ -237,14 +227,7 @@ namespace ParseFive.Tokenizer
         static Dictionary<string, Action<Tokenizer, int>> _actionByState;
 
         Action<Tokenizer, int> this[string state] =>
-            (_actionByState ?? (_actionByState = ReflectStateMachine().ToDictionary(e => e.State, e => e.Action)))[state];
-
-        static IEnumerable<(string State, Action<Tokenizer, int> Action)> ReflectStateMachine() =>
-            from m in typeof(Tokenizer).GetRuntimeMethods()
-            where m.IsPrivate && m.IsStatic
-            select (State: m.GetCustomAttribute<_Attribute>()?.State.Trim(), Method: m) into e
-            where !string.IsNullOrEmpty(e.State)
-            select (e.State, (Action<Tokenizer, int>) e.Method.CreateDelegate(typeof(Action<Tokenizer, int>)));
+            (_actionByState ?? (_actionByState = CreateStateActionMap()))[state];
 
         // Tokenizer initial states for different modes
 
@@ -702,1752 +685,1694 @@ namespace ParseFive.Tokenizer
             return this.ConsumeNamedEntity(inAttr);
         }
 
-        // 12.2.4.1 Data state
-        // ------------------------------------------------------------------
-        [_(DATA_STATE)]
-        static void DataState(Tokenizer @this, int cp)
+        static Dictionary<string, Action<Tokenizer, int>> CreateStateActionMap()
         {
-            @this.preprocessor.DropParsedChunk();
+            var _ = new Dictionary<string, Action<Tokenizer, int>>();
 
-            if (cp == CP.AMPERSAND)
-                @this.State = CHARACTER_REFERENCE_IN_DATA_STATE;
-
-            else if (cp == CP.LESS_THAN_SIGN)
-                @this.State = TAG_OPEN_STATE;
-
-            else if (cp == CP.NULL)
-                @this.EmitCodePoint(cp);
-
-            else if (cp == CP.EOF)
-                @this.EmitEofToken();
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.2 Character reference in data state
-        // ------------------------------------------------------------------
-        [_(CHARACTER_REFERENCE_IN_DATA_STATE)]
-        static void CharacterReferenceInDataState(Tokenizer @this, int cp)
-        {
-            @this.additionalAllowedCp = 0; // void 0;
-
-            var referencedCodePoints = @this.ConsumeCharacterReference(cp, false);
-
-            if (!@this.EnsureHibernation())
+            // 12.2.4.1 Data state
+            // ------------------------------------------------------------------
+            _[DATA_STATE] = DataState; void DataState(Tokenizer @this, int cp)
             {
-                if (referencedCodePoints.IsTruthy())
-                    @this.EmitSeveralCodePoints(referencedCodePoints);
+                @this.preprocessor.DropParsedChunk();
+
+                if (cp == CP.AMPERSAND)
+                    @this.State = CHARACTER_REFERENCE_IN_DATA_STATE;
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = TAG_OPEN_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.EmitCodePoint(cp);
+
+                else if (cp == CP.EOF)
+                    @this.EmitEofToken();
 
                 else
-                    @this.EmitChar('&');
-
-                @this.State = DATA_STATE;
-            }
-        }
-
-        // 12.2.4.3 RCDATA state
-        // ------------------------------------------------------------------
-        [_(RCDATA_STATE)]
-        static void RcdataState(Tokenizer @this, int cp)
-        {
-            @this.preprocessor.DropParsedChunk();
-
-            if (cp == CP.AMPERSAND)
-                @this.State = CHARACTER_REFERENCE_IN_RCDATA_STATE;
-
-            else if (cp == CP.LESS_THAN_SIGN)
-                @this.State = RCDATA_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.NULL)
-                @this.EmitChar((char)CP.REPLACEMENT_CHARACTER);
-
-            else if (cp == CP.EOF)
-                @this.EmitEofToken();
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.4 Character reference in RCDATA state
-        // ------------------------------------------------------------------
-        [_(CHARACTER_REFERENCE_IN_RCDATA_STATE)]
-        static void CharacterReferenceInRcdataState(Tokenizer @this, int cp)
-        {
-            @this.additionalAllowedCp = 0; // void 0;
-
-            var referencedCodePoints = @this.ConsumeCharacterReference(cp, false);
-
-            if (!@this.EnsureHibernation())
-            {
-                if (referencedCodePoints.IsTruthy())
-                    @this.EmitSeveralCodePoints(referencedCodePoints);
-
-                else
-                    @this.EmitChar('&');
-
-                @this.State = RCDATA_STATE;
-            }
-        }
-
-        // 12.2.4.5 RAWTEXT state
-        // ------------------------------------------------------------------
-        [_(RAWTEXT_STATE)]
-        static void RawtextState(Tokenizer @this, int cp)
-        {
-            @this.preprocessor.DropParsedChunk();
-
-            if (cp == CP.LESS_THAN_SIGN)
-                @this.State = RAWTEXT_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.NULL)
-                @this.EmitChar((char)CP.REPLACEMENT_CHARACTER);
-
-            else if (cp == CP.EOF)
-                @this.EmitEofToken();
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.6 Script data state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_STATE)]
-        static void ScriptDataState(Tokenizer @this, int cp)
-        {
-            @this.preprocessor.DropParsedChunk();
-
-            if (cp == CP.LESS_THAN_SIGN)
-                @this.State = SCRIPT_DATA_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.NULL)
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-
-            else if (cp == CP.EOF)
-                @this.EmitEofToken();
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.7 PLAINTEXT state
-        // ------------------------------------------------------------------
-        [_(PLAINTEXT_STATE)]
-        static void PlaintextState(Tokenizer @this, int cp)
-        {
-            @this.preprocessor.DropParsedChunk();
-
-            if (cp == CP.NULL)
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-
-            else if (cp == CP.EOF)
-                @this.EmitEofToken();
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.8 Tag open state
-        // ------------------------------------------------------------------
-        [_(TAG_OPEN_STATE)]
-        static void TagOpenState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.EXCLAMATION_MARK)
-                @this.State = MARKUP_DECLARATION_OPEN_STATE;
-
-            else if (cp == CP.SOLIDUS)
-                @this.State = END_TAG_OPEN_STATE;
-
-            else if (IsAsciiLetter(cp))
-            {
-                @this.CreateStartTagToken();
-                @this.ReconsumeInState(TAG_NAME_STATE);
+                    @this.EmitCodePoint(cp);
             }
 
-            else if (cp == CP.QUESTION_MARK)
-                @this.ReconsumeInState(BOGUS_COMMENT_STATE);
-
-            else
+            // 12.2.4.2 Character reference in data state
+            // ------------------------------------------------------------------
+            _[CHARACTER_REFERENCE_IN_DATA_STATE] = CharacterReferenceInDataState; void CharacterReferenceInDataState(Tokenizer @this, int cp)
             {
-                @this.EmitChar('<');
-                @this.ReconsumeInState(DATA_STATE);
-            }
-        }
+                @this.additionalAllowedCp = 0; // void 0;
 
-        // 12.2.4.9 End tag open state
-        // ------------------------------------------------------------------
-        [_(END_TAG_OPEN_STATE)]
-        static void EndTagOpenState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiLetter(cp))
-            {
-                @this.CreateEndTagToken();
-                @this.ReconsumeInState(TAG_NAME_STATE);
-            }
+                var referencedCodePoints = @this.ConsumeCharacterReference(cp, false);
 
-            else if (cp == CP.GREATER_THAN_SIGN)
-                @this.State = DATA_STATE;
-
-            else if (cp == CP.EOF)
-            {
-                @this.ReconsumeInState(DATA_STATE);
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-            }
-
-            else
-                @this.ReconsumeInState(BOGUS_COMMENT_STATE);
-        }
-
-        // 12.2.4.10 Tag name state
-        // ------------------------------------------------------------------
-        [_(TAG_NAME_STATE)]
-        static void TagNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
-
-            else if (cp == CP.SOLIDUS)
-                @this.State = SELF_CLOSING_START_TAG_STATE;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else if (IsAsciiUpper(cp))
-                @this.currentToken.tagName += ToAsciiLowerChar(cp);
-
-            else if (cp == CP.NULL)
-                @this.currentToken.tagName += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.currentToken.tagName += ToChar(cp);
-        }
-
-        // 12.2.4.11 RCDATA less-than sign state
-        // ------------------------------------------------------------------
-        [_(RCDATA_LESS_THAN_SIGN_STATE)]
-        static void RcdataLessThanSignState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.SOLIDUS)
-            {
-                @this.tempBuff = new List<int>();
-                @this.State = RCDATA_END_TAG_OPEN_STATE;
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.ReconsumeInState(RCDATA_STATE);
-            }
-        }
-
-        // 12.2.4.12 RCDATA end tag open state
-        // ------------------------------------------------------------------
-        [_(RCDATA_END_TAG_OPEN_STATE)]
-        static void RcdataEndTagOpenState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiLetter(cp))
-            {
-                @this.CreateEndTagToken();
-                @this.ReconsumeInState(RCDATA_END_TAG_NAME_STATE);
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.ReconsumeInState(RCDATA_STATE);
-            }
-        }
-
-        // 12.2.4.13 RCDATA end tag name state
-        // ------------------------------------------------------------------
-        [_(RCDATA_END_TAG_NAME_STATE)]
-        static void RcdataEndTagNameState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiUpper(cp))
-            {
-                @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.currentToken.tagName += ToChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else
-            {
-                if (@this.IsAppropriateEndTagToken())
+                if (!@this.EnsureHibernation())
                 {
-                    if (IsWhitespace(cp))
+                    if (referencedCodePoints.IsTruthy())
+                        @this.EmitSeveralCodePoints(referencedCodePoints);
+
+                    else
+                        @this.EmitChar('&');
+
+                    @this.State = DATA_STATE;
+                }
+            }
+
+            // 12.2.4.3 RCDATA state
+            // ------------------------------------------------------------------
+            _[RCDATA_STATE] = RcdataState; void RcdataState(Tokenizer @this, int cp)
+            {
+                @this.preprocessor.DropParsedChunk();
+
+                if (cp == CP.AMPERSAND)
+                    @this.State = CHARACTER_REFERENCE_IN_RCDATA_STATE;
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = RCDATA_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.EmitChar((char)CP.REPLACEMENT_CHARACTER);
+
+                else if (cp == CP.EOF)
+                    @this.EmitEofToken();
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.4 Character reference in RCDATA state
+            // ------------------------------------------------------------------
+            _[CHARACTER_REFERENCE_IN_RCDATA_STATE] = CharacterReferenceInRcdataState; void CharacterReferenceInRcdataState(Tokenizer @this, int cp)
+            {
+                @this.additionalAllowedCp = 0; // void 0;
+
+                var referencedCodePoints = @this.ConsumeCharacterReference(cp, false);
+
+                if (!@this.EnsureHibernation())
+                {
+                    if (referencedCodePoints.IsTruthy())
+                        @this.EmitSeveralCodePoints(referencedCodePoints);
+
+                    else
+                        @this.EmitChar('&');
+
+                    @this.State = RCDATA_STATE;
+                }
+            }
+
+            // 12.2.4.5 RAWTEXT state
+            // ------------------------------------------------------------------
+            _[RAWTEXT_STATE] = RawtextState; void RawtextState(Tokenizer @this, int cp)
+            {
+                @this.preprocessor.DropParsedChunk();
+
+                if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = RAWTEXT_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.EmitChar((char)CP.REPLACEMENT_CHARACTER);
+
+                else if (cp == CP.EOF)
+                    @this.EmitEofToken();
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.6 Script data state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_STATE] = ScriptDataState; void ScriptDataState(Tokenizer @this, int cp)
+            {
+                @this.preprocessor.DropParsedChunk();
+
+                if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = SCRIPT_DATA_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+
+                else if (cp == CP.EOF)
+                    @this.EmitEofToken();
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.7 PLAINTEXT state
+            // ------------------------------------------------------------------
+            _[PLAINTEXT_STATE] = PlaintextState; void PlaintextState(Tokenizer @this, int cp)
+            {
+                @this.preprocessor.DropParsedChunk();
+
+                if (cp == CP.NULL)
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+
+                else if (cp == CP.EOF)
+                    @this.EmitEofToken();
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.8 Tag open state
+            // ------------------------------------------------------------------
+            _[TAG_OPEN_STATE] = TagOpenState; void TagOpenState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.EXCLAMATION_MARK)
+                    @this.State = MARKUP_DECLARATION_OPEN_STATE;
+
+                else if (cp == CP.SOLIDUS)
+                    @this.State = END_TAG_OPEN_STATE;
+
+                else if (IsAsciiLetter(cp))
+                {
+                    @this.CreateStartTagToken();
+                    @this.ReconsumeInState(TAG_NAME_STATE);
+                }
+
+                else if (cp == CP.QUESTION_MARK)
+                    @this.ReconsumeInState(BOGUS_COMMENT_STATE);
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+            }
+
+            // 12.2.4.9 End tag open state
+            // ------------------------------------------------------------------
+            _[END_TAG_OPEN_STATE] = EndTagOpenState; void EndTagOpenState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiLetter(cp))
+                {
+                    @this.CreateEndTagToken();
+                    @this.ReconsumeInState(TAG_NAME_STATE);
+                }
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                    @this.State = DATA_STATE;
+
+                else if (cp == CP.EOF)
+                {
+                    @this.ReconsumeInState(DATA_STATE);
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                }
+
+                else
+                    @this.ReconsumeInState(BOGUS_COMMENT_STATE);
+            }
+
+            // 12.2.4.10 Tag name state
+            // ------------------------------------------------------------------
+            _[TAG_NAME_STATE] = TagNameState; void TagNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
+
+                else if (cp == CP.SOLIDUS)
+                    @this.State = SELF_CLOSING_START_TAG_STATE;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (IsAsciiUpper(cp))
+                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.tagName += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.currentToken.tagName += ToChar(cp);
+            }
+
+            // 12.2.4.11 RCDATA less-than sign state
+            // ------------------------------------------------------------------
+            _[RCDATA_LESS_THAN_SIGN_STATE] = RcdataLessThanSignState; void RcdataLessThanSignState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.SOLIDUS)
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.State = RCDATA_END_TAG_OPEN_STATE;
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(RCDATA_STATE);
+                }
+            }
+
+            // 12.2.4.12 RCDATA end tag open state
+            // ------------------------------------------------------------------
+            _[RCDATA_END_TAG_OPEN_STATE] = RcdataEndTagOpenState; void RcdataEndTagOpenState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiLetter(cp))
+                {
+                    @this.CreateEndTagToken();
+                    @this.ReconsumeInState(RCDATA_END_TAG_NAME_STATE);
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.ReconsumeInState(RCDATA_STATE);
+                }
+            }
+
+            // 12.2.4.13 RCDATA end tag name state
+            // ------------------------------------------------------------------
+            _[RCDATA_END_TAG_NAME_STATE] = RcdataEndTagNameState; void RcdataEndTagNameState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiUpper(cp))
+                {
+                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.currentToken.tagName += ToChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else
+                {
+                    if (@this.IsAppropriateEndTagToken())
                     {
-                        @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
-                        return;
+                        if (IsWhitespace(cp))
+                        {
+                            @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.SOLIDUS)
+                        {
+                            @this.State = SELF_CLOSING_START_TAG_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.GREATER_THAN_SIGN)
+                        {
+                            @this.State = DATA_STATE;
+                            @this.EmitCurrentToken();
+                            return;
+                        }
                     }
 
-                    if (cp == CP.SOLIDUS)
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.EmitSeveralCodePoints(@this.tempBuff);
+                    @this.ReconsumeInState(RCDATA_STATE);
+                }
+            }
+
+            // 12.2.4.14 RAWTEXT less-than sign state
+            // ------------------------------------------------------------------
+            _[RAWTEXT_LESS_THAN_SIGN_STATE] = RawtextLessThanSignState; void RawtextLessThanSignState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.SOLIDUS)
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.State = RAWTEXT_END_TAG_OPEN_STATE;
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(RAWTEXT_STATE);
+                }
+            }
+
+            // 12.2.4.15 RAWTEXT end tag open state
+            // ------------------------------------------------------------------
+            _[RAWTEXT_END_TAG_OPEN_STATE] = RawtextEndTagOpenState; void RawtextEndTagOpenState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiLetter(cp))
+                {
+                    @this.CreateEndTagToken();
+                    @this.ReconsumeInState(RAWTEXT_END_TAG_NAME_STATE);
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.ReconsumeInState(RAWTEXT_STATE);
+                }
+            }
+
+            // 12.2.4.16 RAWTEXT end tag name state
+            // ------------------------------------------------------------------
+            _[RAWTEXT_END_TAG_NAME_STATE] = RawtextEndTagNameState; void RawtextEndTagNameState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiUpper(cp))
+                {
+                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.currentToken.tagName += ToChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else
+                {
+                    if (@this.IsAppropriateEndTagToken())
                     {
-                        @this.State = SELF_CLOSING_START_TAG_STATE;
-                        return;
+                        if (IsWhitespace(cp))
+                        {
+                            @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.SOLIDUS)
+                        {
+                            @this.State = SELF_CLOSING_START_TAG_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.GREATER_THAN_SIGN)
+                        {
+                            @this.EmitCurrentToken();
+                            @this.State = DATA_STATE;
+                            return;
+                        }
                     }
 
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.EmitSeveralCodePoints(@this.tempBuff);
+                    @this.ReconsumeInState(RAWTEXT_STATE);
+                }
+            }
+
+            // 12.2.4.17 Script data less-than sign state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_LESS_THAN_SIGN_STATE] = ScriptDataLessThanSignState; void ScriptDataLessThanSignState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.SOLIDUS)
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.State = SCRIPT_DATA_END_TAG_OPEN_STATE;
+                }
+
+                else if (cp == CP.EXCLAMATION_MARK)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPE_START_STATE;
+                    @this.EmitChar('<');
+                    @this.EmitChar('!');
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(SCRIPT_DATA_STATE);
+                }
+            }
+
+            // 12.2.4.18 Script data end tag open state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_END_TAG_OPEN_STATE] = ScriptDataEndTagOpenState; void ScriptDataEndTagOpenState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiLetter(cp))
+                {
+                    @this.CreateEndTagToken();
+                    @this.ReconsumeInState(SCRIPT_DATA_END_TAG_NAME_STATE);
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.ReconsumeInState(SCRIPT_DATA_STATE);
+                }
+            }
+
+            // 12.2.4.19 Script data end tag name state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_END_TAG_NAME_STATE] = ScriptDataEndTagNameState; void ScriptDataEndTagNameState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiUpper(cp))
+                {
+                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.currentToken.tagName += ToChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else
+                {
+                    if (@this.IsAppropriateEndTagToken())
+                    {
+                        if (IsWhitespace(cp))
+                        {
+                            @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
+                            return;
+                        }
+
+                        else if (cp == CP.SOLIDUS)
+                        {
+                            @this.State = SELF_CLOSING_START_TAG_STATE;
+                            return;
+                        }
+
+                        else if (cp == CP.GREATER_THAN_SIGN)
+                        {
+                            @this.EmitCurrentToken();
+                            @this.State = DATA_STATE;
+                            return;
+                        }
+                    }
+
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.EmitSeveralCodePoints(@this.tempBuff);
+                    @this.ReconsumeInState(SCRIPT_DATA_STATE);
+                }
+            }
+
+            // 12.2.4.20 Script data escape start state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPE_START_STATE] = ScriptDataEscapeStartState; void ScriptDataEscapeStartState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPE_START_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else
+                    @this.ReconsumeInState(SCRIPT_DATA_STATE);
+            }
+
+            // 12.2.4.21 Script data escape start dash state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPE_START_DASH_STATE] = ScriptDataEscapeStartDashState; void ScriptDataEscapeStartDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else
+                    @this.ReconsumeInState(SCRIPT_DATA_STATE);
+            }
+
+            // 12.2.4.22 Script data escaped state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_STATE] = ScriptDataEscapedState; void ScriptDataEscapedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.23 Script data escaped dash state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_DASH_STATE] = ScriptDataEscapedDashState; void ScriptDataEscapedDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.NULL)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_STATE;
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_STATE;
+                    @this.EmitCodePoint(cp);
+                }
+            }
+
+            // 12.2.4.24 Script data escaped dash dash state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_DASH_DASH_STATE] = ScriptDataEscapedDashDashState; void ScriptDataEscapedDashDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.EmitChar('-');
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                    @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = SCRIPT_DATA_STATE;
+                    @this.EmitChar('>');
+                }
+
+                else if (cp == CP.NULL)
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_STATE;
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                {
+                    @this.State = SCRIPT_DATA_ESCAPED_STATE;
+                    @this.EmitCodePoint(cp);
+                }
+            }
+
+            // 12.2.4.25 Script data escaped less-than sign state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE] = ScriptDataEscapedLessThanSignState; void ScriptDataEscapedLessThanSignState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.SOLIDUS)
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.State = SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
+                }
+
+                else if (IsAsciiLetter(cp))
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE);
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
+                }
+            }
+
+            // 12.2.4.26 Script data escaped end tag open state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE] = ScriptDataEscapedEndTagOpenState; void ScriptDataEscapedEndTagOpenState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiLetter(cp))
+                {
+                    @this.CreateEndTagToken();
+                    @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE);
+                }
+
+                else
+                {
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
+                }
+            }
+
+            // 12.2.4.27 Script data escaped end tag name state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE] = ScriptDataEscapedEndTagNameState; void ScriptDataEscapedEndTagNameState(Tokenizer @this, int cp)
+            {
+                if (IsAsciiUpper(cp))
+                {
+                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.currentToken.tagName += ToChar(cp);
+                    @this.tempBuff.push(cp);
+                }
+
+                else
+                {
+                    if (@this.IsAppropriateEndTagToken())
+                    {
+                        if (IsWhitespace(cp))
+                        {
+                            @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.SOLIDUS)
+                        {
+                            @this.State = SELF_CLOSING_START_TAG_STATE;
+                            return;
+                        }
+
+                        if (cp == CP.GREATER_THAN_SIGN)
+                        {
+                            @this.EmitCurrentToken();
+                            @this.State = DATA_STATE;
+                            return;
+                        }
+                    }
+
+                    @this.EmitChar('<');
+                    @this.EmitChar('/');
+                    @this.EmitSeveralCodePoints(@this.tempBuff);
+                    @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
+                }
+            }
+
+            // 12.2.4.28 Script data double escape start state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE] = ScriptDataDoubleEscapeStartState; void ScriptDataDoubleEscapeStartState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = @this.IsTempBufferEqualToScriptString() ? SCRIPT_DATA_DOUBLE_ESCAPED_STATE : SCRIPT_DATA_ESCAPED_STATE;
+                    @this.EmitCodePoint(cp);
+                }
+
+                else if (IsAsciiUpper(cp))
+                {
+                    @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
+                    @this.EmitCodePoint(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.tempBuff.push(cp);
+                    @this.EmitCodePoint(cp);
+                }
+
+                else
+                    @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
+            }
+
+            // 12.2.4.29 Script data double escaped state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPED_STATE] = ScriptDataDoubleEscapedState; void ScriptDataDoubleEscapedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
+                    @this.EmitChar('<');
+                }
+
+                else if (cp == CP.NULL)
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.EmitCodePoint(cp);
+            }
+
+            // 12.2.4.30 Script data double escaped dash state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE] = ScriptDataDoubleEscapedDashState; void ScriptDataDoubleEscapedDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
+                    @this.EmitChar('-');
+                }
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
+                    @this.EmitChar('<');
+                }
+
+                else if (cp == CP.NULL)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
+                    @this.EmitCodePoint(cp);
+                }
+            }
+
+            // 12.2.4.31 Script data double escaped dash dash state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE] = ScriptDataDoubleEscapedDashDashState; void ScriptDataDoubleEscapedDashDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.EmitChar('-');
+
+                else if (cp == CP.LESS_THAN_SIGN)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
+                    @this.EmitChar('<');
+                }
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = SCRIPT_DATA_STATE;
+                    @this.EmitChar('>');
+                }
+
+                else if (cp == CP.NULL)
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
+                    @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                {
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
+                    @this.EmitCodePoint(cp);
+                }
+            }
+
+            // 12.2.4.32 Script data double escaped less-than sign state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE] = ScriptDataDoubleEscapedLessThanSignState; void ScriptDataDoubleEscapedLessThanSignState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.SOLIDUS)
+                {
+                    @this.tempBuff = new List<int>();
+                    @this.State = SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
+                    @this.EmitChar('/');
+                }
+
+                else
+                    @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
+            }
+
+            // 12.2.4.33 Script data double escape end state
+            // ------------------------------------------------------------------
+            _[SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE] = ScriptDataDoubleEscapeEndState; void ScriptDataDoubleEscapeEndState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = @this.IsTempBufferEqualToScriptString() ? SCRIPT_DATA_ESCAPED_STATE : SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
+
+                    @this.EmitCodePoint(cp);
+                }
+
+                else if (IsAsciiUpper(cp))
+                {
+                    @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
+                    @this.EmitCodePoint(cp);
+                }
+
+                else if (IsAsciiLower(cp))
+                {
+                    @this.tempBuff.push(cp);
+                    @this.EmitCodePoint(cp);
+                }
+
+                else
+                    @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
+            }
+
+            // 12.2.4.34 Before attribute name state
+            // ------------------------------------------------------------------
+            _[BEFORE_ATTRIBUTE_NAME_STATE] = BeforeAttributeNameState; void BeforeAttributeNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
+                    @this.ReconsumeInState(AFTER_ATTRIBUTE_NAME_STATE);
+
+                else if (cp == CP.EQUALS_SIGN)
+                {
+                    @this.CreateAttr("=");
+                    @this.State = ATTRIBUTE_NAME_STATE;
+                }
+
+                else
+                {
+                    @this.CreateAttr("");
+                    @this.ReconsumeInState(ATTRIBUTE_NAME_STATE);
+                }
+            }
+
+            // 12.2.4.35 Attribute name state
+            // ------------------------------------------------------------------
+            _[ATTRIBUTE_NAME_STATE] = AttributeNameState; void AttributeNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
+                {
+                    @this.LeaveAttrName(AFTER_ATTRIBUTE_NAME_STATE);
+                    @this.Unconsume();
+                }
+
+                else if (cp == CP.EQUALS_SIGN)
+                    @this.LeaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
+
+                else if (IsAsciiUpper(cp))
+                    @this.currentAttr.name += ToAsciiLowerChar(cp);
+
+                else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN)
+                    @this.currentAttr.name += ToChar(cp);
+
+                else if (cp == CP.NULL)
+                    @this.currentAttr.name += CP.REPLACEMENT_CHARACTER;
+
+                else
+                    @this.currentAttr.name += ToChar(cp);
+            }
+
+            // 12.2.4.36 After attribute name state
+            // ------------------------------------------------------------------
+            _[AFTER_ATTRIBUTE_NAME_STATE] = AfterAttributeNameState; void AfterAttributeNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.SOLIDUS)
+                    @this.State = SELF_CLOSING_START_TAG_STATE;
+
+                else if (cp == CP.EQUALS_SIGN)
+                    @this.State = BEFORE_ATTRIBUTE_VALUE_STATE;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                {
+                    @this.CreateAttr("");
+                    @this.ReconsumeInState(ATTRIBUTE_NAME_STATE);
+                }
+            }
+
+            // 12.2.4.37 Before attribute value state
+            // ------------------------------------------------------------------
+            _[BEFORE_ATTRIBUTE_VALUE_STATE] = BeforeAttributeValueState; void BeforeAttributeValueState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.QUOTATION_MARK)
+                    @this.State = ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
+
+                else if (cp == CP.APOSTROPHE)
+                    @this.State = ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
+
+                else
+                    @this.ReconsumeInState(ATTRIBUTE_VALUE_UNQUOTED_STATE);
+            }
+
+            // 12.2.4.38 Attribute value (double-quoted) state
+            // ------------------------------------------------------------------
+            _[ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE] = AttributeValueDoubleQuotedState; void AttributeValueDoubleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.QUOTATION_MARK)
+                    @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
+
+                else if (cp == CP.AMPERSAND)
+                {
+                    @this.additionalAllowedCp = CP.QUOTATION_MARK;
+                    @this.returnState = @this.State;
+                    @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
+                }
+
+                else if (cp == CP.NULL)
+                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.currentAttr.value += ToChar(cp);
+            }
+
+            // 12.2.4.39 Attribute value (single-quoted) state
+            // ------------------------------------------------------------------
+            _[ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE] = AttributeValueSingleQuotedState; void AttributeValueSingleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.APOSTROPHE)
+                    @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
+
+                else if (cp == CP.AMPERSAND)
+                {
+                    @this.additionalAllowedCp = CP.APOSTROPHE;
+                    @this.returnState = @this.State;
+                    @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
+                }
+
+                else if (cp == CP.NULL)
+                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.currentAttr.value += ToChar(cp);
+            }
+
+            // 12.2.4.40 Attribute value (unquoted) state
+            // ------------------------------------------------------------------
+            _[ATTRIBUTE_VALUE_UNQUOTED_STATE] = AttributeValueUnquotedState; void AttributeValueUnquotedState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
+
+                else if (cp == CP.AMPERSAND)
+                {
+                    @this.additionalAllowedCp = CP.GREATER_THAN_SIGN;
+                    @this.returnState = @this.State;
+                    @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
+                }
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.LeaveAttrValue(DATA_STATE);
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.NULL)
+                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
+                         cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
+                    @this.currentAttr.value += ToChar(cp);
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.currentAttr.value += ToChar(cp);
+            }
+
+            // 12.2.4.41 Character reference in attribute value state
+            // ------------------------------------------------------------------
+            _[CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE] = CharacterReferenceInAttributeValueState; void CharacterReferenceInAttributeValueState(Tokenizer @this, int cp)
+            {
+                var referencedCodePoints = @this.ConsumeCharacterReference(cp, true);
+
+                if (!@this.EnsureHibernation())
+                {
+                    if (referencedCodePoints.IsTruthy())
+                    {
+                        foreach (var rcp in referencedCodePoints)
+                            @this.currentAttr.value += ToChar(rcp);
+                    }
+                    else
+                        @this.currentAttr.value += '&';
+
+                    @this.State = @this.returnState;
+                }
+            }
+
+            // 12.2.4.42 After attribute value (quoted) state
+            // ------------------------------------------------------------------
+            _[AFTER_ATTRIBUTE_VALUE_QUOTED_STATE] = AfterAttributeValueQuotedState; void AfterAttributeValueQuotedState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
+
+                else if (cp == CP.SOLIDUS)
+                    @this.LeaveAttrValue(SELF_CLOSING_START_TAG_STATE);
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.LeaveAttrValue(DATA_STATE);
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.ReconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
+            }
+
+            // 12.2.4.43 Self-closing start tag state
+            // ------------------------------------------------------------------
+            _[SELF_CLOSING_START_TAG_STATE] = SelfClosingStartTagState; void SelfClosingStartTagState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.currentToken.selfClosing = true;
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EOF)
+                    @this.ReconsumeInState(DATA_STATE);
+
+                else
+                    @this.ReconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
+            }
+
+            // 12.2.4.44 Bogus comment state
+            // ------------------------------------------------------------------
+            _[BOGUS_COMMENT_STATE] = BogusCommentState; void BogusCommentState(Tokenizer @this, int cp)
+            {
+                @this.CreateCommentToken();
+                @this.ReconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
+            }
+
+            // HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
+            // introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
+            // comment token on each call.
+            _[BOGUS_COMMENT_STATE_CONTINUATION] = BogusCommentStateContinuation; void BogusCommentStateContinuation(Tokenizer @this, int cp)
+            {
+                while (true)
+                {
                     if (cp == CP.GREATER_THAN_SIGN)
                     {
                         @this.State = DATA_STATE;
-                        @this.EmitCurrentToken();
-                        return;
+                        break;
+                    }
+
+                    else if (cp == CP.EOF)
+                    {
+                        @this.ReconsumeInState(DATA_STATE);
+                        break;
+                    }
+
+                    else
+                    {
+                        @this.currentToken.data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
+
+                        @this.HibernationSnapshot();
+                        cp = @this.Consume();
+
+                        if (@this.EnsureHibernation())
+                            return;
                     }
                 }
 
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.EmitSeveralCodePoints(@this.tempBuff);
-                @this.ReconsumeInState(RCDATA_STATE);
-            }
-        }
-
-        // 12.2.4.14 RAWTEXT less-than sign state
-        // ------------------------------------------------------------------
-        [_(RAWTEXT_LESS_THAN_SIGN_STATE)]
-        static void RawtextLessThanSignState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.SOLIDUS)
-            {
-                @this.tempBuff = new List<int>();
-                @this.State = RAWTEXT_END_TAG_OPEN_STATE;
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.ReconsumeInState(RAWTEXT_STATE);
-            }
-        }
-
-        // 12.2.4.15 RAWTEXT end tag open state
-        // ------------------------------------------------------------------
-        [_(RAWTEXT_END_TAG_OPEN_STATE)]
-        static void RawtextEndTagOpenState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiLetter(cp))
-            {
-                @this.CreateEndTagToken();
-                @this.ReconsumeInState(RAWTEXT_END_TAG_NAME_STATE);
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.ReconsumeInState(RAWTEXT_STATE);
-            }
-        }
-
-        // 12.2.4.16 RAWTEXT end tag name state
-        // ------------------------------------------------------------------
-        [_(RAWTEXT_END_TAG_NAME_STATE)]
-        static void RawtextEndTagNameState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiUpper(cp))
-            {
-                @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.currentToken.tagName += ToChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else
-            {
-                if (@this.IsAppropriateEndTagToken())
-                {
-                    if (IsWhitespace(cp))
-                    {
-                        @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
-                        return;
-                    }
-
-                    if (cp == CP.SOLIDUS)
-                    {
-                        @this.State = SELF_CLOSING_START_TAG_STATE;
-                        return;
-                    }
-
-                    if (cp == CP.GREATER_THAN_SIGN)
-                    {
-                        @this.EmitCurrentToken();
-                        @this.State = DATA_STATE;
-                        return;
-                    }
-                }
-
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.EmitSeveralCodePoints(@this.tempBuff);
-                @this.ReconsumeInState(RAWTEXT_STATE);
-            }
-        }
-
-        // 12.2.4.17 Script data less-than sign state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_LESS_THAN_SIGN_STATE)]
-        static void ScriptDataLessThanSignState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.SOLIDUS)
-            {
-                @this.tempBuff = new List<int>();
-                @this.State = SCRIPT_DATA_END_TAG_OPEN_STATE;
-            }
-
-            else if (cp == CP.EXCLAMATION_MARK)
-            {
-                @this.State = SCRIPT_DATA_ESCAPE_START_STATE;
-                @this.EmitChar('<');
-                @this.EmitChar('!');
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.ReconsumeInState(SCRIPT_DATA_STATE);
-            }
-        }
-
-        // 12.2.4.18 Script data end tag open state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_END_TAG_OPEN_STATE)]
-        static void ScriptDataEndTagOpenState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiLetter(cp))
-            {
-                @this.CreateEndTagToken();
-                @this.ReconsumeInState(SCRIPT_DATA_END_TAG_NAME_STATE);
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.ReconsumeInState(SCRIPT_DATA_STATE);
-            }
-        }
-
-        // 12.2.4.19 Script data end tag name state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_END_TAG_NAME_STATE)]
-        static void ScriptDataEndTagNameState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiUpper(cp))
-            {
-                @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.currentToken.tagName += ToChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else
-            {
-                if (@this.IsAppropriateEndTagToken())
-                {
-                    if (IsWhitespace(cp))
-                    {
-                        @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
-                        return;
-                    }
-
-                    else if (cp == CP.SOLIDUS)
-                    {
-                        @this.State = SELF_CLOSING_START_TAG_STATE;
-                        return;
-                    }
-
-                    else if (cp == CP.GREATER_THAN_SIGN)
-                    {
-                        @this.EmitCurrentToken();
-                        @this.State = DATA_STATE;
-                        return;
-                    }
-                }
-
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.EmitSeveralCodePoints(@this.tempBuff);
-                @this.ReconsumeInState(SCRIPT_DATA_STATE);
-            }
-        }
-
-        // 12.2.4.20 Script data escape start state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPE_START_STATE)]
-        static void ScriptDataEscapeStartState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_ESCAPE_START_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else
-                @this.ReconsumeInState(SCRIPT_DATA_STATE);
-        }
-
-        // 12.2.4.21 Script data escape start dash state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPE_START_DASH_STATE)]
-        static void ScriptDataEscapeStartDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else
-                @this.ReconsumeInState(SCRIPT_DATA_STATE);
-        }
-
-        // 12.2.4.22 Script data escaped state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_STATE)]
-        static void ScriptDataEscapedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else if (cp == CP.LESS_THAN_SIGN)
-                @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.NULL)
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.23 Script data escaped dash state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_DASH_STATE)]
-        static void ScriptDataEscapedDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else if (cp == CP.LESS_THAN_SIGN)
-                @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.NULL)
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_STATE;
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-            }
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_STATE;
-                @this.EmitCodePoint(cp);
-            }
-        }
-
-        // 12.2.4.24 Script data escaped dash dash state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_DASH_DASH_STATE)]
-        static void ScriptDataEscapedDashDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.EmitChar('-');
-
-            else if (cp == CP.LESS_THAN_SIGN)
-                @this.State = SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = SCRIPT_DATA_STATE;
-                @this.EmitChar('>');
-            }
-
-            else if (cp == CP.NULL)
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_STATE;
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-            }
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-            {
-                @this.State = SCRIPT_DATA_ESCAPED_STATE;
-                @this.EmitCodePoint(cp);
-            }
-        }
-
-        // 12.2.4.25 Script data escaped less-than sign state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE)]
-        static void ScriptDataEscapedLessThanSignState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.SOLIDUS)
-            {
-                @this.tempBuff = new List<int>();
-                @this.State = SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
-            }
-
-            else if (IsAsciiLetter(cp))
-            {
-                @this.tempBuff = new List<int>();
-                @this.EmitChar('<');
-                @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE);
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
-            }
-        }
-
-        // 12.2.4.26 Script data escaped end tag open state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE)]
-        static void ScriptDataEscapedEndTagOpenState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiLetter(cp))
-            {
-                @this.CreateEndTagToken();
-                @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE);
-            }
-
-            else
-            {
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
-            }
-        }
-
-        // 12.2.4.27 Script data escaped end tag name state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE)]
-        static void ScriptDataEscapedEndTagNameState(Tokenizer @this, int cp)
-        {
-            if (IsAsciiUpper(cp))
-            {
-                @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.currentToken.tagName += ToChar(cp);
-                @this.tempBuff.push(cp);
-            }
-
-            else
-            {
-                if (@this.IsAppropriateEndTagToken())
-                {
-                    if (IsWhitespace(cp))
-                    {
-                        @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
-                        return;
-                    }
-
-                    if (cp == CP.SOLIDUS)
-                    {
-                        @this.State = SELF_CLOSING_START_TAG_STATE;
-                        return;
-                    }
-
-                    if (cp == CP.GREATER_THAN_SIGN)
-                    {
-                        @this.EmitCurrentToken();
-                        @this.State = DATA_STATE;
-                        return;
-                    }
-                }
-
-                @this.EmitChar('<');
-                @this.EmitChar('/');
-                @this.EmitSeveralCodePoints(@this.tempBuff);
-                @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
-            }
-        }
-
-        // 12.2.4.28 Script data double escape start state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE)]
-        static void ScriptDataDoubleEscapeStartState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = @this.IsTempBufferEqualToScriptString() ? SCRIPT_DATA_DOUBLE_ESCAPED_STATE : SCRIPT_DATA_ESCAPED_STATE;
-                @this.EmitCodePoint(cp);
-            }
-
-            else if (IsAsciiUpper(cp))
-            {
-                @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
-                @this.EmitCodePoint(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.tempBuff.push(cp);
-                @this.EmitCodePoint(cp);
-            }
-
-            else
-                @this.ReconsumeInState(SCRIPT_DATA_ESCAPED_STATE);
-        }
-
-        // 12.2.4.29 Script data double escaped state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_STATE)]
-        static void ScriptDataDoubleEscapedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else if (cp == CP.LESS_THAN_SIGN)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
-                @this.EmitChar('<');
-            }
-
-            else if (cp == CP.NULL)
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.EmitCodePoint(cp);
-        }
-
-        // 12.2.4.30 Script data double escaped dash state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE)]
-        static void ScriptDataDoubleEscapedDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
-                @this.EmitChar('-');
-            }
-
-            else if (cp == CP.LESS_THAN_SIGN)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
-                @this.EmitChar('<');
-            }
-
-            else if (cp == CP.NULL)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-            }
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                @this.EmitCodePoint(cp);
-            }
-        }
-
-        // 12.2.4.31 Script data double escaped dash dash state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE)]
-        static void ScriptDataDoubleEscapedDashDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.EmitChar('-');
-
-            else if (cp == CP.LESS_THAN_SIGN)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE;
-                @this.EmitChar('<');
-            }
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = SCRIPT_DATA_STATE;
-                @this.EmitChar('>');
-            }
-
-            else if (cp == CP.NULL)
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                @this.EmitChar(((char)CP.REPLACEMENT_CHARACTER));
-            }
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-            {
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                @this.EmitCodePoint(cp);
-            }
-        }
-
-        // 12.2.4.32 Script data double escaped less-than sign state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE)]
-        static void ScriptDataDoubleEscapedLessThanSignState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.SOLIDUS)
-            {
-                @this.tempBuff = new List<int>();
-                @this.State = SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
-                @this.EmitChar('/');
-            }
-
-            else
-                @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
-        }
-
-        // 12.2.4.33 Script data double escape end state
-        // ------------------------------------------------------------------
-        [_(SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE)]
-        static void ScriptDataDoubleEscapeEndState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = @this.IsTempBufferEqualToScriptString() ? SCRIPT_DATA_ESCAPED_STATE : SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-
-                @this.EmitCodePoint(cp);
-            }
-
-            else if (IsAsciiUpper(cp))
-            {
-                @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
-                @this.EmitCodePoint(cp);
-            }
-
-            else if (IsAsciiLower(cp))
-            {
-                @this.tempBuff.push(cp);
-                @this.EmitCodePoint(cp);
-            }
-
-            else
-                @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPED_STATE);
-        }
-
-        // 12.2.4.34 Before attribute name state
-        // ------------------------------------------------------------------
-        [_(BEFORE_ATTRIBUTE_NAME_STATE)]
-        static void BeforeAttributeNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
-                @this.ReconsumeInState(AFTER_ATTRIBUTE_NAME_STATE);
-
-            else if (cp == CP.EQUALS_SIGN)
-            {
-                @this.CreateAttr("=");
-                @this.State = ATTRIBUTE_NAME_STATE;
-            }
-
-            else
-            {
-                @this.CreateAttr("");
-                @this.ReconsumeInState(ATTRIBUTE_NAME_STATE);
-            }
-        }
-
-        // 12.2.4.35 Attribute name state
-        // ------------------------------------------------------------------
-        [_(ATTRIBUTE_NAME_STATE)]
-        static void AttributeNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
-            {
-                @this.LeaveAttrName(AFTER_ATTRIBUTE_NAME_STATE);
-                @this.Unconsume();
-            }
-
-            else if (cp == CP.EQUALS_SIGN)
-                @this.LeaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
-
-            else if (IsAsciiUpper(cp))
-                @this.currentAttr.name += ToAsciiLowerChar(cp);
-
-            else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN)
-                @this.currentAttr.name += ToChar(cp);
-
-            else if (cp == CP.NULL)
-                @this.currentAttr.name += CP.REPLACEMENT_CHARACTER;
-
-            else
-                @this.currentAttr.name += ToChar(cp);
-        }
-
-        // 12.2.4.36 After attribute name state
-        // ------------------------------------------------------------------
-        [_(AFTER_ATTRIBUTE_NAME_STATE)]
-        static void AfterAttributeNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.SOLIDUS)
-                @this.State = SELF_CLOSING_START_TAG_STATE;
-
-            else if (cp == CP.EQUALS_SIGN)
-                @this.State = BEFORE_ATTRIBUTE_VALUE_STATE;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
                 @this.EmitCurrentToken();
             }
 
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
+            // 12.2.4.45 Markup declaration open state
+            // ------------------------------------------------------------------
+            _[MARKUP_DECLARATION_OPEN_STATE] = MarkupDeclarationOpenState; void MarkupDeclarationOpenState(Tokenizer @this, int cp)
             {
-                @this.CreateAttr("");
-                @this.ReconsumeInState(ATTRIBUTE_NAME_STATE);
-            }
-        }
+                var dashDashMatch = @this.ConsumeSubsequentIfMatch(CPS.DASH_DASH_STRING, cp, true);
+                var doctypeMatch = !dashDashMatch && @this.ConsumeSubsequentIfMatch(CPS.DOCTYPE_STRING, cp, false);
+                var cdataMatch = !dashDashMatch && !doctypeMatch &&
+                             @this.AllowCData &&
+                             @this.ConsumeSubsequentIfMatch(CPS.CDATA_START_STRING, cp, true);
 
-        // 12.2.4.37 Before attribute value state
-        // ------------------------------------------------------------------
-        [_(BEFORE_ATTRIBUTE_VALUE_STATE)]
-        static void BeforeAttributeValueState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.QUOTATION_MARK)
-                @this.State = ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
-
-            else if (cp == CP.APOSTROPHE)
-                @this.State = ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
-
-            else
-                @this.ReconsumeInState(ATTRIBUTE_VALUE_UNQUOTED_STATE);
-        }
-
-        // 12.2.4.38 Attribute value (double-quoted) state
-        // ------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE)]
-        static void AttributeValueDoubleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.QUOTATION_MARK)
-                @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
-
-            else if (cp == CP.AMPERSAND)
-            {
-                @this.additionalAllowedCp = CP.QUOTATION_MARK;
-                @this.returnState = @this.State;
-                @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
-            }
-
-            else if (cp == CP.NULL)
-                @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.currentAttr.value += ToChar(cp);
-        }
-
-        // 12.2.4.39 Attribute value (single-quoted) state
-        // ------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE)]
-        static void AttributeValueSingleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.APOSTROPHE)
-                @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
-
-            else if (cp == CP.AMPERSAND)
-            {
-                @this.additionalAllowedCp = CP.APOSTROPHE;
-                @this.returnState = @this.State;
-                @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
-            }
-
-            else if (cp == CP.NULL)
-                @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.currentAttr.value += ToChar(cp);
-        }
-
-        // 12.2.4.40 Attribute value (unquoted) state
-        // ------------------------------------------------------------------
-        [_(ATTRIBUTE_VALUE_UNQUOTED_STATE)]
-        static void AttributeValueUnquotedState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
-
-            else if (cp == CP.AMPERSAND)
-            {
-                @this.additionalAllowedCp = CP.GREATER_THAN_SIGN;
-                @this.returnState = @this.State;
-                @this.State = CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE;
-            }
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.LeaveAttrValue(DATA_STATE);
-                @this.EmitCurrentToken();
-            }
-
-            else if (cp == CP.NULL)
-                @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
-                     cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
-                @this.currentAttr.value += ToChar(cp);
-
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.currentAttr.value += ToChar(cp);
-        }
-
-        // 12.2.4.41 Character reference in attribute value state
-        // ------------------------------------------------------------------
-        [_(CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE)]
-        static void CharacterReferenceInAttributeValueState(Tokenizer @this, int cp)
-        {
-            var referencedCodePoints = @this.ConsumeCharacterReference(cp, true);
-
-            if (!@this.EnsureHibernation())
-            {
-                if (referencedCodePoints.IsTruthy())
+                if (!@this.EnsureHibernation())
                 {
-                    foreach (var rcp in referencedCodePoints)
-                        @this.currentAttr.value += ToChar(rcp);
+                    if (dashDashMatch)
+                    {
+                        @this.CreateCommentToken();
+                        @this.State = COMMENT_START_STATE;
+                    }
+
+                    else if (doctypeMatch)
+                        @this.State = DOCTYPE_STATE;
+
+                    else if (cdataMatch)
+                        @this.State = CDATA_SECTION_STATE;
+
+                    else
+                        @this.ReconsumeInState(BOGUS_COMMENT_STATE);
                 }
+            }
+
+            // 12.2.4.46 Comment start state
+            // ------------------------------------------------------------------
+            _[COMMENT_START_STATE] = CommentStartState; void CommentStartState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.State = COMMENT_START_DASH_STATE;
+
+                else if (cp == CP.NULL)
+                {
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.State = COMMENT_STATE;
+                }
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
                 else
-                    @this.currentAttr.value += '&';
-
-                @this.State = @this.returnState;
+                {
+                    @this.currentToken.data += ToChar(cp);
+                    @this.State = COMMENT_STATE;
+                }
             }
-        }
 
-        // 12.2.4.42 After attribute value (quoted) state
-        // ------------------------------------------------------------------
-        [_(AFTER_ATTRIBUTE_VALUE_QUOTED_STATE)]
-        static void AfterAttributeValueQuotedState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
-
-            else if (cp == CP.SOLIDUS)
-                @this.LeaveAttrValue(SELF_CLOSING_START_TAG_STATE);
-
-            else if (cp == CP.GREATER_THAN_SIGN)
+            // 12.2.4.47 Comment start dash state
+            // ------------------------------------------------------------------
+            _[COMMENT_START_DASH_STATE] = CommentStartDashState; void CommentStartDashState(Tokenizer @this, int cp)
             {
-                @this.LeaveAttrValue(DATA_STATE);
-                @this.EmitCurrentToken();
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.State = COMMENT_END_STATE;
+
+                else if (cp == CP.NULL)
+                {
+                    @this.currentToken.data += '-';
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.State = COMMENT_STATE;
+                }
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                {
+                    @this.currentToken.data += '-';
+                    @this.currentToken.data += ToChar(cp);
+                    @this.State = COMMENT_STATE;
+                }
             }
 
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
-
-            else
-                @this.ReconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
-        }
-
-        // 12.2.4.43 Self-closing start tag state
-        // ------------------------------------------------------------------
-        [_(SELF_CLOSING_START_TAG_STATE)]
-        static void SelfClosingStartTagState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.GREATER_THAN_SIGN)
+            // 12.2.4.48 Comment state
+            // ------------------------------------------------------------------
+            _[COMMENT_STATE] = CommentState; void CommentState(Tokenizer @this, int cp)
             {
-                @this.currentToken.selfClosing = true;
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.State = COMMENT_END_DASH_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.currentToken.data += ToChar(cp);
             }
 
-            else if (cp == CP.EOF)
-                @this.ReconsumeInState(DATA_STATE);
+            // 12.2.4.49 Comment end dash state
+            // ------------------------------------------------------------------
+            _[COMMENT_END_DASH_STATE] = CommentEndDashState; void CommentEndDashState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.HYPHEN_MINUS)
+                    @this.State = COMMENT_END_STATE;
 
-            else
-                @this.ReconsumeInState(BEFORE_ATTRIBUTE_NAME_STATE);
-        }
+                else if (cp == CP.NULL)
+                {
+                    @this.currentToken.data += '-';
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.State = COMMENT_STATE;
+                }
 
-        // 12.2.4.44 Bogus comment state
-        // ------------------------------------------------------------------
-        [_(BOGUS_COMMENT_STATE)]
-        static void BogusCommentState(Tokenizer @this, int cp)
-        {
-            @this.CreateCommentToken();
-            @this.ReconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
-        }
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
 
-        // HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
-        // introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
-        // comment token on each call.
-        [_(BOGUS_COMMENT_STATE_CONTINUATION)]
-        static void BogusCommentStateContinuation(Tokenizer @this, int cp)
-        {
-            while (true)
+                else
+                {
+                    @this.currentToken.data += '-';
+                    @this.currentToken.data += ToChar(cp);
+                    @this.State = COMMENT_STATE;
+                }
+            }
+
+            // 12.2.4.50 Comment end state
+            // ------------------------------------------------------------------
+            _[COMMENT_END_STATE] = CommentEndState; void CommentEndState(Tokenizer @this, int cp)
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
                     @this.State = DATA_STATE;
-                    break;
+                    @this.EmitCurrentToken();
+                }
+
+                else if (cp == CP.EXCLAMATION_MARK)
+                    @this.State = COMMENT_END_BANG_STATE;
+
+                else if (cp == CP.HYPHEN_MINUS)
+                    @this.currentToken.data += '-';
+
+                else if (cp == CP.NULL)
+                {
+                    @this.currentToken.data += "--";
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.State = COMMENT_STATE;
                 }
 
                 else if (cp == CP.EOF)
                 {
                     @this.ReconsumeInState(DATA_STATE);
-                    break;
+                    @this.EmitCurrentToken();
                 }
 
                 else
                 {
-                    @this.currentToken.data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
-
-                    @this.HibernationSnapshot();
-                    cp = @this.Consume();
-
-                    if (@this.EnsureHibernation())
-                        return;
+                    @this.currentToken.data += "--";
+                    @this.currentToken.data += ToChar(cp);
+                    @this.State = COMMENT_STATE;
                 }
             }
 
-            @this.EmitCurrentToken();
-        }
-
-        // 12.2.4.45 Markup declaration open state
-        // ------------------------------------------------------------------
-        [_(MARKUP_DECLARATION_OPEN_STATE)]
-        static void MarkupDeclarationOpenState(Tokenizer @this, int cp)
-        {
-            var dashDashMatch = @this.ConsumeSubsequentIfMatch(CPS.DASH_DASH_STRING, cp, true);
-            var doctypeMatch = !dashDashMatch && @this.ConsumeSubsequentIfMatch(CPS.DOCTYPE_STRING, cp, false);
-            var cdataMatch = !dashDashMatch && !doctypeMatch &&
-                         @this.AllowCData &&
-                         @this.ConsumeSubsequentIfMatch(CPS.CDATA_START_STRING, cp, true);
-
-            if (!@this.EnsureHibernation())
+            // 12.2.4.51 Comment end bang state
+            // ------------------------------------------------------------------
+            _[COMMENT_END_BANG_STATE] = CommentEndBangState; void CommentEndBangState(Tokenizer @this, int cp)
             {
-                if (dashDashMatch)
+                if (cp == CP.HYPHEN_MINUS)
                 {
-                    @this.CreateCommentToken();
-                    @this.State = COMMENT_START_STATE;
+                    @this.currentToken.data += "--!";
+                    @this.State = COMMENT_END_DASH_STATE;
                 }
 
-                else if (doctypeMatch)
-                    @this.State = DOCTYPE_STATE;
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
 
-                else if (cdataMatch)
-                    @this.State = CDATA_SECTION_STATE;
+                else if (cp == CP.NULL)
+                {
+                    @this.currentToken.data += "--!";
+                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.State = COMMENT_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
 
                 else
-                    @this.ReconsumeInState(BOGUS_COMMENT_STATE);
-            }
-        }
-
-        // 12.2.4.46 Comment start state
-        // ------------------------------------------------------------------
-        [_(COMMENT_START_STATE)]
-        static void CommentStartState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.State = COMMENT_START_DASH_STATE;
-
-            else if (cp == CP.NULL)
-            {
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-                @this.State = COMMENT_STATE;
-            }
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-            {
-                @this.currentToken.data += ToChar(cp);
-                @this.State = COMMENT_STATE;
-            }
-        }
-
-        // 12.2.4.47 Comment start dash state
-        // ------------------------------------------------------------------
-        [_(COMMENT_START_DASH_STATE)]
-        static void CommentStartDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.State = COMMENT_END_STATE;
-
-            else if (cp == CP.NULL)
-            {
-                @this.currentToken.data += '-';
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-                @this.State = COMMENT_STATE;
-            }
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-            {
-                @this.currentToken.data += '-';
-                @this.currentToken.data += ToChar(cp);
-                @this.State = COMMENT_STATE;
-            }
-        }
-
-        // 12.2.4.48 Comment state
-        // ------------------------------------------------------------------
-        [_(COMMENT_STATE)]
-        static void CommentState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.State = COMMENT_END_DASH_STATE;
-
-            else if (cp == CP.NULL)
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.currentToken.data += ToChar(cp);
-        }
-
-        // 12.2.4.49 Comment end dash state
-        // ------------------------------------------------------------------
-        [_(COMMENT_END_DASH_STATE)]
-        static void CommentEndDashState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-                @this.State = COMMENT_END_STATE;
-
-            else if (cp == CP.NULL)
-            {
-                @this.currentToken.data += '-';
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-                @this.State = COMMENT_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-            {
-                @this.currentToken.data += '-';
-                @this.currentToken.data += ToChar(cp);
-                @this.State = COMMENT_STATE;
-            }
-        }
-
-        // 12.2.4.50 Comment end state
-        // ------------------------------------------------------------------
-        [_(COMMENT_END_STATE)]
-        static void CommentEndState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else if (cp == CP.EXCLAMATION_MARK)
-                @this.State = COMMENT_END_BANG_STATE;
-
-            else if (cp == CP.HYPHEN_MINUS)
-                @this.currentToken.data += '-';
-
-            else if (cp == CP.NULL)
-            {
-                @this.currentToken.data += "--";
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-                @this.State = COMMENT_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.ReconsumeInState(DATA_STATE);
-                @this.EmitCurrentToken();
-            }
-
-            else
-            {
-                @this.currentToken.data += "--";
-                @this.currentToken.data += ToChar(cp);
-                @this.State = COMMENT_STATE;
-            }
-        }
-
-        // 12.2.4.51 Comment end bang state
-        // ------------------------------------------------------------------
-        [_(COMMENT_END_BANG_STATE)]
-        static void CommentEndBangState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.HYPHEN_MINUS)
-            {
-                @this.currentToken.data += "--!";
-                @this.State = COMMENT_END_DASH_STATE;
-            }
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else if (cp == CP.NULL)
-            {
-                @this.currentToken.data += "--!";
-                @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
-                @this.State = COMMENT_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-            {
-                @this.currentToken.data += "--!";
-                @this.currentToken.data += ToChar(cp);
-                @this.State = COMMENT_STATE;
-            }
-        }
-
-        // 12.2.4.52 DOCTYPE state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_STATE)]
-        static void DoctypeState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.CreateDoctypeToken(null);
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.CreateDoctypeToken(null);
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-            else
-            {
-                @this.CreateDoctypeToken("");
-                @this.ReconsumeInState(DOCTYPE_NAME_STATE);
-            }
-        }
-
-        // 12.2.4.54 DOCTYPE name state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_NAME_STATE)]
-        static void DoctypeNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
-                @this.ReconsumeInState(AFTER_DOCTYPE_NAME_STATE);
-
-            else if (IsAsciiUpper(cp))
-                @this.currentToken.name += ToAsciiLowerChar(cp);
-
-            else if (cp == CP.NULL)
-                @this.currentToken.name += CP.REPLACEMENT_CHARACTER;
-
-            else
-                @this.currentToken.name += ToChar(cp);
-        }
-
-        // 12.2.4.55 After DOCTYPE name state
-        // ------------------------------------------------------------------
-        [_(AFTER_DOCTYPE_NAME_STATE)]
-        static void AfterDoctypeNameState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.State = DATA_STATE;
-                @this.EmitCurrentToken();
-            }
-
-            else
-            {
-                var publicMatch = @this.ConsumeSubsequentIfMatch(CPS.PUBLIC_STRING, cp, false);
-                var systemMatch = !publicMatch && @this.ConsumeSubsequentIfMatch(CPS.SYSTEM_STRING, cp, false);
-
-                if (!@this.EnsureHibernation())
                 {
-                    if (publicMatch)
-                        @this.State = BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
+                    @this.currentToken.data += "--!";
+                    @this.currentToken.data += ToChar(cp);
+                    @this.State = COMMENT_STATE;
+                }
+            }
 
-                    else if (systemMatch)
-                        @this.State = BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+            // 12.2.4.52 DOCTYPE state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_STATE] = DoctypeState; void DoctypeState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.CreateDoctypeToken(null);
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.CreateDoctypeToken(null);
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+                else
+                {
+                    @this.CreateDoctypeToken("");
+                    @this.ReconsumeInState(DOCTYPE_NAME_STATE);
+                }
+            }
+
+            // 12.2.4.54 DOCTYPE name state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_NAME_STATE] = DoctypeNameState; void DoctypeNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
+                    @this.ReconsumeInState(AFTER_DOCTYPE_NAME_STATE);
+
+                else if (IsAsciiUpper(cp))
+                    @this.currentToken.name += ToAsciiLowerChar(cp);
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.name += CP.REPLACEMENT_CHARACTER;
+
+                else
+                    @this.currentToken.name += ToChar(cp);
+            }
+
+            // 12.2.4.55 After DOCTYPE name state
+            // ------------------------------------------------------------------
+            _[AFTER_DOCTYPE_NAME_STATE] = AfterDoctypeNameState; void AfterDoctypeNameState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.State = DATA_STATE;
+                    @this.EmitCurrentToken();
+                }
+
+                else
+                {
+                    var publicMatch = @this.ConsumeSubsequentIfMatch(CPS.PUBLIC_STRING, cp, false);
+                    var systemMatch = !publicMatch && @this.ConsumeSubsequentIfMatch(CPS.SYSTEM_STRING, cp, false);
+
+                    if (!@this.EnsureHibernation())
+                    {
+                        if (publicMatch)
+                            @this.State = BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
+
+                        else if (systemMatch)
+                            @this.State = BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+                        else
+                        {
+                            @this.currentToken.forceQuirks = true;
+                            @this.State = BOGUS_DOCTYPE_STATE;
+                        }
+                    }
+                }
+            }
+
+            // 12.2.4.57 Before DOCTYPE public identifier state
+            // ------------------------------------------------------------------
+            _[BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE] = BeforeDoctypePublicIdentifierState; void BeforeDoctypePublicIdentifierState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.QUOTATION_MARK)
+                {
+                    @this.currentToken.publicId = "";
+                    @this.State = DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                }
+
+                else if (cp == CP.APOSTROPHE)
+                {
+                    @this.currentToken.publicId = "";
+                    @this.State = DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
+                }
+
+                else
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
+                }
+            }
+
+            // 12.2.4.58 DOCTYPE public identifier (double-quoted) state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE] = DoctypePublicIdentifierDoubleQuotedState; void DoctypePublicIdentifierDoubleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.QUOTATION_MARK)
+                    @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.currentToken.publicId += ToChar(cp);
+            }
+
+            // 12.2.4.59 DOCTYPE public identifier (single-quoted) state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE] = DoctypePublicIdentifierSingleQuotedState; void DoctypePublicIdentifierSingleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.APOSTROPHE)
+                    @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.currentToken.publicId += ToChar(cp);
+            }
+
+            // 12.2.4.61 Between DOCTYPE public and system identifiers state
+            // ------------------------------------------------------------------
+            _[BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE] = BetweenDoctypePublicAndSystemIdentifiersState; void BetweenDoctypePublicAndSystemIdentifiersState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.QUOTATION_MARK)
+                {
+                    @this.currentToken.systemId = "";
+                    @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                }
+
+                else if (cp == CP.APOSTROPHE)
+                {
+                    @this.currentToken.systemId = "";
+                    @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+                }
+
+                else
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
+                }
+            }
+
+            // 12.2.4.63 Before DOCTYPE system identifier state
+            // ------------------------------------------------------------------
+            _[BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE] = BeforeDoctypeSystemIdentifierState; void BeforeDoctypeSystemIdentifierState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.QUOTATION_MARK)
+                {
+                    @this.currentToken.systemId = "";
+                    @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                }
+
+                else if (cp == CP.APOSTROPHE)
+                {
+                    @this.currentToken.systemId = "";
+                    @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+                }
+
+                else
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
+                }
+            }
+
+            // 12.2.4.64 DOCTYPE system identifier (double-quoted) state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE] = DoctypeSystemIdentifierDoubleQuotedState; void DoctypeSystemIdentifierDoubleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.QUOTATION_MARK)
+                    @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.currentToken.systemId += ToChar(cp);
+            }
+
+            // 12.2.4.65 DOCTYPE system identifier (single-quoted) state
+            // ------------------------------------------------------------------
+            _[DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE] = DoctypeSystemIdentifierSingleQuotedState; void DoctypeSystemIdentifierSingleQuotedState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.APOSTROPHE)
+                    @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
+
+                else if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.NULL)
+                    @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+
+                else if (cp == CP.EOF)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.currentToken.systemId += ToChar(cp);
+            }
+
+            // 12.2.4.66 After DOCTYPE system identifier state
+            // ------------------------------------------------------------------
+            _[AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE] = AfterDoctypeSystemIdentifierState; void AfterDoctypeSystemIdentifierState(Tokenizer @this, int cp)
+            {
+                if (IsWhitespace(cp))
+                    return;
+
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.currentToken.forceQuirks = true;
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+
+                else
+                    @this.State = BOGUS_DOCTYPE_STATE;
+            }
+
+            // 12.2.4.67 Bogus DOCTYPE state
+            // ------------------------------------------------------------------
+            _[BOGUS_DOCTYPE_STATE] = BogusDoctypeState; void BogusDoctypeState(Tokenizer @this, int cp)
+            {
+                if (cp == CP.GREATER_THAN_SIGN)
+                {
+                    @this.EmitCurrentToken();
+                    @this.State = DATA_STATE;
+                }
+
+                else if (cp == CP.EOF)
+                {
+                    @this.EmitCurrentToken();
+                    @this.ReconsumeInState(DATA_STATE);
+                }
+            }
+
+            // 12.2.4.68 CDATA section state
+            // ------------------------------------------------------------------
+            _[CDATA_SECTION_STATE] = CdataSectionState; void CdataSectionState(Tokenizer @this, int cp)
+            {
+                while (true)
+                {
+                    if (cp == CP.EOF)
+                    {
+                        @this.ReconsumeInState(DATA_STATE);
+                        break;
+                    }
 
                     else
                     {
-                        @this.currentToken.forceQuirks = true;
-                        @this.State = BOGUS_DOCTYPE_STATE;
+                        var cdataEndMatch = @this.ConsumeSubsequentIfMatch(CPS.CDATA_END_STRING, cp, true);
+
+                        if (@this.EnsureHibernation())
+                            break;
+
+                        if (cdataEndMatch)
+                        {
+                            @this.State = DATA_STATE;
+                            break;
+                        }
+
+                        @this.EmitCodePoint(cp);
+
+                        @this.HibernationSnapshot();
+                        cp = @this.Consume();
+
+                        if (@this.EnsureHibernation())
+                            break;
                     }
                 }
             }
-        }
 
-        // 12.2.4.57 Before DOCTYPE public identifier state
-        // ------------------------------------------------------------------
-        [_(BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE)]
-        static void BeforeDoctypePublicIdentifierState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.QUOTATION_MARK)
-            {
-                @this.currentToken.publicId = "";
-                @this.State = DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
-            }
-
-            else if (cp == CP.APOSTROPHE)
-            {
-                @this.currentToken.publicId = "";
-                @this.State = DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
-            }
-
-            else
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
-            }
-        }
-
-        // 12.2.4.58 DOCTYPE public identifier (double-quoted) state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE)]
-        static void DoctypePublicIdentifierDoubleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.QUOTATION_MARK)
-                @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
-
-            else if (cp == CP.NULL)
-                @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.currentToken.publicId += ToChar(cp);
-        }
-
-        // 12.2.4.59 DOCTYPE public identifier (single-quoted) state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE)]
-        static void DoctypePublicIdentifierSingleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.APOSTROPHE)
-                @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
-
-            else if (cp == CP.NULL)
-                @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.currentToken.publicId += ToChar(cp);
-        }
-
-        // 12.2.4.61 Between DOCTYPE public and system identifiers state
-        // ------------------------------------------------------------------
-        [_(BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE)]
-        static void BetweenDoctypePublicAndSystemIdentifiersState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.QUOTATION_MARK)
-            {
-                @this.currentToken.systemId = "";
-                @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
-            }
-
-            else if (cp == CP.APOSTROPHE)
-            {
-                @this.currentToken.systemId = "";
-                @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
-            }
-
-            else
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
-            }
-        }
-
-        // 12.2.4.63 Before DOCTYPE system identifier state
-        // ------------------------------------------------------------------
-        [_(BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE)]
-        static void BeforeDoctypeSystemIdentifierState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.QUOTATION_MARK)
-            {
-                @this.currentToken.systemId = "";
-                @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
-            }
-
-            else if (cp == CP.APOSTROPHE)
-            {
-                @this.currentToken.systemId = "";
-                @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
-            }
-
-            else
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
-            }
-        }
-
-        // 12.2.4.64 DOCTYPE system identifier (double-quoted) state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE)]
-        static void DoctypeSystemIdentifierDoubleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.QUOTATION_MARK)
-                @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.NULL)
-                @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.currentToken.systemId += ToChar(cp);
-        }
-
-        // 12.2.4.65 DOCTYPE system identifier (single-quoted) state
-        // ------------------------------------------------------------------
-        [_(DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE)]
-        static void DoctypeSystemIdentifierSingleQuotedState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.APOSTROPHE)
-                @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
-
-            else if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.NULL)
-                @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
-
-            else if (cp == CP.EOF)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.currentToken.systemId += ToChar(cp);
-        }
-
-        // 12.2.4.66 After DOCTYPE system identifier state
-        // ------------------------------------------------------------------
-        [_(AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE)]
-        static void AfterDoctypeSystemIdentifierState(Tokenizer @this, int cp)
-        {
-            if (IsWhitespace(cp))
-                return;
-
-            if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.currentToken.forceQuirks = true;
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-
-            else
-                @this.State = BOGUS_DOCTYPE_STATE;
-        }
-
-        // 12.2.4.67 Bogus DOCTYPE state
-        // ------------------------------------------------------------------
-        [_(BOGUS_DOCTYPE_STATE)]
-        static void BogusDoctypeState(Tokenizer @this, int cp)
-        {
-            if (cp == CP.GREATER_THAN_SIGN)
-            {
-                @this.EmitCurrentToken();
-                @this.State = DATA_STATE;
-            }
-
-            else if (cp == CP.EOF)
-            {
-                @this.EmitCurrentToken();
-                @this.ReconsumeInState(DATA_STATE);
-            }
-        }
-
-        // 12.2.4.68 CDATA section state
-        // ------------------------------------------------------------------
-        [_(CDATA_SECTION_STATE)]
-        static void CdataSectionState(Tokenizer @this, int cp)
-        {
-            while (true)
-            {
-                if (cp == CP.EOF)
-                {
-                    @this.ReconsumeInState(DATA_STATE);
-                    break;
-                }
-
-                else
-                {
-                    var cdataEndMatch = @this.ConsumeSubsequentIfMatch(CPS.CDATA_END_STRING, cp, true);
-
-                    if (@this.EnsureHibernation())
-                        break;
-
-                    if (cdataEndMatch)
-                    {
-                        @this.State = DATA_STATE;
-                        break;
-                    }
-
-                    @this.EmitCodePoint(cp);
-
-                    @this.HibernationSnapshot();
-                    cp = @this.Consume();
-
-                    if (@this.EnsureHibernation())
-                        break;
-                }
-            }
+            return _;
         }
     }
 }
