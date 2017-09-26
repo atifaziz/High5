@@ -14,41 +14,41 @@ namespace ParseFive.TreeAdapters
     {
         public static ITreeAdapter Instance = new DefaultTreeAdapter();
 
-        public Document createDocument() => new Document();
+        public Document CreateDocument() => new Document();
 
-        public DocumentFragment createDocumentFragment() => new DocumentFragment();
+        public DocumentFragment CreateDocumentFragment() => new DocumentFragment();
 
-        public Element createElement(string tagName, string namespaceURI, List<Attr> attrs) => tagName == "template" ? 
+        public Element CreateElement(string tagName, string namespaceURI, List<Attr> attrs) => tagName == "template" ? 
             new TemplateElement(tagName, namespaceURI, attrs) : new Element(tagName, namespaceURI, attrs);
 
-        public Comment createCommentNode(string data) => new Comment(data);
+        public Comment CreateCommentNode(string data) => new Comment(data);
 
-        public Text createTextNode(string value) => new Text(value);
+        public Text CreateTextNode(string value) => new Text(value);
 
-        public void appendChild(Node parentNode, Node newNode)
+        public void AppendChild(Node parentNode, Node newNode)
         {
             parentNode.ChildNodes.Add(newNode);
             newNode.ParentNode = parentNode;
         }
 
-        public void insertBefore(Node parentNode, Node newNode, Node referenceNode)
+        public void InsertBefore(Node parentNode, Node newNode, Node referenceNode)
         {
             var i = parentNode.ChildNodes.IndexOf(referenceNode);
             parentNode.ChildNodes.Insert(i, newNode);
             newNode.ParentNode = parentNode;
         }
 
-        public void setTemplateContent(Node templateElement, Node contentElement)
+        public void SetTemplateContent(Node templateElement, Node contentElement)
         {
             ((TemplateElement)templateElement).content = contentElement;
         }
 
-        public Node getTemplateContent(Node templateElement)
+        public Node GetTemplateContent(Node templateElement)
         {
             return ((TemplateElement)templateElement).content;
         }
 
-        public void setDocumentType(Document document, string name, string publicId, string systemId)
+        public void SetDocumentType(Document document, string name, string publicId, string systemId)
         {
             var doctypeNode = document.ChildNodes.OfType<DocumentType>().FirstOrDefault();
 
@@ -60,17 +60,17 @@ namespace ParseFive.TreeAdapters
             }
             else
             {
-                appendChild(document, new DocumentType(name, publicId, systemId));
+                AppendChild(document, new DocumentType(name, publicId, systemId));
             }
         }
 
-        public void setDocumentMode(Document document, string mode) =>
+        public void SetDocumentMode(Document document, string mode) =>
             document.Mode = mode;
 
-        public string getDocumentMode(Document document) =>
+        public string GetDocumentMode(Document document) =>
             document.Mode;
 
-        public void detachNode(Node node)
+        public void DetachNode(Node node)
         {
             if (node.ParentNode == null)
                 return;
@@ -79,7 +79,7 @@ namespace ParseFive.TreeAdapters
             node.ParentNode = null;
         }
 
-        public void insertText(Node parentNode, string text)
+        public void InsertText(Node parentNode, string text)
         {
             if (parentNode.ChildNodes.Count.IsTruthy())
             {
@@ -90,21 +90,21 @@ namespace ParseFive.TreeAdapters
                 }
             }
 
-            appendChild(parentNode, createTextNode(text));
+            AppendChild(parentNode, CreateTextNode(text));
         }
 
-        public void insertTextBefore(Node parentNode, string text, Node referenceNode)
+        public void InsertTextBefore(Node parentNode, string text, Node referenceNode)
         {
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
-            if (prevNode.IsTruthy() && isTextNode(prevNode))
+            if (prevNode.IsTruthy() && IsTextNode(prevNode))
                 ((Text)prevNode).Value += text;
             else
-                insertBefore(parentNode, createTextNode(text), referenceNode);
+                InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void adoptAttributes(Element recipient, List<Attr> attrs)
+        public void AdoptAttributes(Element recipient, List<Attr> attrs)
         {
             var recipientAttrsMap = new HashSet<string>();
 
@@ -118,79 +118,79 @@ namespace ParseFive.TreeAdapters
         }
 
         //Tree traversing
-        public Node getFirstChild(Node node)
+        public Node GetFirstChild(Node node)
         {
             return node.ChildNodes.Count() > 0 ? node.ChildNodes[0] : null;
         }
 
-        public List<Node> getChildNodes(Node node)
+        public List<Node> GetChildNodes(Node node)
         {
             return node.ChildNodes;
         }
 
-        public Node getParentNode(Node node)
+        public Node GetParentNode(Node node)
         {
             return node.ParentNode;
         }
 
-        public List<Attr> getAttrList(Element element)
+        public List<Attr> GetAttrList(Element element)
         {
             return element.Attributes;
         }
 
         //Node data
-        public string getTagName(Element element)
+        public string GetTagName(Element element)
         {
             return element.TagName;
         }
 
-        public string getNamespaceURI(Element element)
+        public string GetNamespaceUri(Element element)
         {
             return element.NamespaceUri;
         }
 
-        public string getTextNodeContent(Text textNode)
+        public string GetTextNodeContent(Text textNode)
         {
             return textNode.Value;
         }
 
-        public string getCommentNodeContent(Comment commentNode)
+        public string GetCommentNodeContent(Comment commentNode)
         {
             return commentNode.Data;
         }
 
-        public string getDocumentTypeNodeName(DocumentType doctypeNode)
+        public string GetDocumentTypeNodeName(DocumentType doctypeNode)
         {
             return doctypeNode.Name;
         }
 
-        public string getDocumentTypeNodePublicId(DocumentType doctypeNode)
+        public string GetDocumentTypeNodePublicId(DocumentType doctypeNode)
         {
             return doctypeNode.PublicId;
         }
 
-        public string getDocumentTypeNodeSystemId(DocumentType doctypeNode)
+        public string GetDocumentTypeNodeSystemId(DocumentType doctypeNode)
         {
             return doctypeNode.SystemId;
         }
 
         //Node types
-        public bool isTextNode(Node node)
+        public bool IsTextNode(Node node)
         {
             return node is Text;
         }
 
-        public bool isCommentNode(Node node)
+        public bool IsCommentNode(Node node)
         {
             return node is Comment;
         }
 
-        public bool isDocumentTypeNode(Node node)
+        public bool IsDocumentTypeNode(Node node)
         {
             return node is Document;
         }
 
-        public bool isElementNode(Node node)
+        public bool IsElementNode(Node node)
         {
             return node is Element;
         }

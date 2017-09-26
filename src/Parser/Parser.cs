@@ -401,7 +401,7 @@ namespace ParseFive.Parser
         // API
         public Document Parse(string html)
         {
-            var document = this.treeAdapter.createDocument();
+            var document = this.treeAdapter.CreateDocument();
 
             this.Bootstrap(document, null);
             this.tokenizer.Write(html, true);
@@ -415,16 +415,16 @@ namespace ParseFive.Parser
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
             if (!fragmentContext.IsTruthy())
-                fragmentContext = this.treeAdapter.createElement(T.TEMPLATE, NS.HTML, new List<Attr>());
+                fragmentContext = this.treeAdapter.CreateElement(T.TEMPLATE, NS.HTML, new List<Attr>());
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
             //This is important for jsdom there 'document' can't be recreated, therefore
             //fragment parsing causes messing of the main `document`.
-            var documentMock = this.treeAdapter.createElement("documentmock", NS.HTML, new List<Attr>());
+            var documentMock = this.treeAdapter.CreateElement("documentmock", NS.HTML, new List<Attr>());
 
             this.Bootstrap(documentMock, fragmentContext);
 
-            if (this.treeAdapter.getTagName((Element) fragmentContext) == T.TEMPLATE)
+            if (this.treeAdapter.GetTagName((Element) fragmentContext) == T.TEMPLATE)
                 this.PushTmplInsertionMode(IN_TEMPLATE_MODE);
 
             this.InitTokenizerForFragmentParsing();
@@ -434,8 +434,8 @@ namespace ParseFive.Parser
             this.tokenizer.Write(html, true);
             this.RunParsingLoop(null);
 
-            var rootElement = (Element) this.treeAdapter.getFirstChild(documentMock);
-            var fragment = this.treeAdapter.createDocumentFragment();
+            var rootElement = (Element) this.treeAdapter.GetFirstChild(documentMock);
+            var fragment = this.treeAdapter.CreateDocumentFragment();
 
             this.AdoptNodes(rootElement, fragment);
 
@@ -530,7 +530,7 @@ namespace ParseFive.Parser
             var current = this.GetAdjustedCurrentElement();
 
             this.tokenizer.AllowCData = current.IsTruthy() && current != this.document &&
-                                        this.treeAdapter.getNamespaceURI((Element)current) != NS.HTML && !this.IsIntegrationPoint((Element)current);
+                                        this.treeAdapter.GetNamespaceUri((Element)current) != NS.HTML && !this.IsIntegrationPoint((Element)current);
         }
 
         void SwitchToTextParsing(Token currentToken, string nextTokenizerState)
@@ -562,21 +562,21 @@ namespace ParseFive.Parser
 
             do
             {
-                if (this.treeAdapter.getTagName(node) == T.FORM)
+                if (this.treeAdapter.GetTagName(node) == T.FORM)
                 {
                     this.formElement = node;
                     break;
                 }
 
-                node = (Element) this.treeAdapter.getParentNode(node);
+                node = (Element) this.treeAdapter.GetParentNode(node);
             } while (node.IsTruthy());
         }
 
         void InitTokenizerForFragmentParsing()
         {
-            if (this.treeAdapter.getNamespaceURI((Element) this.fragmentContext) == NS.HTML)
+            if (this.treeAdapter.GetNamespaceUri((Element) this.fragmentContext) == NS.HTML)
             {
-                var tn = this.treeAdapter.getTagName((Element) this.fragmentContext);
+                var tn = this.treeAdapter.GetTagName((Element) this.fragmentContext);
 
                 if (tn == T.TITLE || tn == T.TEXTAREA)
                     this.tokenizer.State = RCDATA;
@@ -596,7 +596,7 @@ namespace ParseFive.Parser
         //Tree mutation
         void SetDocumentType(Token token)
         {
-            this.treeAdapter.setDocumentType((Document) this.document, token.name, token.publicId, token.systemId);
+            this.treeAdapter.SetDocumentType((Document) this.document, token.name, token.publicId, token.systemId);
         }
 
         void AttachElementToTree(Element element)
@@ -608,20 +608,20 @@ namespace ParseFive.Parser
             {
                 var parent = this.openElements.currentTmplContent ?? this.openElements.current; //|| operator
 
-                this.treeAdapter.appendChild(parent, element);
+                this.treeAdapter.AppendChild(parent, element);
             }
         }
 
         void AppendElement(Token token, string namespaceURI)
         {
-            var element = this.treeAdapter.createElement(token.tagName, namespaceURI, token.attrs);
+            var element = this.treeAdapter.CreateElement(token.tagName, namespaceURI, token.attrs);
 
             this.AttachElementToTree(element);
         }
 
         void InsertElement(Token token, string namespaceURI)
         {
-            var element = this.treeAdapter.createElement(token.tagName, namespaceURI, token.attrs);
+            var element = this.treeAdapter.CreateElement(token.tagName, namespaceURI, token.attrs);
 
             this.AttachElementToTree(element);
             this.openElements.push(element);
@@ -629,7 +629,7 @@ namespace ParseFive.Parser
 
         void InsertFakeElement(string tagName)
         {
-            var element = this.treeAdapter.createElement(tagName, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.CreateElement(tagName, NS.HTML, new List<Attr>());
 
             this.AttachElementToTree(element);
             this.openElements.push(element);
@@ -637,10 +637,10 @@ namespace ParseFive.Parser
 
         void InsertTemplate(Token token)
         {
-            var tmpl = (TemplateElement) this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
-            var content = this.treeAdapter.createDocumentFragment();
+            var tmpl = (TemplateElement) this.treeAdapter.CreateElement(token.tagName, NS.HTML, token.attrs);
+            var content = this.treeAdapter.CreateDocumentFragment();
 
-            this.treeAdapter.setTemplateContent(tmpl, content);
+            this.treeAdapter.SetTemplateContent(tmpl, content);
             this.AttachElementToTree(tmpl);
             this.openElements.push(tmpl);
         }
@@ -652,17 +652,17 @@ namespace ParseFive.Parser
 
         void InsertFakeRootElement()
         {
-            var element = this.treeAdapter.createElement(T.HTML, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.CreateElement(T.HTML, NS.HTML, new List<Attr>());
 
-            this.treeAdapter.appendChild(this.openElements.current, element);
+            this.treeAdapter.AppendChild(this.openElements.current, element);
             this.openElements.push(element);
         }
 
         void AppendCommentNode(Token token, Node parent)
         {
-            var commentNode = this.treeAdapter.createCommentNode(token.data);
+            var commentNode = this.treeAdapter.CreateCommentNode(token.data);
 
-            this.treeAdapter.appendChild(parent, commentNode);
+            this.treeAdapter.AppendChild(parent, commentNode);
         }
 
         void InsertCharacters(Token token)
@@ -674,7 +674,7 @@ namespace ParseFive.Parser
             {
                 var parent = this.openElements.currentTmplContent ?? this.openElements.current; // || operator
 
-                this.treeAdapter.insertText(parent, token.chars);
+                this.treeAdapter.InsertText(parent, token.chars);
             }
         }
 
@@ -682,13 +682,13 @@ namespace ParseFive.Parser
         {
             while (true)
             {
-                var child = this.treeAdapter.getFirstChild(donor);
+                var child = this.treeAdapter.GetFirstChild(donor);
 
                 if (!child.IsTruthy())
                     break;
 
-                this.treeAdapter.detachNode(child);
-                this.treeAdapter.appendChild(recipient, child);
+                this.treeAdapter.DetachNode(child);
+                this.treeAdapter.AppendChild(recipient, child);
             }
         }
 
@@ -702,12 +702,12 @@ namespace ParseFive.Parser
 
             var current = (Element) current_;
 
-            var ns = this.treeAdapter.getNamespaceURI(current);
+            var ns = this.treeAdapter.GetNamespaceUri(current);
 
             if (ns == NS.HTML)
                 return false;
 
-            if (this.treeAdapter.getTagName(current) == T.ANNOTATION_XML && ns == NS.MATHML &&
+            if (this.treeAdapter.GetTagName(current) == T.ANNOTATION_XML && ns == NS.MATHML &&
                 token.type == START_TAG_TOKEN && token.tagName == T.SVG)
                 return false;
 
@@ -770,9 +770,9 @@ namespace ParseFive.Parser
         //Integration points
         bool IsIntegrationPoint(Element element, string foreignNS)
         {
-            var tn = this.treeAdapter.getTagName(element);
-            var ns = this.treeAdapter.getNamespaceURI(element);
-            var attrs = this.treeAdapter.getAttrList(element);
+            var tn = this.treeAdapter.GetTagName(element);
+            var ns = this.treeAdapter.GetNamespaceUri(element);
+            var attrs = this.treeAdapter.GetAttrList(element);
 
             return ForeignContent.IsIntegrationPoint(tn, ns, attrs, foreignNS);
         }
@@ -807,7 +807,7 @@ namespace ParseFive.Parser
                 for (var i = unopenIdx; i < listLength; i++)
                 {
                     entry = this.activeFormattingElements[i];
-                    this.InsertElement(entry.Token, this.treeAdapter.getNamespaceURI(entry.Element));
+                    this.InsertElement(entry.Token, this.treeAdapter.GetNamespaceUri(entry.Element));
                     entry.Element = (Element) this.openElements.current;
                 }
             }
@@ -844,7 +844,7 @@ namespace ParseFive.Parser
                         element = (Element) this.fragmentContext;
                 }
 
-                var tn = this.treeAdapter.getTagName(element);
+                var tn = this.treeAdapter.GetTagName(element);
 
                 if (INSERTION_MODE_RESET_MAP.TryGetValue(tn, out var newInsertionMode))
                 {
@@ -897,7 +897,7 @@ namespace ParseFive.Parser
                 for (var i = selectIdx - 1; i > 0; i--)
                 {
                     var ancestor = this.openElements[i];
-                    var tn = this.treeAdapter.getTagName(ancestor);
+                    var tn = this.treeAdapter.GetTagName(ancestor);
 
                     if (tn == T.TEMPLATE)
                         break;
@@ -932,7 +932,7 @@ namespace ParseFive.Parser
         //Foster parenting
         bool IsElementCausesFosterParenting(Element element)
         {
-            var tn = this.treeAdapter.getTagName(element);
+            var tn = this.treeAdapter.GetTagName(element);
 
             return tn == T.TABLE || tn == T.TBODY || tn == T.TFOOT || tn == T.THEAD || tn == T.TR;
         }
@@ -949,18 +949,18 @@ namespace ParseFive.Parser
             for (var i = this.openElements.stackTop; i >= 0; i--)
             {
                 var openElement = this.openElements[i];
-                var tn = this.treeAdapter.getTagName(openElement);
-                var ns = this.treeAdapter.getNamespaceURI(openElement);
+                var tn = this.treeAdapter.GetTagName(openElement);
+                var ns = this.treeAdapter.GetNamespaceUri(openElement);
 
                 if (tn == T.TEMPLATE && ns == NS.HTML)
                 {
-                    location.parent = this.treeAdapter.getTemplateContent(openElement);
+                    location.parent = this.treeAdapter.GetTemplateContent(openElement);
                     break;
                 }
 
                 else if (tn == T.TABLE)
                 {
-                    location.parent = this.treeAdapter.getParentNode(openElement);
+                    location.parent = this.treeAdapter.GetParentNode(openElement);
 
                     if (location.parent.IsTruthy())
                         location.beforeElement = openElement;
@@ -982,9 +982,9 @@ namespace ParseFive.Parser
             var location = this.FindFosterParentingLocation();
 
             if (location.beforeElement.IsTruthy())
-                this.treeAdapter.insertBefore(location.parent, element, location.beforeElement);
+                this.treeAdapter.InsertBefore(location.parent, element, location.beforeElement);
             else
-                this.treeAdapter.appendChild(location.parent, element);
+                this.treeAdapter.AppendChild(location.parent, element);
         }
 
         void FosterParentText(string chars)
@@ -992,16 +992,16 @@ namespace ParseFive.Parser
             var location = this.FindFosterParentingLocation();
 
             if (location.beforeElement.IsTruthy())
-                this.treeAdapter.insertTextBefore(location.parent, chars, location.beforeElement);
+                this.treeAdapter.InsertTextBefore(location.parent, chars, location.beforeElement);
             else
-                this.treeAdapter.insertText(location.parent, chars);
+                this.treeAdapter.InsertText(location.parent, chars);
         }
 
         //Special elements
         bool IsSpecialElement(Element element)
         {
-            var tn = this.treeAdapter.getTagName(element);
-            var ns = this.treeAdapter.getNamespaceURI(element);
+            var tn = this.treeAdapter.GetTagName(element);
+            var ns = this.treeAdapter.GetNamespaceUri(element);
 
             return HTML.SPECIAL_ELEMENTS[ns].TryGetValue(tn, out var result) ? result : false;
         }
@@ -1095,8 +1095,8 @@ namespace ParseFive.Parser
                     if (lastElement == furthestBlock)
                         p.activeFormattingElements.Bookmark = elementEntry;
 
-                    p.treeAdapter.detachNode(lastElement);
-                    p.treeAdapter.appendChild(element, lastElement);
+                    p.treeAdapter.DetachNode(lastElement);
+                    p.treeAdapter.AppendChild(element, lastElement);
                     lastElement = element;
                 }
                 element = nextElement;
@@ -1108,8 +1108,8 @@ namespace ParseFive.Parser
         //Step 13.7 of the algorithm
         static Element AaRecreateElementFromEntry(Parser p, Entry elementEntry)
         {
-            var ns = p.treeAdapter.getNamespaceURI(elementEntry.Element);
-            var newElement = p.treeAdapter.createElement(elementEntry.Token.tagName, ns, elementEntry.Token.attrs);
+            var ns = p.treeAdapter.GetNamespaceUri(elementEntry.Element);
+            var newElement = p.treeAdapter.CreateElement(elementEntry.Token.tagName, ns, elementEntry.Token.attrs);
 
             p.openElements.replace(elementEntry.Element, newElement);
             elementEntry.Element = newElement;
@@ -1126,25 +1126,25 @@ namespace ParseFive.Parser
             else
             {
                 Node commonAncestorNode = commonAncestor;
-                var tn = p.treeAdapter.getTagName(commonAncestor);
-                string ns = p.treeAdapter.getNamespaceURI(commonAncestor);
+                var tn = p.treeAdapter.GetTagName(commonAncestor);
+                string ns = p.treeAdapter.GetNamespaceUri(commonAncestor);
 
                 if (tn == T.TEMPLATE && ns == NS.HTML)
-                    commonAncestorNode = p.treeAdapter.getTemplateContent(commonAncestor);
+                    commonAncestorNode = p.treeAdapter.GetTemplateContent(commonAncestor);
 
-                p.treeAdapter.appendChild(commonAncestorNode, lastElement);
+                p.treeAdapter.AppendChild(commonAncestorNode, lastElement);
             }
         }
 
         //Steps 15-19 of the algorithm
         static void AaReplaceFormattingElement(Parser p, Element furthestBlock, Entry formattingElementEntry)
         {
-            string ns = p.treeAdapter.getNamespaceURI(formattingElementEntry.Element);
+            string ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
             Token token = formattingElementEntry.Token;
-            Element newElement = p.treeAdapter.createElement(token.tagName, ns, token.attrs);
+            Element newElement = p.treeAdapter.CreateElement(token.tagName, ns, token.attrs);
 
             p.AdoptNodes(furthestBlock, newElement);
-            p.treeAdapter.appendChild(furthestBlock, newElement);
+            p.treeAdapter.AppendChild(furthestBlock, newElement);
 
             p.activeFormattingElements.InsertElementAfterBookmark(newElement, formattingElementEntry.Token);
             p.activeFormattingElements.RemoveEntry(formattingElementEntry);
@@ -1175,7 +1175,7 @@ namespace ParseFive.Parser
                 var lastElement = AaInnerLoop(p, furthestBlock, formattingElementEntry.Element);
                 var commonAncestor = p.openElements.getCommonAncestor(formattingElementEntry.Element);
 
-                p.treeAdapter.detachNode(lastElement);
+                p.treeAdapter.DetachNode(lastElement);
                 AaInsertLastNodeInCommonAncestor(p, commonAncestor, lastElement);
                 AaReplaceFormattingElement(p, furthestBlock, formattingElementEntry);
             }
@@ -1224,14 +1224,14 @@ namespace ParseFive.Parser
                 HTML.DOCUMENT_MODE.QUIRKS :
                 GetDocumentMode(token.name, token.publicId, token.systemId);
 
-            p.treeAdapter.setDocumentMode((Document) p.document, mode);
+            p.treeAdapter.SetDocumentMode((Document) p.document, mode);
 
             p.insertionMode = BEFORE_HTML_MODE;
         }
 
         static void TokenInInitialMode(Parser p, Token token)
         {
-            p.treeAdapter.setDocumentMode((Document) p.document, HTML.DOCUMENT_MODE.QUIRKS);
+            p.treeAdapter.SetDocumentMode((Document) p.document, HTML.DOCUMENT_MODE.QUIRKS);
             p.insertionMode = BEFORE_HTML_MODE;
             p.ProcessToken(token);
         }
@@ -1442,7 +1442,7 @@ namespace ParseFive.Parser
         static void HtmlStartTagInBody(Parser p, Token token)
         {
             if (p.openElements.tmplCount == 0)
-                p.treeAdapter.adoptAttributes(p.openElements[0], token.attrs);
+                p.treeAdapter.AdoptAttributes(p.openElements[0], token.attrs);
         }
 
         static void BodyStartTagInBody(Parser p, Token token)
@@ -1452,7 +1452,7 @@ namespace ParseFive.Parser
             if (bodyElement.IsTruthy() && p.openElements.tmplCount == 0)
             {
                 p.framesetOk = false;
-                p.treeAdapter.adoptAttributes(bodyElement, token.attrs);
+                p.treeAdapter.AdoptAttributes(bodyElement, token.attrs);
             }
         }
 
@@ -1462,7 +1462,7 @@ namespace ParseFive.Parser
 
             if (p.framesetOk && bodyElement.IsTruthy())
             {
-                p.treeAdapter.detachNode(bodyElement);
+                p.treeAdapter.DetachNode(bodyElement);
                 p.openElements.popAllUpToHtmlElement();
                 p.InsertElement(token, NS.HTML);
                 p.insertionMode = IN_FRAMESET_MODE;
@@ -1527,7 +1527,7 @@ namespace ParseFive.Parser
             for (var i = p.openElements.stackTop; i >= 0; i--)
             {
                 var element = p.openElements[i];
-                string elementTn = p.treeAdapter.getTagName(element);
+                string elementTn = p.treeAdapter.GetTagName(element);
                 string closeTn = null;
 
                 if (tn == T.LI && elementTn == T.LI)
@@ -1622,7 +1622,7 @@ namespace ParseFive.Parser
 
         static void TableStartTagInBody(Parser p, Token token)
         {
-            var mode = p.document is Document doc ? p.treeAdapter.getDocumentMode(doc) : null;
+            var mode = p.document is Document doc ? p.treeAdapter.GetDocumentMode(doc) : null;
             if (mode != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.hasInButtonScope(T.P))
                 p.ClosePElement();
 
@@ -2203,7 +2203,7 @@ namespace ParseFive.Parser
             {
                 var element = p.openElements[i];
 
-                if (p.treeAdapter.getTagName(element) == tn)
+                if (p.treeAdapter.GetTagName(element) == tn)
                 {
                     p.openElements.generateImpliedEndTagsWithExclusion(tn);
                     p.openElements.popUntilElementPopped(element);
@@ -2966,7 +2966,7 @@ namespace ParseFive.Parser
             {
                 var prevOpenElement = p.openElements[p.openElements.stackTop - 1];
                 var prevOpenElementTn = // prevOpenElement && p.treeAdapter.getTagName(prevOpenElement)
-                                        prevOpenElement.IsTruthy() ? p.treeAdapter.getTagName(prevOpenElement) : null;
+                                        prevOpenElement.IsTruthy() ? p.treeAdapter.GetTagName(prevOpenElement) : null;
 
                 if (p.openElements.currentTagName == T.OPTION && prevOpenElementTn == T.OPTGROUP)
                     p.openElements.pop();
@@ -3198,7 +3198,7 @@ namespace ParseFive.Parser
         {
             if (CausesExit(token) && !p.fragmentContext.IsTruthy())
             {
-                while (p.treeAdapter.getNamespaceURI((Element) p.openElements.current) != NS.HTML && !p.IsIntegrationPoint((Element) p.openElements.current))
+                while (p.treeAdapter.GetNamespaceUri((Element) p.openElements.current) != NS.HTML && !p.IsIntegrationPoint((Element) p.openElements.current))
                     p.openElements.pop();
 
                 p.ProcessToken(token);
@@ -3207,7 +3207,7 @@ namespace ParseFive.Parser
             else
             {
                 var current = (Element) p.GetAdjustedCurrentElement();
-                string currentNs = p.treeAdapter.getNamespaceURI(current);
+                string currentNs = p.treeAdapter.GetNamespaceUri(current);
 
                 if (currentNs == NS.MATHML)
                     AdjustTokenMathMlAttrs(token);
@@ -3233,13 +3233,13 @@ namespace ParseFive.Parser
             {
                 var element = p.openElements[i];
 
-                if (p.treeAdapter.getNamespaceURI(element) == NS.HTML)
+                if (p.treeAdapter.GetNamespaceUri(element) == NS.HTML)
                 {
                     p.ProcessToken(token);
                     break;
                 }
 
-                if (p.treeAdapter.getTagName(element).toLowerCase() == token.tagName)
+                if (p.treeAdapter.GetTagName(element).toLowerCase() == token.tagName)
                 {
                     p.openElements.popUntilElementPopped(element);
                     break;

@@ -66,9 +66,9 @@ namespace ParseFive.Parser
 
             if (length >= NoahArkCapacity)
             {
-                var neAttrsLength = this.treeAdapter.getAttrList(newElement).Count;
-                var neTagName = this.treeAdapter.getTagName(newElement);
-                var neNamespaceUri = this.treeAdapter.getNamespaceURI(newElement);
+                var neAttrsLength = this.treeAdapter.GetAttrList(newElement).Count;
+                var neTagName = this.treeAdapter.GetTagName(newElement);
+                var neNamespaceUri = this.treeAdapter.GetNamespaceUri(newElement);
 
                 for (var i = this.length - 1; i >= 0; i--)
                 {
@@ -78,9 +78,9 @@ namespace ParseFive.Parser
                         break;
 
                     var element = entry.Element;
-                    var elementAttrs = this.treeAdapter.getAttrList(element);
-                    var isCandidate = this.treeAdapter.getTagName(element) == neTagName &&
-                                      this.treeAdapter.getNamespaceURI(element) == neNamespaceUri &&
+                    var elementAttrs = this.treeAdapter.GetAttrList(element);
+                    var isCandidate = this.treeAdapter.GetTagName(element) == neTagName &&
+                                      this.treeAdapter.GetNamespaceUri(element) == neNamespaceUri &&
                                       elementAttrs.Count == neAttrsLength;
 
                     if (isCandidate)
@@ -98,7 +98,7 @@ namespace ParseFive.Parser
 
             if (cLength.IsTruthy())
             {
-                var neAttrs = this.treeAdapter.getAttrList(newElement);
+                var neAttrs = this.treeAdapter.GetAttrList(newElement);
                 var neAttrsLength = neAttrs.Count;
                 var neAttrsMap = new Dictionary<string, string>();
 
@@ -207,7 +207,7 @@ namespace ParseFive.Parser
                 if (entry.Type == MARKER_ENTRY)
                     return null;
 
-                if (this.treeAdapter.getTagName(entry.Element) == tagName)
+                if (this.treeAdapter.GetTagName(entry.Element) == tagName)
                     return entry;
             }
 

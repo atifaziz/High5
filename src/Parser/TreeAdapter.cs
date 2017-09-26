@@ -6,48 +6,48 @@ namespace ParseFive
     {
         // Node construction
 
-        Document createDocument();
-        DocumentFragment createDocumentFragment();
-        Element createElement(string tagName, string namespaceURI, List<Attr> attrs);
-        Comment createCommentNode(string data);
-        Text createTextNode(string value);
+        Document CreateDocument();
+        DocumentFragment CreateDocumentFragment();
+        Element CreateElement(string tagName, string namespaceUri, List<Attr> attrs);
+        Comment CreateCommentNode(string data);
+        Text CreateTextNode(string value);
 
         // Tree mutation
 
-        void appendChild(Node parentNode, Node newNode);
-        void insertBefore(Node parentNode, Node newNode, Node referenceNode);
-        void setTemplateContent(Node templateElement, Node contentElement);
-        Node getTemplateContent(Node templateElement);
-        void setDocumentType(Document document, string name, string publicId, string systemId);
-        void setDocumentMode(Document document, string mode);
-        string getDocumentMode(Document document);
-        void detachNode(Node node);
-        void insertText(Node parentNode, string text);
-        void insertTextBefore(Node parentNode, string text, Node referenceNode);
-        void adoptAttributes(Element recipient, List<Attr> attrs);
+        void AppendChild(Node parentNode, Node newNode);
+        void InsertBefore(Node parentNode, Node newNode, Node referenceNode);
+        void SetTemplateContent(Node templateElement, Node contentElement);
+        Node GetTemplateContent(Node templateElement);
+        void SetDocumentType(Document document, string name, string publicId, string systemId);
+        void SetDocumentMode(Document document, string mode);
+        string GetDocumentMode(Document document);
+        void DetachNode(Node node);
+        void InsertText(Node parentNode, string text);
+        void InsertTextBefore(Node parentNode, string text, Node referenceNode);
+        void AdoptAttributes(Element recipient, List<Attr> attrs);
 
         // Tree traversing
 
-        Node getFirstChild(Node node);
-        List<Node> getChildNodes(Node node);
-        Node getParentNode(Node node);
-        List<Attr> getAttrList(Element element);
+        Node GetFirstChild(Node node);
+        List<Node> GetChildNodes(Node node);
+        Node GetParentNode(Node node);
+        List<Attr> GetAttrList(Element element);
 
         // Node data
 
-        string getTagName(Element element);
-        string getNamespaceURI(Element element);
-        string getTextNodeContent(Text textNode);
-        string getCommentNodeContent(Comment commentNode);
-        string getDocumentTypeNodeName(DocumentType doctypeNode);
-        string getDocumentTypeNodePublicId(DocumentType doctypeNode);
-        string getDocumentTypeNodeSystemId(DocumentType doctypeNode);
+        string GetTagName(Element element);
+        string GetNamespaceUri(Element element);
+        string GetTextNodeContent(Text textNode);
+        string GetCommentNodeContent(Comment commentNode);
+        string GetDocumentTypeNodeName(DocumentType doctypeNode);
+        string GetDocumentTypeNodePublicId(DocumentType doctypeNode);
+        string GetDocumentTypeNodeSystemId(DocumentType doctypeNode);
 
         // Node types
 
-        bool isTextNode(Node node);
-        bool isCommentNode(Node node);
-        bool isDocumentTypeNode(Node node);
-        bool isElementNode(Node node);
+        bool IsTextNode(Node node);
+        bool IsCommentNode(Node node);
+        bool IsDocumentTypeNode(Node node);
+        bool IsElementNode(Node node);
     }
 }

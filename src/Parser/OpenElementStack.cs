@@ -43,9 +43,9 @@ namespace ParseFive.Parser
             this.currentTagName = null;
             this.currentTmplContent = null;
             this.tmplCount = 0;
-            this.treeAdapter = new TreeAdapter(treeAdapter.getNamespaceURI,
-                                               treeAdapter.getTagName,
-                                               treeAdapter.getTemplateContent);
+            this.treeAdapter = new TreeAdapter(treeAdapter.GetNamespaceUri,
+                                               treeAdapter.GetTagName,
+                                               treeAdapter.GetTemplateContent);
         }
 
         public static bool isImpliedEndTagRequired(string tn)
