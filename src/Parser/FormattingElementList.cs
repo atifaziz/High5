@@ -1,7 +1,7 @@
 namespace ParseFive.Parser
 {
+    using System.Collections.Generic;
     using Extensions;
-    using NeAttrsMap = System.Collections.Generic.Dictionary<string, string>;
     using Tokenizer;
 
     abstract class Entry
@@ -100,7 +100,7 @@ namespace ParseFive.Parser
             {
                 var neAttrs = this.treeAdapter.getAttrList(newElement);
                 var neAttrsLength = neAttrs.Count;
-                var neAttrsMap = new NeAttrsMap();
+                var neAttrsMap = new Dictionary<string, string>();
 
                 // NOTE: build attrs map for the new element so we can perform fast lookups
 

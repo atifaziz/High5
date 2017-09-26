@@ -4,12 +4,6 @@ using System.Linq;
 
 namespace ParseFive.Extensions
 {
-    public class List<T> : System.Collections.Generic.List<T>
-    {
-        public int length => Count;
-        
-    }
-
     public static class Extensions
     {
         public static bool IsTruthy(this object o) => o != null;
