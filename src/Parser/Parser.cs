@@ -1,33 +1,27 @@
-using System;
-using static ParseFive.Tokenizer.TokenType;
-using T = HTML.TAG_NAMES;
-using NS = HTML.NAMESPACES;
-using ATTRS = HTML.ATTRS;
-using MODE = ParseFive.Tokenizer.Tokenizer.MODE;
-using static ParseFive.Tokenizer.Tokenizer.MODE;
-using ParseFive.Tokenizer;
 using ParseFive.Extensions;
-using static ParseFive.Common.ForeignContent;
-using static ParseFive.Common.Doctype;
-using Unicode = ParseFive.Common.Unicode;
-// ReSharper disable InconsistentNaming
-// ReSharper disable ArrangeThisQualifier
 
 namespace ParseFive.Parser
 {
+    using System;
     using System.Collections.Generic;
+    using Tokenizer;
     using TreeAdapters;
+    using static Tokenizer.TokenType;
+    using static Tokenizer.Tokenizer.MODE;
+    using static Common.ForeignContent;
+    using static Common.Doctype;
+    using ATTRS = HTML.ATTRS;
+    using NS = HTML.NAMESPACES;
+    using MODE = Tokenizer.Tokenizer.MODE;
+    using T = HTML.TAG_NAMES;
     using Tokenizer = Tokenizer.Tokenizer;
+    using Unicode = Common.Unicode;
+
+    // ReSharper disable InconsistentNaming
+    // ReSharper disable ArrangeThisQualifier
 
     public class Parser
     {
-        /*
-        public class Options {
-            public readonly bool locationInfo = false;
-            readonly TreeAdapter treeAdapter = defaultTreeAdapter;
-        }
-        */
-
         //Misc constants
         const string HIDDEN_INPUT_TYPE = "hidden";
 
@@ -62,15 +56,15 @@ namespace ParseFive.Parser
         //Insertion mode reset map
         static readonly IDictionary<string, string> INSERTION_MODE_RESET_MAP = new Dictionary<string, string>
         {
-            [T.TR] =  IN_ROW_MODE,
+            [T.TR] = IN_ROW_MODE,
             [T.TBODY] = IN_TABLE_BODY_MODE,
             [T.THEAD] = IN_TABLE_BODY_MODE,
-            [T.TFOOT] =  IN_TABLE_BODY_MODE,
-            [T.CAPTION] =  IN_CAPTION_MODE,
-            [T.COLGROUP] =  IN_COLUMN_GROUP_MODE,
-            [T.TABLE] =  IN_TABLE_MODE,
-            [T.BODY] =  IN_BODY_MODE,
-            [T.FRAMESET] =  IN_FRAMESET_MODE,
+            [T.TFOOT] = IN_TABLE_BODY_MODE,
+            [T.CAPTION] = IN_CAPTION_MODE,
+            [T.COLGROUP] = IN_COLUMN_GROUP_MODE,
+            [T.TABLE] = IN_TABLE_MODE,
+            [T.BODY] = IN_BODY_MODE,
+            [T.FRAMESET] = IN_FRAMESET_MODE,
         };
 
 
@@ -643,7 +637,7 @@ namespace ParseFive.Parser
 
         void _insertTemplate(Token token)
         {
-            var tmpl = (TemplateElement)this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
+            var tmpl = (TemplateElement) this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
             var content = this.treeAdapter.createDocumentFragment();
 
             this.treeAdapter.setTemplateContent(tmpl, content);
@@ -2363,7 +2357,7 @@ namespace ParseFive.Parser
                     break;
             }
         }
-        
+
 
         public static void eofInBody(Parser p, Token token)
         {
