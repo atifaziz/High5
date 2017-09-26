@@ -26,12 +26,12 @@ namespace ParseFive.Parser
 
 
         readonly TreeAdapter treeAdapter;
-        public Node currentTmplContent { get; set; }
-        public Node current { get; set; }
-        public List<Element> items;
+        public Node currentTmplContent { get; private set; }
+        public Node current { get; private set; }
+        public List<Element> items { get; private set; }
         public string currentTagName { get; private set; }
         public int tmplCount { get; private set; }
-        public int stackTop;
+        public int stackTop { get; private set; }
 
         //Stack of open elements
         public OpenElementStack(Node document, ParseFive.TreeAdapter treeAdapter)
