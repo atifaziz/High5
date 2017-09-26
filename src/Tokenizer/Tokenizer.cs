@@ -9,9 +9,6 @@ namespace ParseFive.Tokenizer
     using static NamedEntityData;
     using static NamedEntityTreeFlags;
     using String = Compatibility.String;
-    using Attrs = Extensions.List<Attr>;
-    using TempBuff = Extensions.List<int>;
-    using TokenQueue = Extensions.List<Token>;
     using CP = Common.Unicode.CodePoints;
     using CPS = Common.Unicode.CodePointSequences;
 
@@ -199,11 +196,11 @@ namespace ParseFive.Tokenizer
 
         readonly Preprocessor preprocessor;
 
-        readonly TokenQueue tokenQueue;
+        readonly List<Token> tokenQueue;
         public bool AllowCData { get; set; }
         public string State { get; set; }
         string returnState;
-        TempBuff tempBuff;
+        List<int> tempBuff;
         int additionalAllowedCp;
         string lastStartTagName;
         int consumedAfterSnapshot;
@@ -218,14 +215,14 @@ namespace ParseFive.Tokenizer
         {
             this.preprocessor = new Preprocessor();
 
-            this.tokenQueue = new TokenQueue();
+            this.tokenQueue = new List<Token>();
 
             this.AllowCData = false;
 
             this.State = DATA_STATE;
             this.returnState = "";
 
-            this.tempBuff = new TempBuff();
+            this.tempBuff = new List<int>();
             this.additionalAllowedCp = 0; // void 0
             this.lastStartTagName = "";
 
@@ -420,12 +417,12 @@ namespace ParseFive.Tokenizer
 
         void CreateStartTagToken()
         {
-            this.currentToken = new Token(TokenType.START_TAG_TOKEN, "", false, new Attrs());
+            this.currentToken = new Token(TokenType.START_TAG_TOKEN, "", false, new List<Attr>());
         }
 
         void CreateEndTagToken()
         {
-            this.currentToken = new Token(TokenType.END_TAG_TOKEN, "", new Attrs());
+            this.currentToken = new Token(TokenType.END_TAG_TOKEN, "", new List<Attr>());
         }
 
         void CreateCommentToken()
@@ -939,7 +936,7 @@ namespace ParseFive.Tokenizer
         {
             if (cp == CP.SOLIDUS)
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.State = RCDATA_END_TAG_OPEN_STATE;
             }
 
@@ -1024,7 +1021,7 @@ namespace ParseFive.Tokenizer
         {
             if (cp == CP.SOLIDUS)
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.State = RAWTEXT_END_TAG_OPEN_STATE;
             }
 
@@ -1109,7 +1106,7 @@ namespace ParseFive.Tokenizer
         {
             if (cp == CP.SOLIDUS)
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.State = SCRIPT_DATA_END_TAG_OPEN_STATE;
             }
 
@@ -1318,13 +1315,13 @@ namespace ParseFive.Tokenizer
         {
             if (cp == CP.SOLIDUS)
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.State = SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
             }
 
             else if (IsAsciiLetter(cp))
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.EmitChar('<');
                 @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE);
             }
@@ -1533,7 +1530,7 @@ namespace ParseFive.Tokenizer
         {
             if (cp == CP.SOLIDUS)
             {
-                @this.tempBuff = new TempBuff();
+                @this.tempBuff = new List<int>();
                 @this.State = SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
                 @this.EmitChar('/');
             }

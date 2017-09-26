@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ParseFive.Extensions;
 using T = HTML.TAG_NAMES;
 using NS = HTML.NAMESPACES;

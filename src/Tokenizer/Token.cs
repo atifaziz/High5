@@ -1,6 +1,6 @@
 namespace ParseFive.Tokenizer
 {
-    using Extensions;
+    using System.Collections.Generic;
 
     public class Token
     {

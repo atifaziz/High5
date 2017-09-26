@@ -256,7 +256,7 @@ namespace ParseFive.Tests
                         tagName, ns == "svg" ? nsSvg
                                : ns == "math" ? nsMath
                                : nsHtml,
-                        new Extensions.List<Attr>());
+                        new List<Attr>());
 
                 parse = (p, s) => p.parseFragment(s, context);
             }

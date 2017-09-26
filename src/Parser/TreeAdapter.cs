@@ -1,6 +1,6 @@
 namespace ParseFive
 {
-    using Extensions;
+    using System.Collections.Generic;
 
     public interface TreeAdapter
     {

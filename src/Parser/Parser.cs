@@ -359,10 +359,10 @@ namespace ParseFive.Parser
         Element formElement;
         OpenElementStack openElements;
         FormattingElementList activeFormattingElements;
-        Extensions.List<string> tmplInsertionModeStack;
+        List<string> tmplInsertionModeStack;
         int tmplInsertionModeStackTop;
         string currentTmplInsertionMode;
-        Extensions.List<Token> pendingCharacterTokens;
+        List<Token> pendingCharacterTokens;
         bool hasNonWhitespacePendingCharacterToken;
         bool framesetOk;
         bool skipNextNewLine;
@@ -415,12 +415,12 @@ namespace ParseFive.Parser
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
             if (!fragmentContext.IsTruthy())
-                fragmentContext = this.treeAdapter.createElement(T.TEMPLATE, NS.HTML, new Extensions.List<Attr>());
+                fragmentContext = this.treeAdapter.createElement(T.TEMPLATE, NS.HTML, new List<Attr>());
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
             //This is important for jsdom there 'document' can't be recreated, therefore
             //fragment parsing causes messing of the main `document`.
-            var documentMock = this.treeAdapter.createElement("documentmock", NS.HTML, new Extensions.List<Attr>());
+            var documentMock = this.treeAdapter.createElement("documentmock", NS.HTML, new List<Attr>());
 
             this._bootstrap(documentMock, fragmentContext);
 
@@ -461,11 +461,11 @@ namespace ParseFive.Parser
             this.openElements = new OpenElementStack(this.document, this.treeAdapter);
             this.activeFormattingElements = new FormattingElementList(this.treeAdapter);
 
-            this.tmplInsertionModeStack = new Extensions.List<string>();
+            this.tmplInsertionModeStack = new List<string>();
             this.tmplInsertionModeStackTop = -1;
             this.currentTmplInsertionMode = null;
 
-            this.pendingCharacterTokens = new Extensions.List<Token>();
+            this.pendingCharacterTokens = new List<Token>();
             this.hasNonWhitespacePendingCharacterToken = false;
 
             this.framesetOk = true;
@@ -629,7 +629,7 @@ namespace ParseFive.Parser
 
         void _insertFakeElement(string tagName)
         {
-            var element = this.treeAdapter.createElement(tagName, NS.HTML, new Extensions.List<Attr>());
+            var element = this.treeAdapter.createElement(tagName, NS.HTML, new List<Attr>());
 
             this._attachElementToTree(element);
             this.openElements.push(element);
@@ -652,7 +652,7 @@ namespace ParseFive.Parser
 
         void _insertFakeRootElement()
         {
-            var element = this.treeAdapter.createElement(T.HTML, NS.HTML, new Extensions.List<Attr>());
+            var element = this.treeAdapter.createElement(T.HTML, NS.HTML, new List<Attr>());
 
             this.treeAdapter.appendChild(this.openElements.current, element);
             this.openElements.push(element);
@@ -2396,7 +2396,7 @@ namespace ParseFive.Parser
 
             if (curTn == T.TABLE || curTn == T.TBODY || curTn == T.TFOOT || curTn == T.THEAD || curTn == T.TR)
             {
-                p.pendingCharacterTokens = new Extensions.List<Token>();
+                p.pendingCharacterTokens = new List<Token>();
                 p.hasNonWhitespacePendingCharacterToken = false;
                 p.originalInsertionMode = p.insertionMode;
                 p.insertionMode = IN_TABLE_TEXT_MODE;
