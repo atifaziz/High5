@@ -73,7 +73,7 @@ namespace ParseFive.Parser
             var document = this.treeAdapter.createDocument();
 
             this._bootstrap(document, null);
-            this.tokenizer.write(html, true);
+            this.tokenizer.Write(html, true);
             this._runParsingLoop(null);
 
             return document;
@@ -100,7 +100,7 @@ namespace ParseFive.Parser
             this._insertFakeRootElement();
             this._resetInsertionMode();
             this._findFormInFragmentContext();
-            this.tokenizer.write(html, true);
+            this.tokenizer.Write(html, true);
             this._runParsingLoop(null);
 
             var rootElement = (Element) this.treeAdapter.getFirstChild(documentMock);
@@ -149,7 +149,7 @@ namespace ParseFive.Parser
             {
                 this._setupTokenizerCDATAMode();
 
-                var token = this.tokenizer.getNextToken();
+                var token = this.tokenizer.GetNextToken();
 
                 if (token.type == HIBERNATION_TOKEN)
                     break;
@@ -1312,7 +1312,7 @@ namespace ParseFive.Parser
             p._reconstructActiveFormattingElements();
             p._appendElement(token, NS.HTML);
 
-            var inputType = Tokenizer.getTokenAttr(token, ATTRS.TYPE);
+            var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
             if (!inputType.IsTruthy() || inputType.toLowerCase() != HIDDEN_INPUT_TYPE)
                 p.framesetOk = false;
@@ -2126,7 +2126,7 @@ namespace ParseFive.Parser
 
         public static void inputStartTagInTable(Parser p, Token token)
         {
-            var inputType = Tokenizer.getTokenAttr(token, ATTRS.TYPE);
+            var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
             if (inputType.IsTruthy() && inputType.toLowerCase() == HIDDEN_INPUT_TYPE)
                 p._appendElement(token, NS.HTML);
