@@ -6,13 +6,13 @@ namespace ParseFive.Extensions
 {
     public interface ISomeList<T>
     {
-        Int length { get; }
+        int length { get; }
         T this[int index] { get; }
     }
 
     public class List<T> : System.Collections.Generic.List<T>, ISomeList<T>
     {
-        public Int length => Count;
+        public int length => Count;
         
     }
 
@@ -22,7 +22,7 @@ namespace ParseFive.Extensions
 
         public Array(T[] array) => _array = array;
         public T this[int index] => _array[index];
-        public Int length => _array.Length;
+        public int length => _array.Length;
     }
 
     public static class Extensions
@@ -30,7 +30,6 @@ namespace ParseFive.Extensions
         public static bool IsTruthy(this object o) => o != null;
         public static bool IsTruthy(this string s) => !string.IsNullOrEmpty(s);
         public static bool IsTruthy(this int n) => n != 0;
-        public static bool IsTruthy(this Int n) => n != 0;
 
         public static int indexOf(this string str, char ch) =>
             str.IndexOf(ch);
@@ -85,7 +84,7 @@ namespace ParseFive.Extensions
 
         public static char toChar(int n) => (char)n;
 
-        public static Int length<T>(this Queue<T> q) => q.Count;
+        public static int length<T>(this Queue<T> q) => q.Count;
 
         public static int length<T>(this List<T> l) => l.Count;
 
