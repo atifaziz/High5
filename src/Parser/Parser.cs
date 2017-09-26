@@ -441,7 +441,7 @@ namespace ParseFive.Parser
             var ns = this.treeAdapter.getNamespaceURI(element);
             var attrs = this.treeAdapter.getAttrList(element);
 
-            return isIntegrationPoint(tn, ns, attrs, foreignNS);
+            return IsIntegrationPoint(tn, ns, attrs, foreignNS);
         }
 
         bool _isIntegrationPoint(Element element)
@@ -1444,8 +1444,8 @@ namespace ParseFive.Parser
         {
             p._reconstructActiveFormattingElements();
 
-            adjustTokenMathMLAttrs(token);
-            adjustTokenXMLAttrs(token);
+            AdjustTokenMathMlAttrs(token);
+            AdjustTokenXmlAttrs(token);
 
             if (token.selfClosing)
                 p._appendElement(token, NS.MATHML);
@@ -1457,8 +1457,8 @@ namespace ParseFive.Parser
         {
             p._reconstructActiveFormattingElements();
 
-            adjustTokenSVGAttrs(token);
-            adjustTokenXMLAttrs(token);
+            AdjustTokenSvgAttrs(token);
+            AdjustTokenXmlAttrs(token);
 
             if (token.selfClosing)
                 p._appendElement(token, NS.SVG);
@@ -2863,7 +2863,7 @@ namespace ParseFive.Parser
 
         public static void startTagInForeignContent(Parser p, Token token)
         {
-            if (causesExit(token) && !p.fragmentContext.IsTruthy())
+            if (CausesExit(token) && !p.fragmentContext.IsTruthy())
             {
                 while (p.treeAdapter.getNamespaceURI((Element) p.openElements.current) != NS.HTML && !p._isIntegrationPoint((Element) p.openElements.current))
                     p.openElements.pop();
@@ -2877,15 +2877,15 @@ namespace ParseFive.Parser
                 string currentNs = p.treeAdapter.getNamespaceURI(current);
 
                 if (currentNs == NS.MATHML)
-                    adjustTokenMathMLAttrs(token);
+                    AdjustTokenMathMlAttrs(token);
 
                 else if (currentNs == NS.SVG)
                 {
-                    adjustTokenSVGTagName(token);
-                    adjustTokenSVGAttrs(token);
+                    AdjustTokenSvgTagName(token);
+                    AdjustTokenSvgAttrs(token);
                 }
 
-                adjustTokenXMLAttrs(token);
+                AdjustTokenXmlAttrs(token);
 
                 if (token.selfClosing)
                     p._appendElement(token, currentNs);

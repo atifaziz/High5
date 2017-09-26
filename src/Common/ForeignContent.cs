@@ -6,7 +6,7 @@ namespace ParseFive.Common
     using Extensions;
     using Tokenizer;
     using Tokenizer = Tokenizer.Tokenizer;
-    using ɑ = HTML.TAG_NAMES;
+    using T = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
     using ATTRS = HTML.ATTRS;
 
@@ -105,16 +105,16 @@ namespace ParseFive.Common
         {
             ["xlink:actuate"] = new XmlAdjustment("xlink", "actuate", NS.XLINK),
             ["xlink:arcrole"] = new XmlAdjustment("xlink", "arcrole", NS.XLINK),
-            ["xlink:href"   ] = new XmlAdjustment("xlink", "href", NS.XLINK),
-            ["xlink:role"   ] = new XmlAdjustment("xlink", "role", NS.XLINK),
-            ["xlink:show"   ] = new XmlAdjustment("xlink", "show", NS.XLINK),
-            ["xlink:title"  ] = new XmlAdjustment("xlink", "title", NS.XLINK),
-            ["xlink:type"   ] = new XmlAdjustment("xlink", "type", NS.XLINK),
-            ["xml:base"     ] = new XmlAdjustment("xml", "base", NS.XML),
-            ["xml:lang"     ] = new XmlAdjustment("xml", "lang", NS.XML),
-            ["xml:space"    ] = new XmlAdjustment("xml", "space", NS.XML),
-            ["xmlns"        ] = new XmlAdjustment("", "xmlns", NS.XMLNS),
-            ["xmlns:xlink"  ] = new XmlAdjustment("xmlns", "xlink", NS.XMLNS)
+            ["xlink:href"   ] = new XmlAdjustment("xlink", "href"   , NS.XLINK),
+            ["xlink:role"   ] = new XmlAdjustment("xlink", "role"   , NS.XLINK),
+            ["xlink:show"   ] = new XmlAdjustment("xlink", "show"   , NS.XLINK),
+            ["xlink:title"  ] = new XmlAdjustment("xlink", "title"  , NS.XLINK),
+            ["xlink:type"   ] = new XmlAdjustment("xlink", "type"   , NS.XLINK),
+            ["xml:base"     ] = new XmlAdjustment("xml"  , "base"   , NS.XML),
+            ["xml:lang"     ] = new XmlAdjustment("xml"  , "lang"   , NS.XML),
+            ["xml:space"    ] = new XmlAdjustment("xml"  , "space"  , NS.XML),
+            ["xmlns"        ] = new XmlAdjustment(""     , "xmlns"  , NS.XMLNS),
+            ["xmlns:xlink"  ] = new XmlAdjustment("xmlns", "xlink"  , NS.XMLNS)
         };
 
         // SVG tag names adjustment map
@@ -163,58 +163,58 @@ namespace ParseFive.Common
 
         static readonly IDictionary<string, bool> ExitsForeignContent = new Dictionary<string, bool>
         {
-            [ɑ.B         ] = true,
-            [ɑ.BIG       ] = true,
-            [ɑ.BLOCKQUOTE] = true,
-            [ɑ.BODY      ] = true,
-            [ɑ.BR        ] = true,
-            [ɑ.CENTER    ] = true,
-            [ɑ.CODE      ] = true,
-            [ɑ.DD        ] = true,
-            [ɑ.DIV       ] = true,
-            [ɑ.DL        ] = true,
-            [ɑ.DT        ] = true,
-            [ɑ.EM        ] = true,
-            [ɑ.EMBED     ] = true,
-            [ɑ.H1        ] = true,
-            [ɑ.H2        ] = true,
-            [ɑ.H3        ] = true,
-            [ɑ.H4        ] = true,
-            [ɑ.H5        ] = true,
-            [ɑ.H6        ] = true,
-            [ɑ.HEAD      ] = true,
-            [ɑ.HR        ] = true,
-            [ɑ.I         ] = true,
-            [ɑ.IMG       ] = true,
-            [ɑ.LI        ] = true,
-            [ɑ.LISTING   ] = true,
-            [ɑ.MENU      ] = true,
-            [ɑ.META      ] = true,
-            [ɑ.NOBR      ] = true,
-            [ɑ.OL        ] = true,
-            [ɑ.P         ] = true,
-            [ɑ.PRE       ] = true,
-            [ɑ.RUBY      ] = true,
-            [ɑ.S         ] = true,
-            [ɑ.SMALL     ] = true,
-            [ɑ.SPAN      ] = true,
-            [ɑ.STRONG    ] = true,
-            [ɑ.STRIKE    ] = true,
-            [ɑ.SUB       ] = true,
-            [ɑ.SUP       ] = true,
-            [ɑ.TABLE     ] = true,
-            [ɑ.TT        ] = true,
-            [ɑ.U         ] = true,
-            [ɑ.UL        ] = true,
-            [ɑ.VAR       ] = true,
+            [T.B         ] = true,
+            [T.BIG       ] = true,
+            [T.BLOCKQUOTE] = true,
+            [T.BODY      ] = true,
+            [T.BR        ] = true,
+            [T.CENTER    ] = true,
+            [T.CODE      ] = true,
+            [T.DD        ] = true,
+            [T.DIV       ] = true,
+            [T.DL        ] = true,
+            [T.DT        ] = true,
+            [T.EM        ] = true,
+            [T.EMBED     ] = true,
+            [T.H1        ] = true,
+            [T.H2        ] = true,
+            [T.H3        ] = true,
+            [T.H4        ] = true,
+            [T.H5        ] = true,
+            [T.H6        ] = true,
+            [T.HEAD      ] = true,
+            [T.HR        ] = true,
+            [T.I         ] = true,
+            [T.IMG       ] = true,
+            [T.LI        ] = true,
+            [T.LISTING   ] = true,
+            [T.MENU      ] = true,
+            [T.META      ] = true,
+            [T.NOBR      ] = true,
+            [T.OL        ] = true,
+            [T.P         ] = true,
+            [T.PRE       ] = true,
+            [T.RUBY      ] = true,
+            [T.S         ] = true,
+            [T.SMALL     ] = true,
+            [T.SPAN      ] = true,
+            [T.STRONG    ] = true,
+            [T.STRIKE    ] = true,
+            [T.SUB       ] = true,
+            [T.SUP       ] = true,
+            [T.TABLE     ] = true,
+            [T.TT        ] = true,
+            [T.U         ] = true,
+            [T.UL        ] = true,
+            [T.VAR       ] = true,
         };
 
         //Check exit from foreign content
 
-        public static bool causesExit(Token startTagToken)
+        public static bool CausesExit(Token startTagToken)
         {
             var tn = startTagToken.tagName;
-            var isFontWithAttrs = tn == ɑ.FONT && (Tokenizer.getTokenAttr(startTagToken, ATTRS.COLOR) != null ||
+            var isFontWithAttrs = tn == T.FONT && (Tokenizer.getTokenAttr(startTagToken, ATTRS.COLOR) != null ||
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.SIZE) != null ||
                                                     Tokenizer.getTokenAttr(startTagToken, ATTRS.FACE) != null);
 
@@ -223,7 +223,7 @@ namespace ParseFive.Common
 
         //Token adjustments
 
-        public static void adjustTokenMathMLAttrs(Token token)
+        public static void AdjustTokenMathMlAttrs(Token token)
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
@@ -235,7 +235,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void adjustTokenSVGAttrs(Token token)
+        public static void AdjustTokenSvgAttrs(Token token)
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
@@ -244,7 +244,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void adjustTokenXMLAttrs(Token token)
+        public static void AdjustTokenXmlAttrs(Token token)
         {
             for (var i = 0; i < token.attrs.length; i++)
             {
@@ -257,7 +257,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void adjustTokenSVGTagName(Token token)
+        public static void AdjustTokenSvgTagName(Token token)
         {
             if (SvgTagNamesAdjustmentMap.TryGetValue(token.tagName, out var adjustedTagName))
                 token.tagName = adjustedTagName;
@@ -265,14 +265,14 @@ namespace ParseFive.Common
 
         //Integration points
 
-        static bool isMathMLTextIntegrationPoint(string tn, string ns)
+        static bool IsMathMlTextIntegrationPoint(string tn, string ns)
         {
-            return ns == NS.MATHML && (tn == ɑ.MI || tn == ɑ.MO || tn == ɑ.MN || tn == ɑ.MS || tn == ɑ.MTEXT);
+            return ns == NS.MATHML && (tn == T.MI || tn == T.MO || tn == T.MN || tn == T.MS || tn == T.MTEXT);
         }
 
-        static bool isHtmlIntegrationPoint(string tn, string ns, List<Attr> attrs)
+        static bool IsHtmlIntegrationPoint(string tn, string ns, List<Attr> attrs)
         {
-            if (ns == NS.MATHML && tn == ɑ.ANNOTATION_XML)
+            if (ns == NS.MATHML && tn == T.ANNOTATION_XML)
             {
                 for (var i = 0; i < attrs.length; i++)
                 {
@@ -285,15 +285,15 @@ namespace ParseFive.Common
                 }
             }
 
-            return ns == NS.SVG && (tn == ɑ.FOREIGN_OBJECT || tn == ɑ.DESC || tn == ɑ.TITLE);
+            return ns == NS.SVG && (tn == T.FOREIGN_OBJECT || tn == T.DESC || tn == T.TITLE);
         }
 
-        public static bool isIntegrationPoint(string tn, string ns, List<Attr> attrs, string foreignNS)
+        public static bool IsIntegrationPoint(string tn, string ns, List<Attr> attrs, string foreignNS)
         {
-            if ((!foreignNS.isTruthy() || foreignNS == NS.HTML) && isHtmlIntegrationPoint(tn, ns, attrs))
+            if ((!foreignNS.isTruthy() || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
                 return true;
 
-            if ((!foreignNS.isTruthy() || foreignNS == NS.MATHML) && isMathMLTextIntegrationPoint(tn, ns))
+            if ((!foreignNS.isTruthy() || foreignNS == NS.MATHML) && IsMathMlTextIntegrationPoint(tn, ns))
                 return true;
 
             return false;
