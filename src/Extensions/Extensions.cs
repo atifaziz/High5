@@ -54,19 +54,6 @@ namespace ParseFive.Extensions
 
         public static string substring(this string s, int startIndex, int length) => s.Substring(startIndex, length);
 
-        //public static int length(this string s) => s.Length;
-
-        public static char toChar(int n) => (char)n;
-
         public static int charCodeAt(this string str, int index) => (int)str[index];
-
-        public static int parseInt(string n, int b)
-        {
-            return b == 16
-                  ? int.Parse(n, System.Globalization.NumberStyles.HexNumber)
-                  : b == 10
-                  ? int.Parse(n)
-                  : throw new ArgumentException("Unsupported base");
-        }
     }
 }
