@@ -25,16 +25,6 @@ namespace ParseFive.Tokenizer
 
         public bool EndOfChunkHit { get; private set; }
 
-        bool isSurrogatePair(int cp1, int cp2)
-        {
-            return cp1 >= 0xD800 && cp1 <= 0xDBFF && cp2 >= 0xDC00 && cp2 <= 0xDFFF;
-        }
-
-        int getSurrogatePairCodePoint(int cp1, int cp2)
-        {
-            return (cp1 - 0xD800) * 0x400 + 0x2400 + cp2;
-        }
-
         public Preprocessor()
         {
             this.html = null;
@@ -77,11 +67,11 @@ namespace ParseFive.Tokenizer
             {
                 var nextCp = this.html.charCodeAt(this.pos + 1);
 
-                if (isSurrogatePair(cp, nextCp))
+                if (IsSurrogatePair(cp, nextCp))
                 {
                     //NOTE: we have a surrogate pair. Peek pair character and recalculate code point.
                     this.pos++;
-                    cp = getSurrogatePairCodePoint(cp, nextCp);
+                    cp = GetSurrogatePairCodePoint(cp, nextCp);
 
                     //NOTE: add gap that should be avoided during retreat
                     this.addGap();
@@ -95,6 +85,12 @@ namespace ParseFive.Tokenizer
                 return CP.EOF;
             }
             return cp;
+
+            bool IsSurrogatePair(int cp1, int cp2) =>
+                cp1 >= 0xD800 && cp1 <= 0xDBFF && cp2 >= 0xDC00 && cp2 <= 0xDFFF;
+
+            int GetSurrogatePairCodePoint(int cp1, int cp2) =>
+                (cp1 - 0xD800) * 0x400 + 0x2400 + cp2;
         }
 
         public void write(string chunk, bool isLastChunk)
