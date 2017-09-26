@@ -1,6 +1,7 @@
 namespace ParseFive.Common
 {
     using System;
+    using System.Collections.Generic;
     using Extensions;
     using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
 
@@ -125,11 +126,11 @@ namespace ParseFive.Common
             return quote + id + quote;
         }
 
-        static bool hasPrefix(string publicId, string[] prefixes)
+        static bool hasPrefix(string publicId, IEnumerable<string> prefixes)
         {
-            for (var i = 0; i < prefixes.Length; i++)
+            foreach (var prefix in prefixes)
             {
-                if (publicId.IndexOf(prefixes[i], StringComparison.Ordinal) == 0)
+                if (publicId.IndexOf(prefix, StringComparison.Ordinal) == 0)
                     return true;
             }
             return false;
