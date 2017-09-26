@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ParseFive.Extensions;
-using ɑ = ParseFive.Common.Unicode.CODE_POINTS;
+using CP = ParseFive.Common.Unicode.CODE_POINTS;
 
 namespace ParseFive.Tokenizer
 {
@@ -92,7 +92,7 @@ namespace ParseFive.Tokenizer
             else if (!this.lastChunkWritten)
             {
                 this.endOfChunkHit = true;
-                return ɑ.EOF;
+                return CP.EOF;
             }
             return cp;
         }
@@ -129,14 +129,14 @@ namespace ParseFive.Tokenizer
                 if (!this.lastChunkWritten)
                     this.endOfChunkHit = true;
 
-                return ɑ.EOF;
+                return CP.EOF;
             }
 
             var cp = this.html.charCodeAt(this.pos);
 
             //NOTE: any U+000A LINE FEED (LF) characters that immediately follow a U+000D CARRIAGE RETURN (CR) character
             //must be ignored.
-            if (this.skipNextNewLine && cp == ɑ.LINE_FEED)
+            if (this.skipNextNewLine && cp == CP.LINE_FEED)
             {
                 this.skipNextNewLine = false;
                 this.addGap();
@@ -144,10 +144,10 @@ namespace ParseFive.Tokenizer
             }
 
             //NOTE: all U+000D CARRIAGE RETURN (CR) characters must be converted to U+000A LINE FEED (LF) characters
-            if (cp == ɑ.CARRIAGE_RETURN)
+            if (cp == CP.CARRIAGE_RETURN)
             {
                 this.skipNextNewLine = true;
-                return ɑ.LINE_FEED;
+                return CP.LINE_FEED;
             }
 
             this.skipNextNewLine = false;

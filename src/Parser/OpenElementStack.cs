@@ -1,6 +1,6 @@
 using System;
 using ParseFive.Extensions;
-using ɑ = HTML.TAG_NAMES;
+using T = HTML.TAG_NAMES;
 using NS = HTML.NAMESPACES;
 
 namespace ParseFive.Parser
@@ -51,19 +51,19 @@ namespace ParseFive.Parser
             switch (tn.Length)
             {
                 case 1:
-                    return tn == ɑ.P;
+                    return tn == T.P;
 
                 case 2:
-                    return tn == ɑ.RB || tn == ɑ.RP || tn == ɑ.RT || tn == ɑ.DD || tn == ɑ.DT || tn == ɑ.LI;
+                    return tn == T.RB || tn == T.RP || tn == T.RT || tn == T.DD || tn == T.DT || tn == T.LI;
 
                 case 3:
-                    return tn == ɑ.RTC;
+                    return tn == T.RTC;
 
                 case 6:
-                    return tn == ɑ.OPTION;
+                    return tn == T.OPTION;
 
                 case 8:
-                    return tn == ɑ.OPTGROUP || tn == ɑ.MENUITEM;
+                    return tn == T.OPTGROUP || tn == T.MENUITEM;
             }
 
             return false;
@@ -74,49 +74,49 @@ namespace ParseFive.Parser
             switch (tn.Length)
             {
                 case 2:
-                    if (tn == ɑ.TD || tn == ɑ.TH)
+                    if (tn == T.TD || tn == T.TH)
                         return ns == NS.HTML;
 
-                    else if (tn == ɑ.MI || tn == ɑ.MO || tn == ɑ.MN || tn == ɑ.MS)
+                    else if (tn == T.MI || tn == T.MO || tn == T.MN || tn == T.MS)
                         return ns == NS.MATHML;
 
                     break;
 
                 case 4:
-                    if (tn == ɑ.HTML)
+                    if (tn == T.HTML)
                         return ns == NS.HTML;
 
-                    else if (tn == ɑ.DESC)
+                    else if (tn == T.DESC)
                         return ns == NS.SVG;
 
                     break;
 
                 case 5:
-                    if (tn == ɑ.TABLE)
+                    if (tn == T.TABLE)
                         return ns == NS.HTML;
 
-                    else if (tn == ɑ.MTEXT)
+                    else if (tn == T.MTEXT)
                         return ns == NS.MATHML;
 
-                    else if (tn == ɑ.TITLE)
+                    else if (tn == T.TITLE)
                         return ns == NS.SVG;
 
                     break;
 
                 case 6:
-                    return (tn == ɑ.APPLET || tn == ɑ.OBJECT) && ns == NS.HTML;
+                    return (tn == T.APPLET || tn == T.OBJECT) && ns == NS.HTML;
 
                 case 7:
-                    return (tn == ɑ.CAPTION || tn == ɑ.MARQUEE) && ns == NS.HTML;
+                    return (tn == T.CAPTION || tn == T.MARQUEE) && ns == NS.HTML;
 
                 case 8:
-                    return tn == ɑ.TEMPLATE && ns == NS.HTML;
+                    return tn == T.TEMPLATE && ns == NS.HTML;
 
                 case 13:
-                    return tn == ɑ.FOREIGN_OBJECT && ns == NS.SVG;
+                    return tn == T.FOREIGN_OBJECT && ns == NS.SVG;
 
                 case 14:
-                    return tn == ɑ.ANNOTATION_XML && ns == NS.MATHML;
+                    return tn == T.ANNOTATION_XML && ns == NS.MATHML;
             }
 
             return false;
@@ -143,7 +143,7 @@ namespace ParseFive.Parser
         //Update current element
         public bool _isInTemplate()
         {
-            return this.currentTagName == ɑ.TEMPLATE && this.treeAdapter.getNamespaceURI((Element) this.current) == NS.HTML;
+            return this.currentTagName == T.TEMPLATE && this.treeAdapter.getNamespaceURI((Element) this.current) == NS.HTML;
         }
 
         public void _updateCurrentElement()
@@ -233,7 +233,7 @@ namespace ParseFive.Parser
 
                 this.pop();
 
-                if (tn == ɑ.H1 || tn == ɑ.H2 || tn == ɑ.H3 || tn == ɑ.H4 || tn == ɑ.H5 || tn == ɑ.H6 && ns == NS.HTML)
+                if (tn == T.H1 || tn == T.H2 || tn == T.H3 || tn == T.H4 || tn == T.H5 || tn == T.H6 && ns == NS.HTML)
                     break;
             }
         }
@@ -247,7 +247,7 @@ namespace ParseFive.Parser
 
                 this.pop();
 
-                if (tn == ɑ.TD || tn == ɑ.TH && ns == NS.HTML)
+                if (tn == T.TD || tn == T.TH && ns == NS.HTML)
                     break;
             }
         }
@@ -263,29 +263,29 @@ namespace ParseFive.Parser
 
         public void clearBackToTableContext()
         {
-            while (this.currentTagName != ɑ.TABLE &&
-                   this.currentTagName != ɑ.TEMPLATE &&
-                   this.currentTagName != ɑ.HTML ||
+            while (this.currentTagName != T.TABLE &&
+                   this.currentTagName != T.TEMPLATE &&
+                   this.currentTagName != T.HTML ||
                    this.treeAdapter.getNamespaceURI((Element) this.current) != NS.HTML)
                 this.pop();
         }
 
         public void clearBackToTableBodyContext()
         {
-            while (this.currentTagName != ɑ.TBODY &&
-                   this.currentTagName != ɑ.TFOOT &&
-                   this.currentTagName != ɑ.THEAD &&
-                   this.currentTagName != ɑ.TEMPLATE &&
-                   this.currentTagName != ɑ.HTML ||
+            while (this.currentTagName != T.TBODY &&
+                   this.currentTagName != T.TFOOT &&
+                   this.currentTagName != T.THEAD &&
+                   this.currentTagName != T.TEMPLATE &&
+                   this.currentTagName != T.HTML ||
                    this.treeAdapter.getNamespaceURI((Element) this.current) != NS.HTML)
                 this.pop();
         }
 
         public void clearBackToTableRowContext()
         {
-            while (this.currentTagName != ɑ.TR &&
-                   this.currentTagName != ɑ.TEMPLATE &&
-                   this.currentTagName != ɑ.HTML ||
+            while (this.currentTagName != T.TR &&
+                   this.currentTagName != T.TEMPLATE &&
+                   this.currentTagName != T.HTML ||
                    this.treeAdapter.getNamespaceURI((Element) this.current) != NS.HTML)
                 this.pop();
         }
@@ -310,7 +310,7 @@ namespace ParseFive.Parser
             //Properly nested <body> element (should be second element in stack).
             var element = this.items.Count > 1 ? this.items[1] : null;
 
-            return element.IsTruthy() && this.treeAdapter.getTagName(element) == ɑ.BODY ? element : null;
+            return element.IsTruthy() && this.treeAdapter.getTagName(element) == T.BODY ? element : null;
         }
 
         public bool contains(Element element)
@@ -327,7 +327,7 @@ namespace ParseFive.Parser
 
         public bool isRootHtmlElementCurrent()
         {
-            return this.stackTop == 0 && this.currentTagName == ɑ.HTML;
+            return this.stackTop == 0 && this.currentTagName == T.HTML;
         }
 
         //Element in scope
@@ -355,7 +355,7 @@ namespace ParseFive.Parser
                 string tn = this.treeAdapter.getTagName(this.items[i]);
                 string ns = this.treeAdapter.getNamespaceURI(this.items[i]);
 
-                if ((tn == ɑ.H1 || tn == ɑ.H2 || tn == ɑ.H3 || tn == ɑ.H4 || tn == ɑ.H5 || tn == ɑ.H6) && ns == NS.HTML)
+                if ((tn == T.H1 || tn == T.H2 || tn == T.H3 || tn == T.H4 || tn == T.H5 || tn == T.H6) && ns == NS.HTML)
                     return true;
 
                 if (isScopingElement(tn, ns))
@@ -375,7 +375,7 @@ namespace ParseFive.Parser
                 if (tn == tagName && ns == NS.HTML)
                     return true;
 
-                if ((tn == ɑ.UL || tn == ɑ.OL) && ns == NS.HTML || isScopingElement(tn, ns))
+                if ((tn == T.UL || tn == T.OL) && ns == NS.HTML || isScopingElement(tn, ns))
                     return false;
             }
 
@@ -392,7 +392,7 @@ namespace ParseFive.Parser
                 if (tn == tagName && ns == NS.HTML)
                     return true;
 
-                if (tn == ɑ.BUTTON && ns == NS.HTML || isScopingElement(tn, ns))
+                if (tn == T.BUTTON && ns == NS.HTML || isScopingElement(tn, ns))
                     return false;
             }
 
@@ -412,7 +412,7 @@ namespace ParseFive.Parser
                 if (tn == tagName)
                     return true;
 
-                if (tn == ɑ.TABLE || tn == ɑ.TEMPLATE || tn == ɑ.HTML)
+                if (tn == T.TABLE || tn == T.TEMPLATE || tn == T.HTML)
                     return false;
             }
 
@@ -429,10 +429,10 @@ namespace ParseFive.Parser
                 if (ns != NS.HTML)
                     continue;
 
-                if (tn == ɑ.TBODY || tn == ɑ.THEAD || tn == ɑ.TFOOT)
+                if (tn == T.TBODY || tn == T.THEAD || tn == T.TFOOT)
                     return true;
 
-                if (tn == ɑ.TABLE || tn == ɑ.HTML)
+                if (tn == T.TABLE || tn == T.HTML)
                     return false;
             }
 
@@ -452,7 +452,7 @@ namespace ParseFive.Parser
                 if (tn == tagName)
                     return true;
 
-                if (tn != ɑ.OPTION && tn != ɑ.OPTGROUP)
+                if (tn != T.OPTION && tn != T.OPTGROUP)
                     return false;
             }
 

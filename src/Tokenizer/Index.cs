@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ɑ = ParseFive.Common.Unicode.CODE_POINTS;
+using CP = ParseFive.Common.Unicode.CODE_POINTS;
 using String = ParseFive.Compatibility.String;
 using static ParseFive.Tokenizer.NamedEntityData;
 
@@ -113,22 +113,22 @@ namespace ParseFive.Tokenizer
         //Always perform inlining check before modifying this functions ("node --trace-inlining").
         public static bool isWhitespace(int cp)
         {
-            return cp == ɑ.SPACE || cp == ɑ.LINE_FEED || cp == ɑ.TABULATION || cp == ɑ.FORM_FEED;
+            return cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
         }
 
         public static bool isAsciiDigit(int cp)
         {
-            return cp >= ɑ.DIGIT_0 && cp <= ɑ.DIGIT_9;
+            return cp >= CP.DIGIT_0 && cp <= CP.DIGIT_9;
         }
 
         public static bool isAsciiUpper(int cp)
         {
-            return cp >= ɑ.LATIN_CAPITAL_A && cp <= ɑ.LATIN_CAPITAL_Z;
+            return cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_Z;
         }
 
         public static bool isAsciiLower(int cp)
         {
-            return cp >= ɑ.LATIN_SMALL_A && cp <= ɑ.LATIN_SMALL_Z;
+            return cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_Z;
         }
 
         public static bool isAsciiLetter(int cp)
@@ -143,8 +143,8 @@ namespace ParseFive.Tokenizer
 
         public static bool isDigit(int cp, bool isHex)
         {
-            return isAsciiDigit(cp) || isHex && (cp >= ɑ.LATIN_CAPITAL_A && cp <= ɑ.LATIN_CAPITAL_F ||
-                                                 cp >= ɑ.LATIN_SMALL_A && cp <= ɑ.LATIN_SMALL_F);
+            return isAsciiDigit(cp) || isHex && (cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_F ||
+                                                 cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_F);
         }
 
         public static bool isReservedCodePoint(long cp)
