@@ -225,11 +225,11 @@ namespace ParseFive.Common
 
         public static void AdjustTokenMathMlAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.Count; i++)
+            foreach (var attr in token.attrs)
             {
-                if (token.attrs[i].name == DefinitionUrlAttr)
+                if (attr.name == DefinitionUrlAttr)
                 {
-                    token.attrs[i].name = AdjustedDefinitionUrlAttr;
+                    attr.name = AdjustedDefinitionUrlAttr;
                     break;
                 }
             }
@@ -237,22 +237,22 @@ namespace ParseFive.Common
 
         public static void AdjustTokenSvgAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.Count; i++)
+            foreach (var attr in token.attrs)
             {
-                if (SvgAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrName))
-                    token.attrs[i].name = adjustedAttrName;
+                if (SvgAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrName))
+                    attr.name = adjustedAttrName;
             }
         }
 
         public static void AdjustTokenXmlAttrs(Token token)
         {
-            for (var i = 0; i < token.attrs.Count; i++)
+            foreach (var attr in token.attrs)
             {
-                if (XmlAttrsAdjustmentMap.TryGetValue(token.attrs[i].name, out var adjustedAttrEntry))
+                if (XmlAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrEntry))
                 {
-                    token.attrs[i].prefix = adjustedAttrEntry.Prefix;
-                    token.attrs[i].name = adjustedAttrEntry.Name;
-                    token.attrs[i].@namespace = adjustedAttrEntry.Namespace;
+                    attr.prefix = adjustedAttrEntry.Prefix;
+                    attr.name = adjustedAttrEntry.Name;
+                    attr.@namespace = adjustedAttrEntry.Namespace;
                 }
             }
         }
@@ -274,11 +274,11 @@ namespace ParseFive.Common
         {
             if (ns == NS.MATHML && tn == T.ANNOTATION_XML)
             {
-                for (var i = 0; i < attrs.Count; i++)
+                foreach (var attr in attrs)
                 {
-                    if (attrs[i].name == ATTRS.ENCODING)
+                    if (attr.name == ATTRS.ENCODING)
                     {
-                        var value = attrs[i].value.toLowerCase();
+                        var value = attr.value.toLowerCase();
 
                         return value == MimeTypes.TextHtml || value == MimeTypes.ApplicationXml;
                     }
