@@ -6,7 +6,7 @@ namespace ParseFive.Tokenizer
 {
     using Compatibility;
 
-    class Preprocessor
+    sealed class Preprocessor
     {
         const int DEFAULT_BUFFER_WATERLINE = 1 << 16;
 
