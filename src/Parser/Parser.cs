@@ -834,7 +834,7 @@ namespace ParseFive.Parser
             bool last = false;
             for (int i = this.openElements.stackTop; i >= 0; i--)
             {
-                var element = this.openElements.items[i];
+                var element = this.openElements[i];
 
                 if (i == 0)
                 {
@@ -896,7 +896,7 @@ namespace ParseFive.Parser
             {
                 for (var i = selectIdx - 1; i > 0; i--)
                 {
-                    var ancestor = this.openElements.items[i];
+                    var ancestor = this.openElements[i];
                     var tn = this.treeAdapter.getTagName(ancestor);
 
                     if (tn == T.TEMPLATE)
@@ -948,7 +948,7 @@ namespace ParseFive.Parser
 
             for (var i = this.openElements.stackTop; i >= 0; i--)
             {
-                var openElement = this.openElements.items[i];
+                var openElement = this.openElements[i];
                 var tn = this.treeAdapter.getTagName(openElement);
                 var ns = this.treeAdapter.getNamespaceURI(openElement);
 
@@ -965,14 +965,14 @@ namespace ParseFive.Parser
                     if (location.parent.IsTruthy())
                         location.beforeElement = openElement;
                     else
-                        location.parent = this.openElements.items[i - 1];
+                        location.parent = this.openElements[i - 1];
 
                     break;
                 }
             }
 
             if (!location.parent.IsTruthy())
-                location.parent = this.openElements.items[0];
+                location.parent = this.openElements[0];
 
             return location;
         }
@@ -1045,7 +1045,7 @@ namespace ParseFive.Parser
 
             for (var i = p.openElements.stackTop; i >= 0; i--)
             {
-                var element = p.openElements.items[i];
+                var element = p.openElements[i];
 
                 if (element == formattingElementEntry.Element)
                     break;
@@ -1196,7 +1196,7 @@ namespace ParseFive.Parser
 
         public static void appendCommentToRootHtmlElement(Parser p, Token token)
         {
-            p._appendCommentNode(token, p.openElements.items[0]);
+            p._appendCommentNode(token, p.openElements[0]);
         }
 
         public static void appendCommentToDocument(Parser p, Token token)
@@ -1442,7 +1442,7 @@ namespace ParseFive.Parser
         public static void htmlStartTagInBody(Parser p, Token token)
         {
             if (p.openElements.tmplCount == 0)
-                p.treeAdapter.adoptAttributes(p.openElements.items[0], token.attrs);
+                p.treeAdapter.adoptAttributes(p.openElements[0], token.attrs);
         }
 
         public static void bodyStartTagInBody(Parser p, Token token)
@@ -1526,7 +1526,7 @@ namespace ParseFive.Parser
 
             for (var i = p.openElements.stackTop; i >= 0; i--)
             {
-                var element = p.openElements.items[i];
+                var element = p.openElements[i];
                 string elementTn = p.treeAdapter.getTagName(element);
                 string closeTn = null;
 
@@ -2201,7 +2201,7 @@ namespace ParseFive.Parser
 
             for (var i = p.openElements.stackTop; i > 0; i--)
             {
-                var element = p.openElements.items[i];
+                var element = p.openElements[i];
 
                 if (p.treeAdapter.getTagName(element) == tn)
                 {
@@ -2964,7 +2964,7 @@ namespace ParseFive.Parser
 
             if (tn == T.OPTGROUP)
             {
-                var prevOpenElement = p.openElements.items[p.openElements.stackTop - 1];
+                var prevOpenElement = p.openElements[p.openElements.stackTop - 1];
                 var prevOpenElementTn = // prevOpenElement && p.treeAdapter.getTagName(prevOpenElement)
                                         prevOpenElement.IsTruthy() ? p.treeAdapter.getTagName(prevOpenElement) : null;
 
@@ -3231,7 +3231,7 @@ namespace ParseFive.Parser
         {
             for (var i = p.openElements.stackTop; i > 0; i--)
             {
-                var element = p.openElements.items[i];
+                var element = p.openElements[i];
 
                 if (p.treeAdapter.getNamespaceURI(element) == NS.HTML)
                 {
