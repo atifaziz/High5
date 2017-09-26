@@ -1,7 +1,5 @@
 using System;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Text;
 using Attrs = ParseFive.Extensions.List<Attr>;
 using TempBuff = ParseFive.Extensions.List<int>;
 using TokenQueue = ParseFive.Extensions.List<ParseFive.Tokenizer.Token>;

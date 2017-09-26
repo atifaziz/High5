@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using ParseFive.Common;
 using ɑ = ParseFive.Common.Unicode.CODE_POINTS;
-using ɑɑ = ParseFive.Common.Unicode.CODE_POINT_SEQUENCES;
 using String = ParseFive.Compatibility.String;
 using static ParseFive.Tokenizer.NamedEntityData;
 

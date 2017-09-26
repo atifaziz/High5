@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using static ParseFive.Tokenizer.Tokenizer;
 using ɑ = HTML.TAG_NAMES;
 using NS = HTML.NAMESPACES;
@@ -7,7 +6,6 @@ using ATTRS = HTML.ATTRS;
 using static ParseFive.Tokenizer.Tokenizer.MODE;
 using ParseFive.Tokenizer;
 using ParseFive.Extensions;
-using Attrs = ParseFive.Common.ForeignContent;
 using static ParseFive.Parser.Index;
 using static ParseFive.Common.ForeignContent;
 using static ParseFive.Common.Doctype;

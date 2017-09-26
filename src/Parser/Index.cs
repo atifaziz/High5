@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using ParseFive.Common;
 using static ParseFive.Tokenizer.Tokenizer;
 using static ParseFive.Parser.Parser;
 using ParseFive.Tokenizer;
@@ -18,8 +16,6 @@ using ParseFive.Tokenizer;
 //using HTML = require('../common/html');
 //Aliases
 using ɑ = HTML.TAG_NAMES;
-using NS = HTML.NAMESPACES;
-using ATTRS = HTML.ATTRS;
 
 namespace ParseFive.Parser
 {
