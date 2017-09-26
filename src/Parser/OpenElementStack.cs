@@ -28,7 +28,8 @@ namespace ParseFive.Parser
         readonly TreeAdapter treeAdapter;
         public Node currentTmplContent { get; private set; }
         public Node current { get; private set; }
-        public List<Element> items { get; private set; }
+        List<Element> items;
+        public Element this[int index] => items[index];
         public string currentTagName { get; private set; }
         public int tmplCount { get; private set; }
         public int stackTop { get; private set; }
