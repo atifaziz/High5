@@ -2614,13 +2614,13 @@ namespace ParseFive.Parser
 
             if (p.hasNonWhitespacePendingCharacterToken)
             {
-                for (; i < p.pendingCharacterTokens.length; i++)
+                for (; i < p.pendingCharacterTokens.Count; i++)
                     tokenInTable(p, p.pendingCharacterTokens[i]);
             }
 
             else
             {
-                for (; i < p.pendingCharacterTokens.length; i++)
+                for (; i < p.pendingCharacterTokens.Count; i++)
                     p._insertCharacters(p.pendingCharacterTokens[i]);
             }
 

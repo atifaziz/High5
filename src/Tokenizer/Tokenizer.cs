@@ -264,7 +264,7 @@ namespace ParseFive.Tokenizer
 
         public static string GetTokenAttr(Token token, string attrName)
         {
-            for (var i = token.attrs.length - 1; i >= 0; i--)
+            for (var i = token.attrs.Count - 1; i >= 0; i--)
             {
                 if (token.attrs[i].name == attrName)
                     return token.attrs[i].value;
@@ -277,7 +277,7 @@ namespace ParseFive.Tokenizer
 
         public Token GetNextToken()
         {
-            while (!this.tokenQueue.length.IsTruthy() && this.active)
+            while (!this.tokenQueue.Count.IsTruthy() && this.active)
             {
                 this.HibernationSnapshot();
 
@@ -404,10 +404,10 @@ namespace ParseFive.Tokenizer
 
         bool IsTempBufferEqualToScriptString()
         {
-            if (this.tempBuff.length != CPS.SCRIPT_STRING.Length)
+            if (this.tempBuff.Count != CPS.SCRIPT_STRING.Length)
                 return false;
 
-            for (var i = 0; i < this.tempBuff.length; i++)
+            for (var i = 0; i < this.tempBuff.Count; i++)
             {
                 if (this.tempBuff[i] != CPS.SCRIPT_STRING[i])
                     return false;
@@ -541,9 +541,9 @@ namespace ParseFive.Tokenizer
             this.AppendCharToCurrentCharacterToken(type, ToChar(cp));
         }
 
-        void EmitSeveralCodePoints(ISomeList<int> codePoints)
+        void EmitSeveralCodePoints(IList<int> codePoints)
         {
-            for (var i = 0; i < codePoints.length; i++)
+            for (var i = 0; i < codePoints.Count; i++)
                 this.EmitCodePoint(codePoints[i]);
         }
 
@@ -591,9 +591,9 @@ namespace ParseFive.Tokenizer
         // NOTE: for the details on this algorithm see
         // https://github.com/inikulin/parse5/tree/master/scripts/generate_named_entity_data/README.md
 
-        Array<int> ConsumeNamedEntity(bool inAttr)
+        int[] ConsumeNamedEntity(bool inAttr)
         {
-            Array<int> referencedCodePoints = null;
+            int[] referencedCodePoints = null;
             int referenceSize = 0;
             int cp = 0;
             var consumedCount = 0;
@@ -607,7 +607,7 @@ namespace ParseFive.Tokenizer
 
                 if (nodeWithData)
                 {
-                    referencedCodePoints = new Array<int>((current & DATA_DUPLET_FLAG) == DATA_DUPLET_FLAG ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] });
+                    referencedCodePoints = (current & DATA_DUPLET_FLAG) == DATA_DUPLET_FLAG ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] };
                     referenceSize = consumedCount;
 
                     if (cp == CP.SEMICOLON)
@@ -666,7 +666,7 @@ namespace ParseFive.Tokenizer
             return null;
         }
 
-        Array<int> ConsumeCharacterReference(int startCp, bool inAttr)
+        int[] ConsumeCharacterReference(int startCp, bool inAttr)
         {
             if (IsWhitespace(startCp) || startCp == CP.GREATER_THAN_SIGN ||
                 startCp == CP.AMPERSAND || startCp == this.additionalAllowedCp || startCp == CP.EOF)
@@ -692,7 +692,7 @@ namespace ParseFive.Tokenizer
 
                 // NOTE: if we have at least one digit this is a numeric entity for sure, so we consume it
                 if (nextCp != CP.EOF && IsDigit(nextCp, isHex))
-                    return new Array<int>(new[] { this.ConsumeNumericEntity(isHex) });
+                    return new[] { this.ConsumeNumericEntity(isHex) };
 
                 // NOTE: otherwise this is a bogus number entity and a parse error. Unconsume the number sign
                 // and the 'x'-character if appropriate.
@@ -1765,7 +1765,7 @@ namespace ParseFive.Tokenizer
             {
                 if (referencedCodePoints.IsTruthy())
                 {
-                    for (var i = 0; i < referencedCodePoints.length; i++)
+                    for (var i = 0; i < referencedCodePoints.Length; i++)
                         @this.currentAttr.value += ToChar(referencedCodePoints[i]);
                 }
                 else

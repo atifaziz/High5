@@ -4,25 +4,10 @@ using System.Linq;
 
 namespace ParseFive.Extensions
 {
-    public interface ISomeList<T>
-    {
-        int length { get; }
-        T this[int index] { get; }
-    }
-
-    public class List<T> : System.Collections.Generic.List<T>, ISomeList<T>
+    public class List<T> : System.Collections.Generic.List<T>
     {
         public int length => Count;
         
-    }
-
-    public class Array<T> : ISomeList<T>
-    {
-        readonly T[] _array;
-
-        public Array(T[] array) => _array = array;
-        public T this[int index] => _array[index];
-        public int length => _array.Length;
     }
 
     public static class Extensions
@@ -50,8 +35,8 @@ namespace ParseFive.Extensions
         {
             if (list.Count == 0)
                 throw new IndexOutOfRangeException("Array is empty");
-            var temp = list[list.length - 1];
-            list.RemoveAt(list.length - 1);
+            var temp = list[list.Count - 1];
+            list.RemoveAt(list.Count - 1);
             return temp;
         }
 
