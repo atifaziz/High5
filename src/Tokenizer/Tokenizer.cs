@@ -5,7 +5,6 @@ using TempBuff = ParseFive.Extensions.List<int>;
 using TokenQueue = ParseFive.Extensions.List<ParseFive.Tokenizer.Token>;
 using CP = ParseFive.Common.Unicode.CodePoints;
 using CPS = ParseFive.Common.Unicode.CodePointSequences;
-using static ParseFive.Tokenizer.Index;
 using ParseFive.Extensions;
 using static ParseFive.Tokenizer.NamedEntityData;
 
@@ -13,6 +12,7 @@ namespace ParseFive.Tokenizer
 {
     using System.Linq;
     using System.Reflection;
+    using String = Compatibility.String;
 
     [AttributeUsage(AttributeTargets.Method)]
     sealed class _Attribute : Attribute
@@ -82,6 +82,193 @@ namespace ParseFive.Tokenizer
 
     class Tokenizer
     {
+        //var Preprocessor = require('./preprocessor'),
+        //    UNICODE = require('../common/unicode'),
+        //    neTree = require('./named_entity_data');
+
+        //Aliases
+        //var ɑ = UNICODE.CODE_POINTS,
+        //ɑɑ = UNICODE.CODE_POINT_SEQUENCES;
+
+        //Replacement code points for numeric entities
+        static IDictionary<int, int> NUMERIC_ENTITY_REPLACEMENTS = new Dictionary<int, int> {
+            {0x00, 0xFFFD}, {0x0D, 0x000D}, {0x80, 0x20AC}, {0x81, 0x0081}, {0x82, 0x201A}, {0x83, 0x0192}, {0x84, 0x201E},
+            {0x85, 0x2026}, {0x86, 0x2020}, {0x87, 0x2021}, {0x88, 0x02C6}, {0x89, 0x2030}, {0x8A, 0x0160}, {0x8B, 0x2039},
+            {0x8C, 0x0152}, {0x8D, 0x008D}, {0x8E, 0x017D}, {0x8F, 0x008F}, {0x90, 0x0090}, {0x91, 0x2018}, {0x92, 0x2019},
+            {0x93, 0x201C}, {0x94, 0x201D}, {0x95, 0x2022}, {0x96, 0x2013}, {0x97, 0x2014}, {0x98, 0x02DC}, {0x99, 0x2122},
+            {0x9A, 0x0161}, {0x9B, 0x203A}, {0x9C, 0x0153}, {0x9D, 0x009D}, {0x9E, 0x017E}, {0x9F, 0x0178}
+        };
+
+        // Named entity tree flags
+        const int HAS_DATA_FLAG = 1 << 0;
+        const int DATA_DUPLET_FLAG = 1 << 1;
+        const int HAS_BRANCHES_FLAG = 1 << 2;
+        const int MAX_BRANCH_MARKER_VALUE = HAS_DATA_FLAG | DATA_DUPLET_FLAG | HAS_BRANCHES_FLAG;
+
+        //States
+        const string DATA_STATE = "DATA_STATE";
+        const string CHARACTER_REFERENCE_IN_DATA_STATE = "CHARACTER_REFERENCE_IN_DATA_STATE";
+        const string RCDATA_STATE = "RCDATA_STATE";
+        const string CHARACTER_REFERENCE_IN_RCDATA_STATE = "CHARACTER_REFERENCE_IN_RCDATA_STATE";
+        const string RAWTEXT_STATE = "RAWTEXT_STATE";
+        const string SCRIPT_DATA_STATE = "SCRIPT_DATA_STATE";
+        const string PLAINTEXT_STATE = "PLAINTEXT_STATE";
+        const string TAG_OPEN_STATE = "TAG_OPEN_STATE";
+        const string END_TAG_OPEN_STATE = "END_TAG_OPEN_STATE";
+        const string TAG_NAME_STATE = "TAG_NAME_STATE";
+        const string RCDATA_LESS_THAN_SIGN_STATE = "RCDATA_LESS_THAN_SIGN_STATE";
+        const string RCDATA_END_TAG_OPEN_STATE = "RCDATA_END_TAG_OPEN_STATE";
+        const string RCDATA_END_TAG_NAME_STATE = "RCDATA_END_TAG_NAME_STATE";
+        const string RAWTEXT_LESS_THAN_SIGN_STATE = "RAWTEXT_LESS_THAN_SIGN_STATE";
+        const string RAWTEXT_END_TAG_OPEN_STATE = "RAWTEXT_END_TAG_OPEN_STATE";
+        const string RAWTEXT_END_TAG_NAME_STATE = "RAWTEXT_END_TAG_NAME_STATE";
+        const string SCRIPT_DATA_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_LESS_THAN_SIGN_STATE";
+        const string SCRIPT_DATA_END_TAG_OPEN_STATE = "SCRIPT_DATA_END_TAG_OPEN_STATE";
+        const string SCRIPT_DATA_END_TAG_NAME_STATE = "SCRIPT_DATA_END_TAG_NAME_STATE";
+        const string SCRIPT_DATA_ESCAPE_START_STATE = "SCRIPT_DATA_ESCAPE_START_STATE";
+        const string SCRIPT_DATA_ESCAPE_START_DASH_STATE = "SCRIPT_DATA_ESCAPE_START_DASH_STATE";
+        const string SCRIPT_DATA_ESCAPED_STATE = "SCRIPT_DATA_ESCAPED_STATE";
+        const string SCRIPT_DATA_ESCAPED_DASH_STATE = "SCRIPT_DATA_ESCAPED_DASH_STATE";
+        const string SCRIPT_DATA_ESCAPED_DASH_DASH_STATE = "SCRIPT_DATA_ESCAPED_DASH_DASH_STATE";
+        const string SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE";
+        const string SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE = "SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE";
+        const string SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE = "SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE = "SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPED_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE";
+        const string SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE = "SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE";
+        const string BEFORE_ATTRIBUTE_NAME_STATE = "BEFORE_ATTRIBUTE_NAME_STATE";
+        const string ATTRIBUTE_NAME_STATE = "ATTRIBUTE_NAME_STATE";
+        const string AFTER_ATTRIBUTE_NAME_STATE = "AFTER_ATTRIBUTE_NAME_STATE";
+        const string BEFORE_ATTRIBUTE_VALUE_STATE = "BEFORE_ATTRIBUTE_VALUE_STATE";
+        const string ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE = "ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE";
+        const string ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE = "ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE";
+        const string ATTRIBUTE_VALUE_UNQUOTED_STATE = "ATTRIBUTE_VALUE_UNQUOTED_STATE";
+        const string CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE = "CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE";
+        const string AFTER_ATTRIBUTE_VALUE_QUOTED_STATE = "AFTER_ATTRIBUTE_VALUE_QUOTED_STATE";
+        const string SELF_CLOSING_START_TAG_STATE = "SELF_CLOSING_START_TAG_STATE";
+        const string BOGUS_COMMENT_STATE = "BOGUS_COMMENT_STATE";
+        const string BOGUS_COMMENT_STATE_CONTINUATION = "BOGUS_COMMENT_STATE_CONTINUATION";
+        const string MARKUP_DECLARATION_OPEN_STATE = "MARKUP_DECLARATION_OPEN_STATE";
+        const string COMMENT_START_STATE = "COMMENT_START_STATE";
+        const string COMMENT_START_DASH_STATE = "COMMENT_START_DASH_STATE";
+        const string COMMENT_STATE = "COMMENT_STATE";
+        const string COMMENT_END_DASH_STATE = "COMMENT_END_DASH_STATE";
+        const string COMMENT_END_STATE = "COMMENT_END_STATE";
+        const string COMMENT_END_BANG_STATE = "COMMENT_END_BANG_STATE";
+        const string DOCTYPE_STATE = "DOCTYPE_STATE";
+        const string DOCTYPE_NAME_STATE = "DOCTYPE_NAME_STATE";
+        const string AFTER_DOCTYPE_NAME_STATE = "AFTER_DOCTYPE_NAME_STATE";
+        const string BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE = "BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE";
+        const string DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE = "DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE";
+        const string DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE = "DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE";
+        const string BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE = "BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE";
+        const string BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE = "BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE";
+        const string DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE = "DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE";
+        const string DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE = "DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE";
+        const string AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE = "AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE";
+        const string BOGUS_DOCTYPE_STATE = "BOGUS_DOCTYPE_STATE";
+        const string CDATA_SECTION_STATE = "CDATA_SECTION_STATE";
+
+        //Utils
+
+        //OPTIMIZATION: these utility functions should not be moved out of this module. V8 Crankshaft will not inline
+        //this functions if they will be situated in another module due to context switch.
+        //Always perform inlining check before modifying this functions ("node --trace-inlining").
+        static bool isWhitespace(int cp)
+        {
+            return cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
+        }
+
+        static bool isAsciiDigit(int cp)
+        {
+            return cp >= CP.DIGIT_0 && cp <= CP.DIGIT_9;
+        }
+
+        static bool isAsciiUpper(int cp)
+        {
+            return cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_Z;
+        }
+
+        static bool isAsciiLower(int cp)
+        {
+            return cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_Z;
+        }
+
+        static bool isAsciiLetter(int cp)
+        {
+            return isAsciiLower(cp) || isAsciiUpper(cp);
+        }
+
+        static bool isAsciiAlphaNumeric(int cp)
+        {
+            return isAsciiLetter(cp) || isAsciiDigit(cp);
+        }
+
+        static bool isDigit(int cp, bool isHex)
+        {
+            return isAsciiDigit(cp) || isHex && (cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_F ||
+                                                 cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_F);
+        }
+
+        static bool isReservedCodePoint(long cp)
+        {
+            return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
+        }
+
+        static bool isReservedCodePoint(int cp)
+        {
+            return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
+        }
+
+        static int toAsciiLowerCodePoint(int cp)
+        {
+            return cp + 0x0020;
+        }
+
+        //NOTE: String.fromCharCode() function can handle only characters from BMP subset.
+        //So, we need to workaround this manually.
+        //(see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/fromCharCode#Getting_it_to_work_with_higher_values)
+        static string toChar(int cp) //TODO consider if cp can be typed as uint
+        {
+            if (cp <= 0xFFFF)
+                return ((char) cp).ToString();
+
+            cp -= 0x10000;
+            return new string(new[] { String.fromCharCode((int)(((uint)cp) >> 10) & 0x3FF | 0xD800), String.fromCharCode(0xDC00 | cp & 0x3FF) });
+        }
+
+        static char toAsciiLowerChar(int cp)
+        {
+            return String.fromCharCode(toAsciiLowerCodePoint(cp));
+        }
+
+        static int findNamedEntityTreeBranch(int nodeIx, int cp)
+        {
+            var branchCount = neTree[++nodeIx];
+            var lo = ++nodeIx;
+            var hi = lo + branchCount - 1;
+
+            while (lo <= hi)
+            {
+                var mid = unchecked((int) ((uint) lo + hi) >> 1);
+                var midCp = neTree[mid];
+
+                if (midCp < cp)
+                    lo = mid + 1;
+
+                else if (midCp > cp)
+                    hi = mid - 1;
+
+                else
+                    return neTree[mid + branchCount];
+            }
+
+            return -1;
+        }
+
         //Token types
         public const string CHARACTER_TOKEN = "CHARACTER_TOKEN";
         public const string NULL_CHARACTER_TOKEN = "NULL_CHARACTER_TOKEN";
@@ -119,7 +306,7 @@ namespace ParseFive.Tokenizer
 
             this.allowCDATA = false;
 
-            this.state = Index.DATA_STATE;
+            this.state = DATA_STATE;
             this.returnState = "";
 
             this.tempBuff = new TempBuff();
@@ -149,11 +336,11 @@ namespace ParseFive.Tokenizer
         //Tokenizer initial states for different modes
         public static class MODE
         {
-            public static string DATA = Index.DATA_STATE;
-            public static string RCDATA = Index.RCDATA_STATE;
-            public static string RAWTEXT = Index.RAWTEXT_STATE;
-            public static string SCRIPT_DATA = Index.SCRIPT_DATA_STATE;
-            public static string PLAINTEXT = Index.PLAINTEXT_STATE;
+            public static string DATA = DATA_STATE;
+            public static string RCDATA = RCDATA_STATE;
+            public static string RAWTEXT = RAWTEXT_STATE;
+            public static string SCRIPT_DATA = SCRIPT_DATA_STATE;
+            public static string PLAINTEXT = PLAINTEXT_STATE;
         }
 
         //Static
@@ -269,7 +456,7 @@ namespace ParseFive.Tokenizer
 
                 patternCp = pattern[patternPos];
 
-                if (cp != patternCp && (caseSensitive || cp != Index.toAsciiLowerCodePoint(patternCp.Value)))
+                if (cp != patternCp && (caseSensitive || cp != toAsciiLowerCodePoint(patternCp.Value)))
                 {
                     isMatch = false;
                     break;
@@ -418,7 +605,7 @@ namespace ParseFive.Tokenizer
         {
             var type = CHARACTER_TOKEN;
 
-            if (Index.isWhitespace(cp))
+            if (isWhitespace(cp))
                 type = WHITESPACE_CHARACTER_TOKEN;
 
             else if (cp == CP.NULL)
@@ -451,22 +638,22 @@ namespace ParseFive.Tokenizer
             {
                 digits += toChar(this.consume());
                 nextCp = this.lookahead();
-            } while (nextCp != CP.EOF && Index.isDigit(nextCp, isHex));
+            } while (nextCp != CP.EOF && isDigit(nextCp, isHex));
 
             if (this.lookahead() == CP.SEMICOLON)
                 this.consume();
 
             //int referencedCp = Extensions.Extensions.parseInt(digits, isHex ? 16 : 10);
             var referencedCpLong = long.Parse(digits, isHex ? System.Globalization.NumberStyles.AllowHexSpecifier : System.Globalization.NumberStyles.None);
-            if (Index.isReservedCodePoint(referencedCpLong))
+            if (isReservedCodePoint(referencedCpLong))
                 return CP.REPLACEMENT_CHARACTER;
 
             var referencedCp = unchecked((int) referencedCpLong);
 
-            if (Index.NUMERIC_ENTITY_REPLACEMENTS.TryGetValue(referencedCp, out var replacement))
+            if (NUMERIC_ENTITY_REPLACEMENTS.TryGetValue(referencedCp, out var replacement))
                 return replacement;
 
-            if (Index.isReservedCodePoint(referencedCp))
+            if (isReservedCodePoint(referencedCp))
                 return CP.REPLACEMENT_CHARACTER;
 
             return referencedCp;
@@ -485,12 +672,12 @@ namespace ParseFive.Tokenizer
             for (var i = 0; i > -1;)
             {
                 var current = neTree[i];
-                var inNode = current < Index.MAX_BRANCH_MARKER_VALUE;
-                var nodeWithData = inNode && (current & Index.HAS_DATA_FLAG) == Index.HAS_DATA_FLAG;
+                var inNode = current < MAX_BRANCH_MARKER_VALUE;
+                var nodeWithData = inNode && (current & HAS_DATA_FLAG) == HAS_DATA_FLAG;
 
                 if (nodeWithData)
                 {
-                    referencedCodePoints = new Array<int>((current & Index.DATA_DUPLET_FLAG) == Index.DATA_DUPLET_FLAG ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] });
+                    referencedCodePoints = new Array<int>((current & DATA_DUPLET_FLAG) == DATA_DUPLET_FLAG ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] });
                     referenceSize = consumedCount;
 
                     if (cp == CP.SEMICOLON)
@@ -511,7 +698,7 @@ namespace ParseFive.Tokenizer
                     break;
 
                 if (inNode)
-                    i = (current & Index.HAS_BRANCHES_FLAG) == Index.HAS_BRANCHES_FLAG ? Index.findNamedEntityTreeBranch(i, cp) : -1; 
+                    i = (current & HAS_BRANCHES_FLAG) == HAS_BRANCHES_FLAG ? findNamedEntityTreeBranch(i, cp) : -1; 
 
                 else
                     i = cp == current ? ++i : -1;
@@ -536,7 +723,7 @@ namespace ParseFive.Tokenizer
                     {
                         var nextCp = this.lookahead();
 
-                        if (nextCp == CP.EQUALS_SIGN || Index.isAsciiAlphaNumeric(nextCp))
+                        if (nextCp == CP.EQUALS_SIGN || isAsciiAlphaNumeric(nextCp))
                         {
                             this.unconsumeSeveral(referenceSize);
                             return null;
@@ -554,7 +741,7 @@ namespace ParseFive.Tokenizer
 
         Array<int> consumeCharacterReference(int startCp, bool inAttr)
         {
-            if (Index.isWhitespace(startCp) || startCp == CP.GREATER_THAN_SIGN ||
+            if (isWhitespace(startCp) || startCp == CP.GREATER_THAN_SIGN ||
                 startCp == CP.AMPERSAND || startCp == this.additionalAllowedCp || startCp == CP.EOF)
             {
                 //NOTE: not a character reference. No characters are consumed, and nothing is returned.
@@ -577,7 +764,7 @@ namespace ParseFive.Tokenizer
                 nextCp = this.lookahead();
 
                 //NOTE: if we have at least one digit this is a numeric entity for sure, so we consume it
-                if (nextCp != CP.EOF && Index.isDigit(nextCp, isHex))
+                if (nextCp != CP.EOF && isDigit(nextCp, isHex))
                     return new Array<int>(new[] { this.consumeNumericEntity(isHex) });
 
                 //NOTE: otherwise this is a bogus number entity and a parse error. Unconsume the number sign
@@ -593,7 +780,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.1 Data state
         //------------------------------------------------------------------
-        [_(Index.DATA_STATE)]
+        [_(DATA_STATE)]
         void dataState(int cp) {
             this.preprocessor.DropParsedChunk();
 
@@ -615,7 +802,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.2 Character reference in data state
         //------------------------------------------------------------------
-        [_(Index.CHARACTER_REFERENCE_IN_DATA_STATE)] 
+        [_(CHARACTER_REFERENCE_IN_DATA_STATE)] 
         void characterReferenceInDataState(int cp)
         {
             this.additionalAllowedCp = 0; //void 0;
@@ -637,7 +824,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.3 RCDATA state
         //------------------------------------------------------------------
-        [_(Index.RCDATA_STATE)]
+        [_(RCDATA_STATE)]
         void rcdataState(int cp)
         {
             this.preprocessor.DropParsedChunk();
@@ -661,7 +848,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.4 Character reference in RCDATA state
         //------------------------------------------------------------------
-        [_(Index.CHARACTER_REFERENCE_IN_RCDATA_STATE)] void characterReferenceInRcdataState(int cp)
+        [_(CHARACTER_REFERENCE_IN_RCDATA_STATE)] void characterReferenceInRcdataState(int cp)
         {
             this.additionalAllowedCp = 0; //void 0;
 
@@ -682,7 +869,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.5 RAWTEXT state
         //------------------------------------------------------------------
-        [_(Index.RAWTEXT_STATE)] void rawtextState(int cp)
+        [_(RAWTEXT_STATE)] void rawtextState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
@@ -702,7 +889,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.6 Script data state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_STATE)] void scriptDataState(int cp)
+        [_(SCRIPT_DATA_STATE)] void scriptDataState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
@@ -722,7 +909,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.7 PLAINTEXT state
         //------------------------------------------------------------------
-        [_(Index.PLAINTEXT_STATE)] void plaintextState(int cp)
+        [_(PLAINTEXT_STATE)] void plaintextState(int cp)
         {
             this.preprocessor.DropParsedChunk();
 
@@ -739,7 +926,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.8 Tag open state
         //------------------------------------------------------------------
-        [_(Index.TAG_OPEN_STATE)] void tagOpenState(int cp)
+        [_(TAG_OPEN_STATE)] void tagOpenState(int cp)
         {
             if (cp == CP.EXCLAMATION_MARK)
         this.state = MARKUP_DECLARATION_OPEN_STATE;
@@ -765,7 +952,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.9 End tag open state
         //------------------------------------------------------------------
-        [_(Index.END_TAG_OPEN_STATE)] void endTagOpenState(int cp)
+        [_(END_TAG_OPEN_STATE)] void endTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -789,7 +976,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.10 Tag name state
         //------------------------------------------------------------------
-        [_(Index.TAG_NAME_STATE)] void tagNameState(int cp)
+        [_(TAG_NAME_STATE)] void tagNameState(int cp)
         {
             if (isWhitespace(cp))
                 this.state = BEFORE_ATTRIBUTE_NAME_STATE;
@@ -818,7 +1005,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.11 RCDATA less-than sign state
         //------------------------------------------------------------------
-        [_(Index.RCDATA_LESS_THAN_SIGN_STATE)] void rcdataLessThanSignState(int cp)
+        [_(RCDATA_LESS_THAN_SIGN_STATE)] void rcdataLessThanSignState(int cp)
         {
             if (cp == CP.SOLIDUS) {
                 this.tempBuff = new TempBuff();
@@ -834,7 +1021,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.12 RCDATA end tag open state
         //------------------------------------------------------------------
-        [_(Index.RCDATA_END_TAG_OPEN_STATE)] void rcdataEndTagOpenState(int cp)
+        [_(RCDATA_END_TAG_OPEN_STATE)] void rcdataEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -853,7 +1040,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.13 RCDATA end tag name state
         //------------------------------------------------------------------
-        [_(Index.RCDATA_END_TAG_NAME_STATE)] void rcdataEndTagNameState(int cp)
+        [_(RCDATA_END_TAG_NAME_STATE)] void rcdataEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -899,7 +1086,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.14 RAWTEXT less-than sign state
         //------------------------------------------------------------------
-        [_(Index.RAWTEXT_LESS_THAN_SIGN_STATE)] void rawtextLessThanSignState(int cp)
+        [_(RAWTEXT_LESS_THAN_SIGN_STATE)] void rawtextLessThanSignState(int cp)
         {
             if (cp == CP.SOLIDUS) {
                 this.tempBuff = new TempBuff();
@@ -915,7 +1102,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.15 RAWTEXT end tag open state
         //------------------------------------------------------------------
-        [_(Index.RAWTEXT_END_TAG_OPEN_STATE)] void rawtextEndTagOpenState(int cp)
+        [_(RAWTEXT_END_TAG_OPEN_STATE)] void rawtextEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -934,7 +1121,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.16 RAWTEXT end tag name state
         //------------------------------------------------------------------
-        [_(Index.RAWTEXT_END_TAG_NAME_STATE)] void rawtextEndTagNameState(int cp)
+        [_(RAWTEXT_END_TAG_NAME_STATE)] void rawtextEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -980,7 +1167,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.17 Script data less-than sign state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_LESS_THAN_SIGN_STATE)] void scriptDataLessThanSignState(int cp)
+        [_(SCRIPT_DATA_LESS_THAN_SIGN_STATE)] void scriptDataLessThanSignState(int cp)
         {
             if (cp == CP.SOLIDUS) {
                 this.tempBuff = new TempBuff();
@@ -1002,7 +1189,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.18 Script data end tag open state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_END_TAG_OPEN_STATE)] void scriptDataEndTagOpenState(int cp)
+        [_(SCRIPT_DATA_END_TAG_OPEN_STATE)] void scriptDataEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -1021,7 +1208,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.19 Script data end tag name state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_END_TAG_NAME_STATE)] void scriptDataEndTagNameState(int cp)
+        [_(SCRIPT_DATA_END_TAG_NAME_STATE)] void scriptDataEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1067,7 +1254,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.20 Script data escape start state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPE_START_STATE)] void scriptDataEscapeStartState(int cp)
+        [_(SCRIPT_DATA_ESCAPE_START_STATE)] void scriptDataEscapeStartState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_ESCAPE_START_DASH_STATE;
@@ -1081,7 +1268,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.21 Script data escape start dash state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPE_START_DASH_STATE)] void scriptDataEscapeStartDashState(int cp)
+        [_(SCRIPT_DATA_ESCAPE_START_DASH_STATE)] void scriptDataEscapeStartDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
@@ -1095,7 +1282,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.22 Script data escaped state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_STATE)] void scriptDataEscapedState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_STATE)] void scriptDataEscapedState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_STATE;
@@ -1118,7 +1305,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.23 Script data escaped dash state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_DASH_STATE)] void scriptDataEscapedDashState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_DASH_STATE)] void scriptDataEscapedDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
@@ -1145,7 +1332,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.24 Script data escaped dash dash state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_DASH_DASH_STATE)] void scriptDataEscapedDashDashState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_DASH_DASH_STATE)] void scriptDataEscapedDashDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS)
         this.emitChar('-');
@@ -1175,7 +1362,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.25 Script data escaped less-than sign state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataEscapedLessThanSignState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataEscapedLessThanSignState(int cp)
         {
             if (cp == CP.SOLIDUS) {
                 this.tempBuff = new TempBuff();
@@ -1199,7 +1386,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.26 Script data escaped end tag open state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE)] void scriptDataEscapedEndTagOpenState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE)] void scriptDataEscapedEndTagOpenState(int cp)
         {
             if (isAsciiLetter(cp))
             {
@@ -1218,7 +1405,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.27 Script data escaped end tag name state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE)] void scriptDataEscapedEndTagNameState(int cp)
+        [_(SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE)] void scriptDataEscapedEndTagNameState(int cp)
         {
             if (isAsciiUpper(cp))
             {
@@ -1264,7 +1451,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.28 Script data double escape start state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE)] void scriptDataDoubleEscapeStartState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE)] void scriptDataDoubleEscapeStartState(int cp)
         {
             if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN) {
                 this.state = this.isTempBufferEqualToScriptString() ? SCRIPT_DATA_DOUBLE_ESCAPED_STATE : SCRIPT_DATA_ESCAPED_STATE;
@@ -1290,7 +1477,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.29 Script data double escaped state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPED_STATE)] void scriptDataDoubleEscapedState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_STATE)] void scriptDataDoubleEscapedState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
@@ -1315,7 +1502,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.30 Script data double escaped dash state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE)] void scriptDataDoubleEscapedDashState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE)] void scriptDataDoubleEscapedDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS) {
                 this.state = SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
@@ -1344,7 +1531,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.31 Script data double escaped dash dash state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE)] void scriptDataDoubleEscapedDashDashState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE)] void scriptDataDoubleEscapedDashDashState(int cp)
         {
             if (cp == CP.HYPHEN_MINUS)
         this.emitChar('-');
@@ -1376,7 +1563,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.32 Script data double escaped less-than sign state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataDoubleEscapedLessThanSignState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE)] void scriptDataDoubleEscapedLessThanSignState(int cp)
         {
             if (cp == CP.SOLIDUS) {
                 this.tempBuff = new TempBuff();
@@ -1391,7 +1578,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.33 Script data double escape end state
         //------------------------------------------------------------------
-        [_(Index.SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE)] void scriptDataDoubleEscapeEndState(int cp)
+        [_(SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE)] void scriptDataDoubleEscapeEndState(int cp)
         {
             if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN) {
                 this.state = this.isTempBufferEqualToScriptString() ? SCRIPT_DATA_ESCAPED_STATE : SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
@@ -1418,7 +1605,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.34 Before attribute name state
         //------------------------------------------------------------------
-        [_(Index.BEFORE_ATTRIBUTE_NAME_STATE)] void beforeAttributeNameState(int cp)
+        [_(BEFORE_ATTRIBUTE_NAME_STATE)] void beforeAttributeNameState(int cp)
         {
             if (isWhitespace(cp))
                 return;
@@ -1440,7 +1627,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.35 Attribute name state
         //------------------------------------------------------------------
-        [_(Index.ATTRIBUTE_NAME_STATE)] void attributeNameState(int cp)
+        [_(ATTRIBUTE_NAME_STATE)] void attributeNameState(int cp)
         {
             if (isWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF) {
                 this.leaveAttrName(AFTER_ATTRIBUTE_NAME_STATE);
@@ -1466,7 +1653,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.36 After attribute name state
         //------------------------------------------------------------------
-        [_(Index.AFTER_ATTRIBUTE_NAME_STATE)] void afterAttributeNameState(int cp)
+        [_(AFTER_ATTRIBUTE_NAME_STATE)] void afterAttributeNameState(int cp)
         {
             if (isWhitespace(cp))
                 return;
@@ -1494,7 +1681,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.37 Before attribute value state
         //------------------------------------------------------------------
-        [_(Index.BEFORE_ATTRIBUTE_VALUE_STATE)] void beforeAttributeValueState(int cp)
+        [_(BEFORE_ATTRIBUTE_VALUE_STATE)] void beforeAttributeValueState(int cp)
         {
             if (isWhitespace(cp))
                 return;
@@ -1512,7 +1699,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.38 Attribute value (double-quoted) state
         //------------------------------------------------------------------
-        [_(Index.ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE)] void attributeValueDoubleQuotedState(int cp)
+        [_(ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE)] void attributeValueDoubleQuotedState(int cp)
         {
             if (cp == CP.QUOTATION_MARK)
         this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
@@ -1536,7 +1723,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.39 Attribute value (single-quoted) state
         //------------------------------------------------------------------
-        [_(Index.ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE)] void attributeValueSingleQuotedState(int cp)
+        [_(ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE)] void attributeValueSingleQuotedState(int cp)
         {
             if (cp == CP.APOSTROPHE)
         this.state = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
@@ -1560,7 +1747,7 @@ namespace ParseFive.Tokenizer
 
         //12.2.4.40 Attribute value (unquoted) state
         //------------------------------------------------------------------
-        [_(Index.ATTRIBUTE_VALUE_UNQUOTED_STATE)] void attributeValueUnquotedState(int cp)
+        [_(ATTRIBUTE_VALUE_UNQUOTED_STATE)] void attributeValueUnquotedState(int cp)
         {
             if (isWhitespace(cp))
                 this.leaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
@@ -1593,7 +1780,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.41 Character reference in attribute value state
 //------------------------------------------------------------------
-[_(Index.CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE)] void characterReferenceInAttributeValueState(int cp) {
+[_(CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE)] void characterReferenceInAttributeValueState(int cp) {
     var referencedCodePoints = this.consumeCharacterReference(cp, true);
 
     if (!this.ensureHibernation()) {
@@ -1611,7 +1798,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.42 After attribute value (quoted) state
 //------------------------------------------------------------------
-[_(Index.AFTER_ATTRIBUTE_VALUE_QUOTED_STATE)] void afterAttributeValueQuotedState(int cp) {
+[_(AFTER_ATTRIBUTE_VALUE_QUOTED_STATE)] void afterAttributeValueQuotedState(int cp) {
     if (isWhitespace(cp))
         this.leaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
 
@@ -1633,7 +1820,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.43 Self-closing start tag state
 //------------------------------------------------------------------
-[_(Index.SELF_CLOSING_START_TAG_STATE)] void selfClosingStartTagState(int cp) {
+[_(SELF_CLOSING_START_TAG_STATE)] void selfClosingStartTagState(int cp) {
     if (cp == CP.GREATER_THAN_SIGN) {
         this.currentToken.selfClosing = true;
         this.state = DATA_STATE;
@@ -1650,7 +1837,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.44 Bogus comment state
 //------------------------------------------------------------------
-[_(Index.BOGUS_COMMENT_STATE)] void bogusCommentState(int cp) {
+[_(BOGUS_COMMENT_STATE)] void bogusCommentState(int cp) {
     this.createCommentToken();
     this.reconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
 }
@@ -1658,7 +1845,7 @@ namespace ParseFive.Tokenizer
 //HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
 //introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
 //comment token on each call.
-[_(Index.BOGUS_COMMENT_STATE_CONTINUATION)] void bogusCommentStateContinuation(int cp) {
+[_(BOGUS_COMMENT_STATE_CONTINUATION)] void bogusCommentStateContinuation(int cp) {
     while (true) {
         if (cp == CP.GREATER_THAN_SIGN) {
             this.state = DATA_STATE;
@@ -1686,7 +1873,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.45 Markup declaration open state
 //------------------------------------------------------------------
-[_(Index.MARKUP_DECLARATION_OPEN_STATE)] void markupDeclarationOpenState(int cp) {
+[_(MARKUP_DECLARATION_OPEN_STATE)] void markupDeclarationOpenState(int cp) {
             var dashDashMatch = this.consumeSubsequentIfMatch(CPS.DASH_DASH_STRING, cp, true);
             var doctypeMatch = !dashDashMatch && this.consumeSubsequentIfMatch(CPS.DOCTYPE_STRING, cp, false);
         var cdataMatch = !dashDashMatch && !doctypeMatch &&
@@ -1713,7 +1900,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.46 Comment start state
 //------------------------------------------------------------------
-[_(Index.COMMENT_START_STATE)] void commentStartState(int cp) {
+[_(COMMENT_START_STATE)] void commentStartState(int cp) {
     if (cp == CP.HYPHEN_MINUS)
         this.state = COMMENT_START_DASH_STATE;
 
@@ -1741,7 +1928,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.47 Comment start dash state
 //------------------------------------------------------------------
-[_(Index.COMMENT_START_DASH_STATE)] void commentStartDashState(int cp) {
+[_(COMMENT_START_DASH_STATE)] void commentStartDashState(int cp) {
     if (cp == CP.HYPHEN_MINUS)
         this.state = COMMENT_END_STATE;
 
@@ -1771,7 +1958,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.48 Comment state
 //------------------------------------------------------------------
-[_(Index.COMMENT_STATE)] void commentState(int cp) {
+[_(COMMENT_STATE)] void commentState(int cp) {
     if (cp == CP.HYPHEN_MINUS)
         this.state = COMMENT_END_DASH_STATE;
 
@@ -1790,7 +1977,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.49 Comment end dash state
 //------------------------------------------------------------------
-[_(Index.COMMENT_END_DASH_STATE)] void commentEndDashState(int cp) {
+[_(COMMENT_END_DASH_STATE)] void commentEndDashState(int cp) {
     if (cp == CP.HYPHEN_MINUS)
         this.state = COMMENT_END_STATE;
 
@@ -1815,7 +2002,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.50 Comment end state
 //------------------------------------------------------------------
-[_(Index.COMMENT_END_STATE)] void commentEndState(int cp) {
+[_(COMMENT_END_STATE)] void commentEndState(int cp) {
     if (cp == CP.GREATER_THAN_SIGN) {
         this.state = DATA_STATE;
         this.emitCurrentToken();
@@ -1848,7 +2035,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.51 Comment end bang state
 //------------------------------------------------------------------
-[_(Index.COMMENT_END_BANG_STATE)] void commentEndBangState(int cp) {
+[_(COMMENT_END_BANG_STATE)] void commentEndBangState(int cp) {
     if (cp == CP.HYPHEN_MINUS) {
         this.currentToken.data += "--!";
         this.state = COMMENT_END_DASH_STATE;
@@ -1880,7 +2067,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.52 DOCTYPE state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_STATE)] void doctypeState(int cp) {
+[_(DOCTYPE_STATE)] void doctypeState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -1906,7 +2093,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.54 DOCTYPE name state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_NAME_STATE)] void doctypeNameState(int cp) {
+[_(DOCTYPE_NAME_STATE)] void doctypeNameState(int cp) {
     if (isWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
         this.reconsumeInState(AFTER_DOCTYPE_NAME_STATE);
 
@@ -1923,7 +2110,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.55 After DOCTYPE name state
 //------------------------------------------------------------------
-[_(Index.AFTER_DOCTYPE_NAME_STATE)] void afterDoctypeNameState(int cp) {
+[_(AFTER_DOCTYPE_NAME_STATE)] void afterDoctypeNameState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -1954,7 +2141,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.57 Before DOCTYPE public identifier state
 //------------------------------------------------------------------
-[_(Index.BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE)] void beforeDoctypePublicIdentifierState(int cp) {
+[_(BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE)] void beforeDoctypePublicIdentifierState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -1977,7 +2164,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.58 DOCTYPE public identifier (double-quoted) state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypePublicIdentifierDoubleQuotedState(int cp) {
+[_(DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypePublicIdentifierDoubleQuotedState(int cp) {
     if (cp == CP.QUOTATION_MARK)
         this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
 
@@ -2003,7 +2190,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.59 DOCTYPE public identifier (single-quoted) state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypePublicIdentifierSingleQuotedState(int cp) {
+[_(DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypePublicIdentifierSingleQuotedState(int cp) {
     if (cp == CP.APOSTROPHE)
         this.state = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
 
@@ -2029,7 +2216,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.61 Between DOCTYPE public and system identifiers state
 //------------------------------------------------------------------
-[_(Index.BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE)] void betweenDoctypePublicAndSystemIdentifiersState(int cp) {
+[_(BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE)] void betweenDoctypePublicAndSystemIdentifiersState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -2058,7 +2245,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.63 Before DOCTYPE system identifier state
 //------------------------------------------------------------------
-[_(Index.BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void beforeDoctypeSystemIdentifierState(int cp) {
+[_(BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void beforeDoctypeSystemIdentifierState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -2081,7 +2268,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.64 DOCTYPE system identifier (double-quoted) state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypeSystemIdentifierDoubleQuotedState(int cp) {
+[_(DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE)] void doctypeSystemIdentifierDoubleQuotedState(int cp) {
     if (cp == CP.QUOTATION_MARK)
         this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
 
@@ -2107,7 +2294,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.65 DOCTYPE system identifier (single-quoted) state
 //------------------------------------------------------------------
-[_(Index.DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypeSystemIdentifierSingleQuotedState(int cp) {
+[_(DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE)] void doctypeSystemIdentifierSingleQuotedState(int cp) {
     if (cp == CP.APOSTROPHE)
         this.state = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
 
@@ -2133,7 +2320,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.66 After DOCTYPE system identifier state
 //------------------------------------------------------------------
-[_(Index.AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void afterDoctypeSystemIdentifierState(int cp) {
+[_(AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE)] void afterDoctypeSystemIdentifierState(int cp) {
     if (isWhitespace(cp))
         return;
 
@@ -2155,7 +2342,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.67 Bogus DOCTYPE state
 //------------------------------------------------------------------
-[_(Index.BOGUS_DOCTYPE_STATE)] void bogusDoctypeState(int cp) {
+[_(BOGUS_DOCTYPE_STATE)] void bogusDoctypeState(int cp) {
     if (cp == CP.GREATER_THAN_SIGN) {
         this.emitCurrentToken();
         this.state = DATA_STATE;
@@ -2170,7 +2357,7 @@ namespace ParseFive.Tokenizer
 
 //12.2.4.68 CDATA section state
 //------------------------------------------------------------------
-[_(Index.CDATA_SECTION_STATE)] void cdataSectionState(int cp) {
+[_(CDATA_SECTION_STATE)] void cdataSectionState(int cp) {
     while (true) {
         if (cp == CP.EOF) {
             this.reconsumeInState(DATA_STATE);
