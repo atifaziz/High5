@@ -48,7 +48,7 @@ namespace ParseFive.Parser
                                                treeAdapter.GetTemplateContent);
         }
 
-        public static bool isImpliedEndTagRequired(string tn)
+        static bool isImpliedEndTagRequired(string tn)
         {
             switch (tn.Length)
             {
@@ -71,7 +71,7 @@ namespace ParseFive.Parser
             return false;
         }
 
-        public static bool isScopingElement(string tn, string ns)
+        static bool isScopingElement(string tn, string ns)
         {
             switch (tn.Length)
             {
@@ -127,7 +127,7 @@ namespace ParseFive.Parser
 
 
         //Index of element
-        public int _indexOf(Element element)
+        int _indexOf(Element element)
         {
             var idx = -1;
 
@@ -143,12 +143,12 @@ namespace ParseFive.Parser
         }
 
         //Update current element
-        public bool _isInTemplate()
+        bool _isInTemplate()
         {
             return this.currentTagName == T.TEMPLATE && this.treeAdapter.getNamespaceURI((Element) this.current) == NS.HTML;
         }
 
-        public void _updateCurrentElement()
+        void _updateCurrentElement()
         {
             this.current = this.items[this.stackTop];
             this.currentTagName = this.current.IsTruthy() ? this.treeAdapter.getTagName((Element) this.current) : null;
