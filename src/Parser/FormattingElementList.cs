@@ -18,13 +18,13 @@ namespace ParseFive.Parser
         }
     }
 
-    class MarkerEntry : IEntry
+    sealed class MarkerEntry : IEntry
     {
         public MarkerEntry(string type) :
             base(type) {}
     }
 
-    class ElementEntry : IEntry
+    sealed class ElementEntry : IEntry
     {
         public ElementEntry(string type, Element element, Token token) :
             base(type, element, token) {}
