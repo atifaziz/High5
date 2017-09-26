@@ -177,7 +177,7 @@ namespace ParseFive.Common
 
             string EnquoteDoctypeId(string id)
             {
-                char quote = id.indexOf('"') != -1
+                char quote = id.IndexOf('"') != -1
                            ? '\\'
                            : '"';
                 return quote + id + quote;

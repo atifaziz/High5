@@ -10,9 +10,6 @@ namespace ParseFive.Extensions
         public static bool IsTruthy(this string s) => !string.IsNullOrEmpty(s);
         public static bool IsTruthy(this int n) => n != 0;
 
-        public static int indexOf(this string str, char ch) =>
-            str.IndexOf(ch);
-
         public static string toLowerCase(this String str)
         {
             return str.ToLower();
