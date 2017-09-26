@@ -187,13 +187,13 @@ namespace ParseFive.Tokenizer
         public void write(string chunk, bool isLastChunk)
         {
             this.active = true;
-            this.preprocessor.write(chunk, isLastChunk);
+            this.preprocessor.Write(chunk, isLastChunk);
         }
 
         public void insertHtmlAtCurrentPos(string chunk)
         {
             this.active = true;
-            this.preprocessor.insertHtmlAtCurrentPos(chunk);
+            this.preprocessor.InsertHtmlAtCurrentPos(chunk);
         }
 
         //Hibernation
@@ -207,7 +207,7 @@ namespace ParseFive.Tokenizer
             if (this.preprocessor.EndOfChunkHit)
             {
                 for (; this.consumedAfterSnapshot > 0; this.consumedAfterSnapshot--)
-                    this.preprocessor.retreat();
+                    this.preprocessor.Retreat();
 
                 this.active = false;
                 this.tokenQueue.push(new Token(HIBERNATION_TOKEN));
@@ -223,13 +223,13 @@ namespace ParseFive.Tokenizer
         public int consume()
         {
             this.consumedAfterSnapshot++;
-            return this.preprocessor.advance();
+            return this.preprocessor.Advance();
         }
 
         public void unconsume()
         {
             this.consumedAfterSnapshot--;
-            this.preprocessor.retreat();
+            this.preprocessor.Retreat();
         }
 
         void unconsumeSeveral(int count)
@@ -595,7 +595,7 @@ namespace ParseFive.Tokenizer
         //------------------------------------------------------------------
         [_(Index.DATA_STATE)]
         void dataState(int cp) {
-            this.preprocessor.dropParsedChunk();
+            this.preprocessor.DropParsedChunk();
 
             if (cp == CP.AMPERSAND)
                 this.state = CHARACTER_REFERENCE_IN_DATA_STATE;
@@ -640,7 +640,7 @@ namespace ParseFive.Tokenizer
         [_(Index.RCDATA_STATE)]
         void rcdataState(int cp)
         {
-            this.preprocessor.dropParsedChunk();
+            this.preprocessor.DropParsedChunk();
 
             if (cp == CP.AMPERSAND)
         this.state = CHARACTER_REFERENCE_IN_RCDATA_STATE;
@@ -684,7 +684,7 @@ namespace ParseFive.Tokenizer
         //------------------------------------------------------------------
         [_(Index.RAWTEXT_STATE)] void rawtextState(int cp)
         {
-            this.preprocessor.dropParsedChunk();
+            this.preprocessor.DropParsedChunk();
 
             if (cp == CP.LESS_THAN_SIGN)
         this.state = RAWTEXT_LESS_THAN_SIGN_STATE;
@@ -704,7 +704,7 @@ namespace ParseFive.Tokenizer
         //------------------------------------------------------------------
         [_(Index.SCRIPT_DATA_STATE)] void scriptDataState(int cp)
         {
-            this.preprocessor.dropParsedChunk();
+            this.preprocessor.DropParsedChunk();
 
             if (cp == CP.LESS_THAN_SIGN)
         this.state = SCRIPT_DATA_LESS_THAN_SIGN_STATE;
@@ -724,7 +724,7 @@ namespace ParseFive.Tokenizer
         //------------------------------------------------------------------
         [_(Index.PLAINTEXT_STATE)] void plaintextState(int cp)
         {
-            this.preprocessor.dropParsedChunk();
+            this.preprocessor.DropParsedChunk();
 
             if (cp == CP.NULL)
         this.emitChar(((char)CP.REPLACEMENT_CHARACTER));

@@ -42,7 +42,7 @@ namespace ParseFive.Tokenizer
             this.bufferWaterline = DEFAULT_BUFFER_WATERLINE;
         }
 
-        public void dropParsedChunk()
+        public void DropParsedChunk()
         {
             if (this.pos > this.bufferWaterline)
             {
@@ -54,13 +54,13 @@ namespace ParseFive.Tokenizer
             }
         }
 
-        void addGap()
+        void AddGap()
         {
             this.gapStack.Push(this.lastGapPos);
             this.lastGapPos = this.pos;
         }
 
-        int processHighRangeCodePoint(int cp)
+        int ProcessHighRangeCodePoint(int cp)
         {
             //NOTE: try to peek a surrogate pair
             if (this.pos != this.lastCharPos)
@@ -74,7 +74,7 @@ namespace ParseFive.Tokenizer
                     cp = GetSurrogatePairCodePoint(cp, nextCp);
 
                     //NOTE: add gap that should be avoided during retreat
-                    this.addGap();
+                    AddGap();
                 }
             }
 
@@ -93,11 +93,10 @@ namespace ParseFive.Tokenizer
                 (cp1 - 0xD800) * 0x400 + 0x2400 + cp2;
         }
 
-        public void write(string chunk, bool isLastChunk)
+        public void Write(string chunk, bool isLastChunk)
         {
             if (this.html.isTruthy())
                 this.html += chunk;
-
             else
                 this.html = chunk;
 
@@ -106,7 +105,7 @@ namespace ParseFive.Tokenizer
             this.lastChunkWritten = isLastChunk;
         }
 
-        public void insertHtmlAtCurrentPos(string chunk)
+        public void InsertHtmlAtCurrentPos(string chunk)
         {
             this.html = this.html.substring(0, this.pos + 1) +
                         chunk +
@@ -116,7 +115,7 @@ namespace ParseFive.Tokenizer
             this.EndOfChunkHit = false;
         }
 
-        public int advance()
+        public int Advance()
         {
             this.pos++;
 
@@ -135,8 +134,8 @@ namespace ParseFive.Tokenizer
             if (this.skipNextNewLine && cp == CP.LINE_FEED)
             {
                 this.skipNextNewLine = false;
-                this.addGap();
-                return this.advance();
+                AddGap();
+                return Advance();
             }
 
             //NOTE: all U+000D CARRIAGE RETURN (CR) characters must be converted to U+000A LINE FEED (LF) characters
@@ -150,11 +149,11 @@ namespace ParseFive.Tokenizer
 
             //OPTIMIZATION: first perform check if the code point in the allowed range that covers most common
             //HTML input (e.g. ASCII codes) to avoid performance-cost operations for high-range code points.
-            return cp >= 0xD800 ? this.processHighRangeCodePoint(cp) : cp;
+            return cp >= 0xD800 ? ProcessHighRangeCodePoint(cp) : cp;
         }
 
 
-        public void retreat()
+        public void Retreat()
         {
             if (this.pos == this.lastGapPos)
             {
