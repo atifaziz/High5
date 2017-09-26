@@ -133,7 +133,7 @@ namespace ParseFive.Common
                 if (Array.IndexOf(QuirksModePublicIds, publicId) > -1)
                     return DOCUMENT_MODE.QUIRKS;
 
-                string[] prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
+                var prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
 
                 if (HasPrefix(publicId, prefixes))
                     return DOCUMENT_MODE.QUIRKS;
@@ -159,7 +159,7 @@ namespace ParseFive.Common
 
         public static string SerializeContent(string name, string publicId, string systemId)
         {
-            string str = "!DOCTYPE";
+            var str = "!DOCTYPE";
 
             if (name != null)
                 str += name;
@@ -177,7 +177,7 @@ namespace ParseFive.Common
 
             string EnquoteDoctypeId(string id)
             {
-                char quote = id.IndexOf('"') != -1
+                var quote = id.IndexOf('"') != -1
                            ? '\\'
                            : '"';
                 return quote + id + quote;

@@ -202,8 +202,8 @@ namespace ParseFive.Parser
         {
             while (this.StackTop > -1)
             {
-                string tn = this.CurrentTagName;
-                string ns = this.treeAdapter.GetNamespaceUri((Element) this.Current);
+                var tn = this.CurrentTagName;
+                var ns = this.treeAdapter.GetNamespaceUri((Element) this.Current);
 
                 this.Pop();
 
@@ -336,8 +336,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (tn == tagName && ns == NS.HTML)
                     return true;
@@ -353,8 +353,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if ((tn == T.H1 || tn == T.H2 || tn == T.H3 || tn == T.H4 || tn == T.H5 || tn == T.H6) && ns == NS.HTML)
                     return true;
@@ -370,8 +370,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (tn == tagName && ns == NS.HTML)
                     return true;
@@ -387,8 +387,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (tn == tagName && ns == NS.HTML)
                     return true;
@@ -404,8 +404,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (ns != NS.HTML)
                     continue;
@@ -424,8 +424,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (ns != NS.HTML)
                     continue;
@@ -444,8 +444,8 @@ namespace ParseFive.Parser
         {
             for (var i = this.StackTop; i >= 0; i--)
             {
-                string tn = this.treeAdapter.GetTagName(this.items[i]);
-                string ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
+                var tn = this.treeAdapter.GetTagName(this.items[i]);
+                var ns = this.treeAdapter.GetNamespaceUri(this.items[i]);
 
                 if (ns != NS.HTML)
                     continue;
