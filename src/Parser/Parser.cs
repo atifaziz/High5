@@ -198,14 +198,14 @@ namespace ParseFive.Parser
         {
             var current = this._getAdjustedCurrentElement();
 
-            this.tokenizer.allowCDATA = current.IsTruthy() && current != this.document &&
+            this.tokenizer.AllowCData = current.IsTruthy() && current != this.document &&
                                         this.treeAdapter.getNamespaceURI((Element)current) != NS.HTML && !this._isIntegrationPoint((Element)current);
         }
 
         void _switchToTextParsing(Token currentToken, string nextTokenizerState)
         {
             this._insertElement(currentToken, NS.HTML);
-            this.tokenizer.state = nextTokenizerState;
+            this.tokenizer.State = nextTokenizerState;
             this.originalInsertionMode = this.insertionMode;
             this.insertionMode = TEXT_MODE;
         }
@@ -214,7 +214,7 @@ namespace ParseFive.Parser
         {
             this.insertionMode = TEXT_MODE;
             this.originalInsertionMode = IN_BODY_MODE;
-            this.tokenizer.state = PLAINTEXT;
+            this.tokenizer.State = PLAINTEXT;
         }
 
         //Fragment parsing
@@ -248,17 +248,17 @@ namespace ParseFive.Parser
                 var tn = this.treeAdapter.getTagName((Element) this.fragmentContext);
 
                 if (tn == T.TITLE || tn == T.TEXTAREA)
-                    this.tokenizer.state = RCDATA;
+                    this.tokenizer.State = RCDATA;
 
                 else if (tn == T.STYLE || tn == T.XMP || tn == T.IFRAME ||
                          tn == T.NOEMBED || tn == T.NOFRAMES || tn == T.NOSCRIPT)
-                    this.tokenizer.state = RAWTEXT;
+                    this.tokenizer.State = RAWTEXT;
 
                 else if (tn == T.SCRIPT)
-                    this.tokenizer.state = SCRIPT_DATA;
+                    this.tokenizer.State = SCRIPT_DATA;
 
                 else if (tn == T.PLAINTEXT)
-                    this.tokenizer.state = PLAINTEXT;
+                    this.tokenizer.State = PLAINTEXT;
             }
         }
 
@@ -1228,7 +1228,7 @@ namespace ParseFive.Parser
                 p._closePElement();
 
             p._insertElement(token, NS.HTML);
-            p.tokenizer.state = MODE.PLAINTEXT;
+            p.tokenizer.State = MODE.PLAINTEXT;
         }
 
         public static void buttonStartTagInBody(Parser p, Token token)
@@ -1348,7 +1348,7 @@ namespace ParseFive.Parser
             //NOTE: If the next token is a U+000A LINE FEED (LF) character token, then ignore that token and move
             //on to the next one. (Newlines at the start of textarea elements are ignored as an authoring convenience.)
             p.skipNextNewLine = true;
-            p.tokenizer.state = MODE.RCDATA;
+            p.tokenizer.State = MODE.RCDATA;
             p.originalInsertionMode = p.insertionMode;
             p.framesetOk = false;
             p.insertionMode = TEXT_MODE;
