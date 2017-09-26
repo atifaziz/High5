@@ -1,23 +1,23 @@
-using ParseFive.Extensions;
-using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
-
 namespace ParseFive.Common
 {
+    using Extensions;
+    using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
+
     static class Doctype
     {
-        //var DOCUMENT_MODE = require('./html').DOCUMENT_MODE;
-        //Const
         const string ValidDoctypeName = "html";
         const string QuirksModeSystemId = "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd";
+
         static readonly string[] QuirksModePublicIdPrefixes;
         static readonly string[] QuirksModeNoSystemIdPublicIdPrefixes;
         static readonly string[] QuirksModePublicIds;
         static readonly string[] LimitedQuirksPublicIdPrefixes;
         static readonly string[] LimitedQuirksWithSystemIdPublicIdPrefixes;
 
-
-        static Doctype() {
-            QuirksModePublicIdPrefixes = new[] {
+        static Doctype()
+        {
+            QuirksModePublicIdPrefixes = new[]
+            {
                 "+//silmaril//dtd html pro v0r11 19970101//en",
                 "-//advasoft ltd//dtd html 3.0 aswedit + extensions//en",
                 "-//as//dtd html 3.0 aswedit + extensions//en",
@@ -86,44 +86,46 @@ namespace ParseFive.Common
                 "-//webtechs//dtd mozilla html//en"
             };
 
-            QuirksModeNoSystemIdPublicIdPrefixes = QuirksModePublicIdPrefixes.concat(new[] {
+            QuirksModeNoSystemIdPublicIdPrefixes = QuirksModePublicIdPrefixes.concat(new[]
+            {
                 "-//w3c//dtd html 4.01 frameset//",
                 "-//w3c//dtd html 4.01 transitional//"
             });
 
-            QuirksModePublicIds = new[] {
+            QuirksModePublicIds = new[]
+            {
                 "-//w3o//dtd w3 html strict 3.0//en//",
                 "-/w3c/dtd html 4.0 transitional/en",
                 "html"
             };
 
-            LimitedQuirksPublicIdPrefixes = new[] {
+            LimitedQuirksPublicIdPrefixes = new[]
+            {
                 "-//W3C//DTD XHTML 1.0 Frameset//",
                 "-//W3C//DTD XHTML 1.0 Transitional//"
             };
 
-            LimitedQuirksWithSystemIdPublicIdPrefixes = LimitedQuirksPublicIdPrefixes.concat(new[] {
+            LimitedQuirksWithSystemIdPublicIdPrefixes = LimitedQuirksPublicIdPrefixes.concat(new[]
+            {
                 "-//W3C//DTD HTML 4.01 Frameset//",
                 "-//W3C//DTD HTML 4.01 Transitional//"
             });
         }
-        
 
         static string enquoteDoctypeId(string id)
         {
             char quote = id.indexOf('"') != -1
-                         ? '\\'
-                         : '"';
+                        ? '\\'
+                        : '"';
             return quote + id + quote;
         }
 
-        static bool hasPrefix(string publicId, string [] prefixes)
+        static bool hasPrefix(string publicId, string[] prefixes)
         {
             for (var i = 0; i < prefixes.Length; i++)
             {
                 if (publicId.indexOf(prefixes[i]) == 0)
                     return true;
-                
             }
             return false;
         }
@@ -132,7 +134,7 @@ namespace ParseFive.Common
         {
             if (name != ValidDoctypeName)
                 return DOCUMENT_MODE.QUIRKS;
-            
+
             if (systemId != null && systemId.toLowerCase() == QuirksModeSystemId)
                 return DOCUMENT_MODE.QUIRKS;
 
@@ -157,7 +159,7 @@ namespace ParseFive.Common
             return DOCUMENT_MODE.NO_QUIRKS;
         }
 
-        public static string serializeContent (string name, string publicId, string systemId)
+        public static string serializeContent(string name, string publicId, string systemId)
         {
             string str = "!DOCTYPE";
 
