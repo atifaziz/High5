@@ -1,36 +1,34 @@
-using ParseFive.Extensions;
-using NeAttrsMap = System.Collections.Generic.Dictionary<string, string>;
-using ParseFive.Tokenizer;
-//using Attrs = ParseFive.Extensions.List<Attr>;
-
-
-abstract class IEntry
-{
-    public string type { get; set; }
-    public Element element { get; set; }
-    public Token token { get; set; }
-}
-
-class MarkerEntry : IEntry
-{
-    public MarkerEntry(string type)
-    {
-        this.type = type;
-    }
-}
-
-class ElementEntry : IEntry
-{
-    public ElementEntry(string type, Element element, Token token)
-    {
-        this.type = type;
-        this.element = element;
-        this.token = token;
-    }
-}
-
 namespace ParseFive.Parser
 {
+    using Extensions;
+    using NeAttrsMap = System.Collections.Generic.Dictionary<string, string>;
+    using Tokenizer;
+
+    abstract class IEntry
+    {
+        public string type { get; set; }
+        public Element element { get; set; }
+        public Token token { get; set; }
+    }
+
+    class MarkerEntry : IEntry
+    {
+        public MarkerEntry(string type)
+        {
+            this.type = type;
+        }
+    }
+
+    class ElementEntry : IEntry
+    {
+        public ElementEntry(string type, Element element, Token token)
+        {
+            this.type = type;
+            this.element = element;
+            this.token = token;
+        }
+    }
+
     class FormattingElementList
     {
         //Const
