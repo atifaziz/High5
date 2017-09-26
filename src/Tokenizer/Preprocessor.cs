@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ParseFive.Extensions;
-using CP = ParseFive.Common.Unicode.CODE_POINTS;
+using CP = ParseFive.Common.Unicode.CodePoints;
 
 namespace ParseFive.Tokenizer
 {
