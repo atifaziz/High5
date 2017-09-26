@@ -104,6 +104,19 @@ namespace ParseFive.Common
             {"zoomandpan", "zoomAndPan" },
         };
 
+        sealed class XmlAdjustment
+        {
+            public readonly string prefix;
+            public readonly string name;
+            public readonly string @namespace;
+            public XmlAdjustment(string prefix, string name, string @namespace)
+            {
+                this.prefix = prefix;
+                this.name = name;
+                this.@namespace = @namespace;
+            }
+        }
+
         static readonly IDictionary<string, XmlAdjustment> XML_ATTRS_ADJUSTMENT_MAP = new Dictionary<string, XmlAdjustment>
         {
             ["xlink:actuate"] = new XmlAdjustment("xlink", "actuate", NS.XLINK),
