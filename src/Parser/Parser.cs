@@ -1,20 +1,19 @@
-using ParseFive.Extensions;
-
 namespace ParseFive.Parser
 {
     using System;
     using System.Collections.Generic;
     using Common;
+    using Extensions;
     using Tokenizer;
     using TreeAdapters;
     using static Tokenizer.TokenType;
     using static Tokenizer.Tokenizer.MODE;
     using static Common.ForeignContent;
     using static Common.Doctype;
-    using ATTRS = HTML.ATTRS;
-    using NS = HTML.NAMESPACES;
+    using ATTRS = Common.HTML.ATTRS;
+    using NS = Common.HTML.NAMESPACES;
     using MODE = Tokenizer.Tokenizer.MODE;
-    using T = HTML.TAG_NAMES;
+    using T = Common.HTML.TAG_NAMES;
     using Tokenizer = Tokenizer.Tokenizer;
     using Unicode = Common.Unicode;
 

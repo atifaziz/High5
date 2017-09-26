@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace ParseFive.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+
     static class BooleanExtensions
     {
         public static bool IsTruthy(this object o) => o != null;
