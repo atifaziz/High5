@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using ParseFive.Extensions;
-using Attrs = ParseFive.Extensions.List<Attr>;
 //Aliases
 using ɑ = HTML.TAG_NAMES;
 using NS = HTML.NAMESPACES;

@@ -1,6 +1,4 @@
-using System;
 using ParseFive.Extensions;
-using System.Text;
 using NeAttrsMap = System.Collections.Generic.Dictionary<string, string>;
 using ParseFive.Tokenizer;
 //using Attrs = ParseFive.Extensions.List<Attr>;
