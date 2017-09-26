@@ -1,8 +1,9 @@
 using System;
-using static ParseFive.Tokenizer.Tokenizer;
+using static ParseFive.Tokenizer.TokenType;
 using T = HTML.TAG_NAMES;
 using NS = HTML.NAMESPACES;
 using ATTRS = HTML.ATTRS;
+using MODE = ParseFive.Tokenizer.Tokenizer.MODE;
 using static ParseFive.Tokenizer.Tokenizer.MODE;
 using ParseFive.Tokenizer;
 using ParseFive.Extensions;
@@ -16,6 +17,7 @@ using Unicode = ParseFive.Common.Unicode;
 namespace ParseFive.Parser
 {
     using TreeAdapters;
+    using Tokenizer = Tokenizer.Tokenizer;
 
     public class Parser
     {
@@ -35,7 +37,7 @@ namespace ParseFive.Parser
         bool skipNextNewLine;
         bool fosterParentingEnabled;
 
-        Tokenizer.Tokenizer tokenizer;
+        Tokenizer tokenizer;
         public bool stopped { get; private set; }
         public string insertionMode { get; private set; }
         Node document { get; set; }
@@ -112,7 +114,7 @@ namespace ParseFive.Parser
         //Bootstrap parser
         void _bootstrap(Node document, Node fragmentContext)
         {
-            this.tokenizer = new Tokenizer.Tokenizer();
+            this.tokenizer = new Tokenizer();
 
             this.stopped = false;
 
@@ -1310,7 +1312,7 @@ namespace ParseFive.Parser
             p._reconstructActiveFormattingElements();
             p._appendElement(token, NS.HTML);
 
-            var inputType = getTokenAttr(token, ATTRS.TYPE);
+            var inputType = Tokenizer.getTokenAttr(token, ATTRS.TYPE);
 
             if (!inputType.IsTruthy() || inputType.toLowerCase() != HIDDEN_INPUT_TYPE)
                 p.framesetOk = false;
@@ -2124,7 +2126,7 @@ namespace ParseFive.Parser
 
         public static void inputStartTagInTable(Parser p, Token token)
         {
-            var inputType = getTokenAttr(token, ATTRS.TYPE);
+            var inputType = Tokenizer.getTokenAttr(token, ATTRS.TYPE);
 
             if (inputType.IsTruthy() && inputType.toLowerCase() == HIDDEN_INPUT_TYPE)
                 p._appendElement(token, NS.HTML);
