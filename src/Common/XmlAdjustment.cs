@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ParseFive.Common
 {
-    public class XmlAdjustment
+    sealed class XmlAdjustment
     {
         public readonly string prefix;
         public readonly string name;
