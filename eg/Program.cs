@@ -34,7 +34,7 @@ namespace Demo
             }
 
             var parser = new Parser();
-            var doc = parser.parse(html);
+            var doc = parser.Parse(html);
             char[] indent = {};
             Dump(doc, Console.Out);
             Console.WriteLine();
