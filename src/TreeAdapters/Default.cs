@@ -7,12 +7,12 @@ namespace ParseFive.TreeAdapters
 
     static class StockTreeAdapters
     {
-        public static TreeAdapter defaultTreeAdapter = null;
+        public static ITreeAdapter defaultTreeAdapter = null;
     }
 
-    public sealed class DefaultTreeAdapter : TreeAdapter
+    public sealed class DefaultTreeAdapter : ITreeAdapter
     {
-        public static TreeAdapter Instance = new DefaultTreeAdapter();
+        public static ITreeAdapter Instance = new DefaultTreeAdapter();
 
         public Document createDocument() => new Document();
 

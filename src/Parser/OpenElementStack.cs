@@ -34,7 +34,7 @@ namespace ParseFive.Parser
         public int stackTop { get; private set; }
 
         //Stack of open elements
-        public OpenElementStack(Node document, ParseFive.TreeAdapter treeAdapter)
+        public OpenElementStack(Node document, ITreeAdapter treeAdapter)
         {
             this.stackTop = -1;
             this.items = new List<Element>();

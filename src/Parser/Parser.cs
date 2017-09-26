@@ -352,7 +352,7 @@ namespace ParseFive.Parser
                 },
             };
 
-        readonly TreeAdapter treeAdapter;
+        readonly ITreeAdapter treeAdapter;
         Element pendingScript;
         string originalInsertionMode;
         Element headElement;
@@ -387,7 +387,7 @@ namespace ParseFive.Parser
         }
 
         //Parser
-        public Parser(TreeAdapter treeAdapter = null)
+        public Parser(ITreeAdapter treeAdapter = null)
         {
             //this.options = mergeOptions(DEFAULT_OPTIONS, options);
 
