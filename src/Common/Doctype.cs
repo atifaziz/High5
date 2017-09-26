@@ -1,6 +1,5 @@
 using ParseFive.Extensions;
 using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
-// ReSharper disable InconsistentNaming
 
 namespace ParseFive.Common
 {
@@ -8,17 +7,17 @@ namespace ParseFive.Common
     {
         //var DOCUMENT_MODE = require('./html').DOCUMENT_MODE;
         //Const
-        const string VALID_DOCTYPE_NAME = "html";
-        const string QUIRKS_MODE_SYSTEM_ID = "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd";
-        static readonly string[] QUIRKS_MODE_PUBLIC_ID_PREFIXES;
-        static readonly string[] QUIRKS_MODE_NO_SYSTEM_ID_PUBLIC_ID_PREFIXES;
-        static readonly string[] QUIRKS_MODE_PUBLIC_IDS;
-        static readonly string[] LIMITED_QUIRKS_PUBLIC_ID_PREFIXES;
-        static readonly string[] LIMITED_QUIRKS_WITH_SYSTEM_ID_PUBLIC_ID_PREFIXES;
+        const string ValidDoctypeName = "html";
+        const string QuirksModeSystemId = "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd";
+        static readonly string[] QuirksModePublicIdPrefixes;
+        static readonly string[] QuirksModeNoSystemIdPublicIdPrefixes;
+        static readonly string[] QuirksModePublicIds;
+        static readonly string[] LimitedQuirksPublicIdPrefixes;
+        static readonly string[] LimitedQuirksWithSystemIdPublicIdPrefixes;
 
 
         static Doctype() {
-            QUIRKS_MODE_PUBLIC_ID_PREFIXES = new[] {
+            QuirksModePublicIdPrefixes = new[] {
                 "+//silmaril//dtd html pro v0r11 19970101//en",
                 "-//advasoft ltd//dtd html 3.0 aswedit + extensions//en",
                 "-//as//dtd html 3.0 aswedit + extensions//en",
@@ -87,23 +86,23 @@ namespace ParseFive.Common
                 "-//webtechs//dtd mozilla html//en"
             };
 
-            QUIRKS_MODE_NO_SYSTEM_ID_PUBLIC_ID_PREFIXES = QUIRKS_MODE_PUBLIC_ID_PREFIXES.concat(new[] {
+            QuirksModeNoSystemIdPublicIdPrefixes = QuirksModePublicIdPrefixes.concat(new[] {
                 "-//w3c//dtd html 4.01 frameset//",
                 "-//w3c//dtd html 4.01 transitional//"
             });
 
-            QUIRKS_MODE_PUBLIC_IDS = new[] {
+            QuirksModePublicIds = new[] {
                 "-//w3o//dtd w3 html strict 3.0//en//",
                 "-/w3c/dtd html 4.0 transitional/en",
                 "html"
             };
 
-            LIMITED_QUIRKS_PUBLIC_ID_PREFIXES = new[] {
+            LimitedQuirksPublicIdPrefixes = new[] {
                 "-//W3C//DTD XHTML 1.0 Frameset//",
                 "-//W3C//DTD XHTML 1.0 Transitional//"
             };
 
-            LIMITED_QUIRKS_WITH_SYSTEM_ID_PUBLIC_ID_PREFIXES = LIMITED_QUIRKS_PUBLIC_ID_PREFIXES.concat(new[] {
+            LimitedQuirksWithSystemIdPublicIdPrefixes = LimitedQuirksPublicIdPrefixes.concat(new[] {
                 "-//W3C//DTD HTML 4.01 Frameset//",
                 "-//W3C//DTD HTML 4.01 Transitional//"
             });
@@ -131,25 +130,25 @@ namespace ParseFive.Common
 
         public static string getDocumentMode(string name, string publicId, string systemId)
         {
-            if (name != VALID_DOCTYPE_NAME)
+            if (name != ValidDoctypeName)
                 return DOCUMENT_MODE.QUIRKS;
             
-            if (systemId != null && systemId.toLowerCase() == QUIRKS_MODE_SYSTEM_ID)
+            if (systemId != null && systemId.toLowerCase() == QuirksModeSystemId)
                 return DOCUMENT_MODE.QUIRKS;
 
             if (publicId != null)
             {
                 publicId = publicId.toLowerCase();
 
-                if (QUIRKS_MODE_PUBLIC_IDS.indexOf(publicId) > -1)
+                if (QuirksModePublicIds.indexOf(publicId) > -1)
                     return DOCUMENT_MODE.QUIRKS;
 
-                string[] prefixes = systemId == null ? QUIRKS_MODE_NO_SYSTEM_ID_PUBLIC_ID_PREFIXES : QUIRKS_MODE_PUBLIC_ID_PREFIXES;
+                string[] prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
 
                 if (hasPrefix(publicId, prefixes))
                     return DOCUMENT_MODE.QUIRKS;
 
-                prefixes = systemId == null ? LIMITED_QUIRKS_PUBLIC_ID_PREFIXES : LIMITED_QUIRKS_WITH_SYSTEM_ID_PUBLIC_ID_PREFIXES;
+                prefixes = systemId == null ? LimitedQuirksPublicIdPrefixes : LimitedQuirksWithSystemIdPublicIdPrefixes;
 
                 if (hasPrefix(publicId, prefixes))
                     return DOCUMENT_MODE.LIMITED_QUIRKS;
