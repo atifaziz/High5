@@ -115,56 +115,36 @@ namespace ParseFive.Tokenizer
         // this functions if they will be situated in another module due to context switch.
         // Always perform inlining check before modifying this functions ("node --trace-inlining").
 
-        static bool isWhitespace(int cp)
-        {
-            return cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
-        }
+        static bool isWhitespace(int cp) =>
+            cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
 
-        static bool isAsciiDigit(int cp)
-        {
-            return cp >= CP.DIGIT_0 && cp <= CP.DIGIT_9;
-        }
+        static bool isAsciiDigit(int cp) =>
+            cp >= CP.DIGIT_0 && cp <= CP.DIGIT_9;
 
-        static bool isAsciiUpper(int cp)
-        {
-            return cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_Z;
-        }
+        static bool isAsciiUpper(int cp) =>
+            cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_Z;
 
-        static bool isAsciiLower(int cp)
-        {
-            return cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_Z;
-        }
+        static bool isAsciiLower(int cp) =>
+            cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_Z;
 
-        static bool isAsciiLetter(int cp)
-        {
-            return isAsciiLower(cp) || isAsciiUpper(cp);
-        }
+        static bool isAsciiLetter(int cp) =>
+            isAsciiLower(cp) || isAsciiUpper(cp);
 
-        static bool isAsciiAlphaNumeric(int cp)
-        {
-            return isAsciiLetter(cp) || isAsciiDigit(cp);
-        }
+        static bool isAsciiAlphaNumeric(int cp) =>
+            isAsciiLetter(cp) || isAsciiDigit(cp);
 
-        static bool isDigit(int cp, bool isHex)
-        {
-            return isAsciiDigit(cp) || isHex && (cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_F ||
-                                                 cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_F);
-        }
+        static bool isDigit(int cp, bool isHex) =>
+            isAsciiDigit(cp) || isHex && (cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_F ||
+                                          cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_F);
 
-        static bool isReservedCodePoint(long cp)
-        {
-            return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
-        }
+        static bool isReservedCodePoint(long cp) =>
+            cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
 
-        static bool isReservedCodePoint(int cp)
-        {
-            return cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
-        }
+        static bool isReservedCodePoint(int cp) =>
+            cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
 
-        static int toAsciiLowerCodePoint(int cp)
-        {
-            return cp + 0x0020;
-        }
+        static int toAsciiLowerCodePoint(int cp) =>
+            cp + 0x0020;
 
         // NOTE: String.fromCharCode() function can handle only characters from BMP subset.
         // So, we need to workaround this manually.
@@ -179,10 +159,8 @@ namespace ParseFive.Tokenizer
             return new string(new[] { String.fromCharCode((int)(((uint)cp) >> 10) & 0x3FF | 0xD800), String.fromCharCode(0xDC00 | cp & 0x3FF) });
         }
 
-        static char toAsciiLowerChar(int cp)
-        {
-            return String.fromCharCode(toAsciiLowerCodePoint(cp));
-        }
+        static char toAsciiLowerChar(int cp) =>
+            String.fromCharCode(toAsciiLowerCodePoint(cp));
 
         static int findNamedEntityTreeBranch(int nodeIx, int cp)
         {
