@@ -15,7 +15,7 @@ using ParseFive.Tokenizer;
 //using UNICODE = require('../common/unicode');
 //using HTML = require('../common/html');
 //Aliases
-using ɑ = HTML.TAG_NAMES;
+using T = HTML.TAG_NAMES;
 
 namespace ParseFive.Parser
 {
@@ -62,15 +62,15 @@ namespace ParseFive.Parser
         //Insertion mode reset map
         public static IDictionary<string, string> INSERTION_MODE_RESET_MAP = new Dictionary<string, string>
         {
-            [ɑ.TR] =  IN_ROW_MODE,
-            [ɑ.TBODY] = IN_TABLE_BODY_MODE,
-            [ɑ.THEAD] = IN_TABLE_BODY_MODE,
-            [ɑ.TFOOT] =  IN_TABLE_BODY_MODE,
-            [ɑ.CAPTION] =  IN_CAPTION_MODE,
-            [ɑ.COLGROUP] =  IN_COLUMN_GROUP_MODE,
-            [ɑ.TABLE] =  IN_TABLE_MODE,
-            [ɑ.BODY] =  IN_BODY_MODE,
-            [ɑ.FRAMESET] =  IN_FRAMESET_MODE,
+            [T.TR] =  IN_ROW_MODE,
+            [T.TBODY] = IN_TABLE_BODY_MODE,
+            [T.THEAD] = IN_TABLE_BODY_MODE,
+            [T.TFOOT] =  IN_TABLE_BODY_MODE,
+            [T.CAPTION] =  IN_CAPTION_MODE,
+            [T.COLGROUP] =  IN_COLUMN_GROUP_MODE,
+            [T.TABLE] =  IN_TABLE_MODE,
+            [T.BODY] =  IN_BODY_MODE,
+            [T.FRAMESET] =  IN_FRAMESET_MODE,
         };
 
 
@@ -78,15 +78,15 @@ namespace ParseFive.Parser
         //Template insertion mode switch map
         public static IDictionary<string, string> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, string>
         {
-            [ɑ.CAPTION] = IN_TABLE_MODE,
-            [ɑ.COLGROUP] = IN_TABLE_MODE,
-            [ɑ.TBODY] = IN_TABLE_MODE,
-            [ɑ.TFOOT] = IN_TABLE_MODE,
-            [ɑ.THEAD] = IN_TABLE_MODE,
-            [ɑ.COL] = IN_COLUMN_GROUP_MODE,
-            [ɑ.TR] = IN_TABLE_BODY_MODE,
-            [ɑ.TD] = IN_ROW_MODE,
-            [ɑ.TH] = IN_ROW_MODE,
+            [T.CAPTION] = IN_TABLE_MODE,
+            [T.COLGROUP] = IN_TABLE_MODE,
+            [T.TBODY] = IN_TABLE_MODE,
+            [T.TFOOT] = IN_TABLE_MODE,
+            [T.THEAD] = IN_TABLE_MODE,
+            [T.COL] = IN_COLUMN_GROUP_MODE,
+            [T.TR] = IN_TABLE_BODY_MODE,
+            [T.TD] = IN_ROW_MODE,
+            [T.TH] = IN_ROW_MODE,
         };
 
         //Token handlers map for insertion modes
