@@ -123,12 +123,12 @@ namespace ParseFive.Common
             if (name != ValidDoctypeName)
                 return DOCUMENT_MODE.QUIRKS;
 
-            if (systemId != null && systemId.toLowerCase() == QuirksModeSystemId)
+            if (systemId != null && systemId.ToLowerCase() == QuirksModeSystemId)
                 return DOCUMENT_MODE.QUIRKS;
 
             if (publicId != null)
             {
-                publicId = publicId.toLowerCase();
+                publicId = publicId.ToLowerCase();
 
                 if (Array.IndexOf(QuirksModePublicIds, publicId) > -1)
                     return DOCUMENT_MODE.QUIRKS;

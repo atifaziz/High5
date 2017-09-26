@@ -13,18 +13,18 @@ namespace ParseFive.Extensions
 
     static class StringExtensions
     {
-        public static string toLowerCase(this string str) => str.ToLower();
-        public static int charCodeAt(this string str, int index) => (int)str[index];
+        public static string ToLowerCase(this string str) => str.ToLower();
+        public static int CharCodeAt(this string str, int index) => (int)str[index];
     }
 
     public static class ListExtensions
     {
-        public static void push<T>(this List<T> list, T elem)
+        public static void Push<T>(this List<T> list, T elem)
         {
             list.Add(elem);
         }
 
-        public static T pop<T>(this List<T> list)
+        public static T Pop<T>(this List<T> list)
         {
             if (list.Count == 0)
                 throw new IndexOutOfRangeException("Array is empty");
@@ -33,18 +33,18 @@ namespace ParseFive.Extensions
             return temp;
         }
 
-        public static void splice<T>(this List<T> list, int index, int count)
+        public static void Splice<T>(this List<T> list, int index, int count)
         {
             list.RemoveRange(index, count);
         }
 
-        public static void splice<T>(this List<T> list, int index, int count, T item1)
+        public static void Splice<T>(this List<T> list, int index, int count, T item1)
         {
             list.RemoveRange(index, count);
             list.Insert(index, item1);
         }
 
-        public static T shift<T> (this List<T> list)
+        public static T Shift<T> (this List<T> list)
         {
             if (list.Count == 0)
                 throw new IndexOutOfRangeException("Array is empty");

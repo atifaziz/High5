@@ -65,7 +65,7 @@ namespace ParseFive.Tokenizer
             //NOTE: try to peek a surrogate pair
             if (this.pos != this.lastCharPos)
             {
-                var nextCp = this.html.charCodeAt(this.pos + 1);
+                var nextCp = this.html.CharCodeAt(this.pos + 1);
 
                 if (IsSurrogatePair(cp, nextCp))
                 {
@@ -127,7 +127,7 @@ namespace ParseFive.Tokenizer
                 return CP.EOF;
             }
 
-            var cp = this.html.charCodeAt(this.pos);
+            var cp = this.html.CharCodeAt(this.pos);
 
             //NOTE: any U+000A LINE FEED (LF) characters that immediately follow a U+000D CARRIAGE RETURN (CR) character
             //must be ignored.
