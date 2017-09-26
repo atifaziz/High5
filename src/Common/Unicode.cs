@@ -44,13 +44,13 @@ namespace ParseFive.Common
         }
 
      public static class CODE_POINT_SEQUENCES {
-        public static Array<int> DASH_DASH_STRING   = new Array<int>(new[] {0x2D, 0x2D}); //--
-        public static Array<int> DOCTYPE_STRING     = new Array<int>(new[] {0x44, 0x4F, 0x43, 0x54, 0x59, 0x50, 0x45}); //DOCTYPE
-        public static Array<int> CDATA_START_STRING = new Array<int>(new[] {0x5B, 0x43, 0x44, 0x41, 0x54, 0x41, 0x5B}); //[CDATA[
-        public static Array<int> CDATA_END_STRING   = new Array<int>(new[] {0x5D, 0x5D, 0x3E}); //]]>
-        public static Array<int> SCRIPT_STRING      = new Array<int>(new[] {0x73, 0x63, 0x72, 0x69, 0x70, 0x74}); //script
-        public static Array<int> PUBLIC_STRING      = new Array<int>(new[] {0x50, 0x55, 0x42, 0x4C, 0x49, 0x43}); //PUBLIC
-        public static Array<int> SYSTEM_STRING      = new Array<int>(new[] {0x53, 0x59, 0x53, 0x54, 0x45, 0x4D}); //SYSTEM
+        public static readonly Array<int> DASH_DASH_STRING   = new Array<int>(new[] {0x2D, 0x2D}); //--
+        public static readonly Array<int> DOCTYPE_STRING     = new Array<int>(new[] {0x44, 0x4F, 0x43, 0x54, 0x59, 0x50, 0x45}); //DOCTYPE
+        public static readonly Array<int> CDATA_START_STRING = new Array<int>(new[] {0x5B, 0x43, 0x44, 0x41, 0x54, 0x41, 0x5B}); //[CDATA[
+        public static readonly Array<int> CDATA_END_STRING   = new Array<int>(new[] {0x5D, 0x5D, 0x3E}); //]]>
+        public static readonly Array<int> SCRIPT_STRING      = new Array<int>(new[] {0x73, 0x63, 0x72, 0x69, 0x70, 0x74}); //script
+        public static readonly Array<int> PUBLIC_STRING      = new Array<int>(new[] {0x50, 0x55, 0x42, 0x4C, 0x49, 0x43}); //PUBLIC
+        public static readonly Array<int> SYSTEM_STRING      = new Array<int>(new[] {0x53, 0x59, 0x53, 0x54, 0x45, 0x4D}); //SYSTEM
     }
 }
 }
