@@ -278,7 +278,7 @@ namespace ParseFive.Common
                 {
                     if (attr.name == ATTRS.ENCODING)
                     {
-                        var value = attr.value.toLowerCase();
+                        var value = attr.value.ToLowerCase();
 
                         return value == MimeTypes.TextHtml || value == MimeTypes.ApplicationXml;
                     }

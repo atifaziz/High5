@@ -267,7 +267,7 @@ namespace ParseFive.Tokenizer
                     this[this.State](this, cp);
             }
 
-            return tokenQueue.shift();
+            return tokenQueue.Shift();
         }
 
         public void Write(string chunk, bool isLastChunk)
@@ -297,7 +297,7 @@ namespace ParseFive.Tokenizer
                     this.preprocessor.Retreat();
 
                 this.active = false;
-                this.tokenQueue.push(new Token(TokenType.HIBERNATION_TOKEN));
+                this.tokenQueue.Push(new Token(TokenType.HIBERNATION_TOKEN));
 
                 return true;
             }
@@ -440,7 +440,7 @@ namespace ParseFive.Tokenizer
             this.State = toState;
 
             if (!this.IsDuplicateAttr())
-                this.currentToken.attrs.push(this.currentAttr);
+                this.currentToken.attrs.Push(this.currentAttr);
         }
 
         void LeaveAttrValue(string toState)
@@ -466,7 +466,7 @@ namespace ParseFive.Tokenizer
             if (this.currentToken.type == TokenType.START_TAG_TOKEN)
                 this.lastStartTagName = this.currentToken.tagName;
 
-            this.tokenQueue.push(this.currentToken);
+            this.tokenQueue.Push(this.currentToken);
             this.currentToken = null;
         }
 
@@ -474,7 +474,7 @@ namespace ParseFive.Tokenizer
         {
             if (this.currentCharacterToken.IsTruthy())
             {
-                this.tokenQueue.push(this.currentCharacterToken);
+                this.tokenQueue.Push(this.currentCharacterToken);
                 this.currentCharacterToken = null;
             }
         }
@@ -482,7 +482,7 @@ namespace ParseFive.Tokenizer
         void EmitEofToken()
         {
             this.EmitCurrentCharacterToken();
-            this.tokenQueue.push(new Token(TokenType.EOF_TOKEN));
+            this.tokenQueue.Push(new Token(TokenType.EOF_TOKEN));
         }
 
         // Characters emission
@@ -947,13 +947,13 @@ namespace ParseFive.Tokenizer
                 if (IsAsciiUpper(cp))
                 {
                     @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
                     @this.currentToken.tagName += ToChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else
@@ -1029,13 +1029,13 @@ namespace ParseFive.Tokenizer
                 if (IsAsciiUpper(cp))
                 {
                     @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
                     @this.currentToken.tagName += ToChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else
@@ -1118,13 +1118,13 @@ namespace ParseFive.Tokenizer
                 if (IsAsciiUpper(cp))
                 {
                     @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
                     @this.currentToken.tagName += ToChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else
@@ -1319,13 +1319,13 @@ namespace ParseFive.Tokenizer
                 if (IsAsciiUpper(cp))
                 {
                     @this.currentToken.tagName += ToAsciiLowerChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
                     @this.currentToken.tagName += ToChar(cp);
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                 }
 
                 else
@@ -1371,13 +1371,13 @@ namespace ParseFive.Tokenizer
 
                 else if (IsAsciiUpper(cp))
                 {
-                    @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
+                    @this.tempBuff.Push(ToAsciiLowerCodePoint(cp));
                     @this.EmitCodePoint(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                     @this.EmitCodePoint(cp);
                 }
 
@@ -1506,13 +1506,13 @@ namespace ParseFive.Tokenizer
 
                 else if (IsAsciiUpper(cp))
                 {
-                    @this.tempBuff.push(ToAsciiLowerCodePoint(cp));
+                    @this.tempBuff.Push(ToAsciiLowerCodePoint(cp));
                     @this.EmitCodePoint(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.tempBuff.push(cp);
+                    @this.tempBuff.Push(cp);
                     @this.EmitCodePoint(cp);
                 }
 

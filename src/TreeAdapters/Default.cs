@@ -113,7 +113,7 @@ namespace ParseFive.TreeAdapters
 
             foreach (var attr in attrs) {
                 if (!recipientAttrsMap.Contains(attr.name))
-                    recipient.Attributes.push(attr);
+                    recipient.Attributes.Push(attr);
             }
         }
 

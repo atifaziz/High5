@@ -170,7 +170,7 @@ namespace ParseFive.Parser
         public void Pop()
         {
             this.StackTop--;
-            this.items.pop();
+            this.items.Pop();
 
             if (this.TmplCount > 0 && this.IsInTemplate())
                 this.TmplCount--;
@@ -192,7 +192,7 @@ namespace ParseFive.Parser
         {
             var insertionIdx = this.IndexOf(referenceElement) + 1;
 
-            this.items.splice(insertionIdx, 0, newElement);
+            this.items.Splice(insertionIdx, 0, newElement);
 
             if (insertionIdx == ++this.StackTop)
                 this.UpdateCurrentElement();
@@ -297,7 +297,7 @@ namespace ParseFive.Parser
             {
                 if (this.items[i] == element)
                 {
-                    this.items.splice(i, 1);
+                    this.items.Splice(i, 1);
                     this.StackTop--;
                     this.UpdateCurrentElement();
                     break;

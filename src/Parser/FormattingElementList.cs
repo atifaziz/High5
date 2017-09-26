@@ -84,7 +84,7 @@ namespace ParseFive.Parser
                                       elementAttrs.Count == neAttrsLength;
 
                     if (isCandidate)
-                        candidates.push((idx: i, attrs: elementAttrs));
+                        candidates.Push((idx: i, attrs: elementAttrs));
                 }
             }
 
@@ -120,7 +120,7 @@ namespace ParseFive.Parser
 
                         if ((neAttrsMap.TryGetValue(cAttr.name, out var v) ? v : null) != cAttr.value)
                         {
-                            candidates.splice(j, 1);
+                            candidates.Splice(j, 1);
                             cLength--;
                         }
 
@@ -133,7 +133,7 @@ namespace ParseFive.Parser
 
                 for (var i = cLength - 1; i >= NoahArkCapacity - 1; i--)
                 {
-                    this.entries.splice(candidates[i].idx, 1);
+                    this.entries.Splice(candidates[i].idx, 1);
                     this.length--;
                 }
             }
@@ -143,7 +143,7 @@ namespace ParseFive.Parser
 
         public void InsertMarker()
         {
-            entries.push(new MarkerEntry(MARKER_ENTRY));
+            entries.Push(new MarkerEntry(MARKER_ENTRY));
             length++;
         }
 
@@ -151,7 +151,7 @@ namespace ParseFive.Parser
         {
             this.EnsureNoahArkCondition(element);
 
-            this.entries.push(new ElementEntry(ELEMENT_ENTRY, element, token));
+            this.entries.Push(new ElementEntry(ELEMENT_ENTRY, element, token));
             length++;
         }
 
@@ -165,7 +165,7 @@ namespace ParseFive.Parser
                     break;
             }
 
-            this.entries.splice(bookmarkIdx + 1, 0, new ElementEntry(ELEMENT_ENTRY, element, token));
+            this.entries.Splice(bookmarkIdx + 1, 0, new ElementEntry(ELEMENT_ENTRY, element, token));
 
             this.length++;
         }
@@ -176,7 +176,7 @@ namespace ParseFive.Parser
             {
                 if (this.entries[i] == entry)
                 {
-                    this.entries.splice(i, 1);
+                    this.entries.Splice(i, 1);
                     this.length--;
                     break;
                 }
@@ -187,7 +187,7 @@ namespace ParseFive.Parser
         {
             while (this.length.IsTruthy())
             {
-                var entry = this.entries.pop();
+                var entry = this.entries.Pop();
 
                 this.length--;
 

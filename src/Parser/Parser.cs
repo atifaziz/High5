@@ -915,14 +915,14 @@ namespace ParseFive.Parser
 
         void PushTmplInsertionMode(string mode)
         {
-            this.tmplInsertionModeStack.push(mode);
+            this.tmplInsertionModeStack.Push(mode);
             this.tmplInsertionModeStackTop++;
             this.currentTmplInsertionMode = mode;
         }
 
         void PopTmplInsertionMode()
         {
-            this.tmplInsertionModeStack.pop();
+            this.tmplInsertionModeStack.Pop();
             this.tmplInsertionModeStackTop--;
             this.currentTmplInsertionMode = this.tmplInsertionModeStackTop >= 0 && this.tmplInsertionModeStackTop < tmplInsertionModeStack.Count
                                           ? this.tmplInsertionModeStack[this.tmplInsertionModeStackTop]
@@ -1645,7 +1645,7 @@ namespace ParseFive.Parser
 
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (!inputType.IsTruthy() || inputType.toLowerCase() != HIDDEN_INPUT_TYPE)
+            if (!inputType.IsTruthy() || inputType.ToLowerCase() != HIDDEN_INPUT_TYPE)
                 p.framesetOk = false;
 
         }
@@ -2459,7 +2459,7 @@ namespace ParseFive.Parser
         {
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (inputType.IsTruthy() && inputType.toLowerCase() == HIDDEN_INPUT_TYPE)
+            if (inputType.IsTruthy() && inputType.ToLowerCase() == HIDDEN_INPUT_TYPE)
                 p.AppendElement(token, NS.HTML);
 
             else
@@ -2599,12 +2599,12 @@ namespace ParseFive.Parser
         //------------------------------------------------------------------
         static void WhitespaceCharacterInTableText(Parser p, Token token)
         {
-            p.pendingCharacterTokens.push(token);
+            p.pendingCharacterTokens.Push(token);
         }
 
         static void CharacterInTableText(Parser p, Token token)
         {
-            p.pendingCharacterTokens.push(token);
+            p.pendingCharacterTokens.Push(token);
             p.hasNonWhitespacePendingCharacterToken = true;
         }
 
@@ -3239,7 +3239,7 @@ namespace ParseFive.Parser
                     break;
                 }
 
-                if (p.treeAdapter.GetTagName(element).toLowerCase() == token.tagName)
+                if (p.treeAdapter.GetTagName(element).ToLowerCase() == token.tagName)
                 {
                     p.openElements.PopUntilElementPopped(element);
                     break;
