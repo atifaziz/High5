@@ -9,7 +9,7 @@ using ParseFive.Extensions;
 using static ParseFive.Parser.Index;
 using static ParseFive.Common.ForeignContent;
 using static ParseFive.Common.Doctype;
-using UNICODE = ParseFive.Common.Unicode;
+using Unicode = ParseFive.Common.Unicode;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArrangeThisQualifier
 
@@ -2851,7 +2851,7 @@ namespace ParseFive.Parser
         //------------------------------------------------------------------
         public static void nullCharacterInForeignContent(Parser p, Token token)
         {
-            token.chars = UNICODE.REPLACEMENT_CHARACTER.ToString();
+            token.chars = Unicode.ReplacementCharacter.ToString();
             p._insertCharacters(token);
         }
 

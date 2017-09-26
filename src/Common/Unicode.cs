@@ -4,9 +4,9 @@ namespace ParseFive.Common
 {
     static class Unicode
     {
-        public const char REPLACEMENT_CHARACTER = '\uFFFD';
+        public const char ReplacementCharacter = '\uFFFD';
 
-        public static class CODE_POINTS
+        public static class CodePoints
         {
             public const int EOF = -1;
             public const int NULL = 0x00;
@@ -42,7 +42,7 @@ namespace ParseFive.Common
             public const int REPLACEMENT_CHARACTER = 0xFFFD;
         }
 
-        public static class CODE_POINT_SEQUENCES
+        public static class CodePointSequences
         {
             public static readonly int[] DASH_DASH_STRING   = { 0x2D, 0x2D }; //--
             public static readonly int[] DOCTYPE_STRING     = { 0x44, 0x4F, 0x43, 0x54, 0x59, 0x50, 0x45 }; //DOCTYPE

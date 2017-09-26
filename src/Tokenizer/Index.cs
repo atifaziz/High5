@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CP = ParseFive.Common.Unicode.CODE_POINTS;
+using CP = ParseFive.Common.Unicode.CodePoints;
 using String = ParseFive.Compatibility.String;
 using static ParseFive.Tokenizer.NamedEntityData;
 
