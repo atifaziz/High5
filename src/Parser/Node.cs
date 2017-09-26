@@ -51,7 +51,7 @@ public class DocumentType : Node
 
 public class TemplateElement : Element
 {
-    public Node Content;
+    public Node Content { get; internal set; }
 
     public TemplateElement(string tagName, string namespaceUri, List<Attr> attributes) : base(tagName, namespaceUri, attributes)
     {
