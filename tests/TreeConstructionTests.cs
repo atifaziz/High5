@@ -309,10 +309,10 @@ namespace ParseFive.Tests
                         {
                             yield return Print(level + 1, a.Name, "=", "\"", a.Value, "\"");
                         }
-                        if (e is TemplateElement te && te.content != null)
+                        if (e is TemplateElement te && te.Content != null)
                         {
                             yield return Print(level + 1, "content");
-                            foreach (var dump in from child in te.content.ChildNodes
+                            foreach (var dump in from child in te.Content.ChildNodes
                                                  from dump in Dump(child, level + 2)
                                                  select dump)
                             {
