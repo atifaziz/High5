@@ -2337,7 +2337,7 @@ namespace ParseFive.Tokenizer
 
             // 12.2.4.68 CDATA section state
             // ------------------------------------------------------------------
-            _[CDATA_SECTION_STATE] = CdataSectionState; void CdataSectionState(Tokenizer @this, int cp)
+            _[CDATA_SECTION_STATE] = CDataSectionState; void CDataSectionState(Tokenizer @this, int cp)
             {
                 while (true)
                 {
