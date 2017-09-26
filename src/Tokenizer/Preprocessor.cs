@@ -47,7 +47,7 @@ namespace ParseFive.Tokenizer
             if (this.pos > this.bufferWaterline)
             {
                 this.lastCharPos -= this.pos;
-                this.html = this.html.substring(this.pos);
+                this.html = this.html.Substring(this.pos);
                 this.pos = 0;
                 this.lastGapPos = -1;
                 this.gapStack = new Stack<int>();
@@ -107,9 +107,9 @@ namespace ParseFive.Tokenizer
 
         public void InsertHtmlAtCurrentPos(string chunk)
         {
-            this.html = this.html.substring(0, this.pos + 1) +
+            this.html = this.html.Substring(0, this.pos + 1) +
                         chunk +
-                        this.html.substring(this.pos + 1, this.html.Length);
+                        this.html.Substring(this.pos + 1, this.html.Length);
 
             this.lastCharPos = this.html.Length - 1;
             this.EndOfChunkHit = false;

@@ -494,7 +494,7 @@ namespace ParseFive.Parser
                         if (token.chars.Length == 1)
                             continue;
 
-                        token.chars = token.chars.substr(1);
+                        token.chars = token.chars.Substring(1);
                     }
                 }
 

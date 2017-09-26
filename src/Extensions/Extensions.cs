@@ -49,11 +49,6 @@ namespace ParseFive.Extensions
             return temp;
         }
 
-        public static string substring(this string s, int startIndex) => s.Substring(startIndex);
-        public static string substr(this string s, int startIndex) => s.Substring(startIndex);
-
-        public static string substring(this string s, int startIndex, int length) => s.Substring(startIndex, length);
-
         public static int charCodeAt(this string str, int index) => (int)str[index];
     }
 }
