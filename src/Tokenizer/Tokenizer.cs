@@ -22,7 +22,7 @@ namespace ParseFive.Tokenizer
         public _Attribute(string state) => State = state;
     }
 
-    class Tokenizer
+    sealed class Tokenizer
     {
         // Replacement code points for numeric entities
 
