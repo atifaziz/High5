@@ -4,6 +4,7 @@ namespace ParseFive.Tokenizer
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using Extensions;
     using static NamedEntityData;
     using String = Compatibility.String;
@@ -111,38 +112,44 @@ namespace ParseFive.Tokenizer
 
         // Utils
 
-        // OPTIMIZATION: these utility functions should not be moved out of this module. V8 Crankshaft will not inline
-        // this functions if they will be situated in another module due to context switch.
-        // Always perform inlining check before modifying this functions ("node --trace-inlining").
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isWhitespace(int cp) =>
             cp == CP.SPACE || cp == CP.LINE_FEED || cp == CP.TABULATION || cp == CP.FORM_FEED;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isAsciiDigit(int cp) =>
             cp >= CP.DIGIT_0 && cp <= CP.DIGIT_9;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isAsciiUpper(int cp) =>
             cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_Z;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isAsciiLower(int cp) =>
             cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_Z;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isAsciiLetter(int cp) =>
             isAsciiLower(cp) || isAsciiUpper(cp);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isAsciiAlphaNumeric(int cp) =>
             isAsciiLetter(cp) || isAsciiDigit(cp);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isDigit(int cp, bool isHex) =>
             isAsciiDigit(cp) || isHex && (cp >= CP.LATIN_CAPITAL_A && cp <= CP.LATIN_CAPITAL_F ||
                                           cp >= CP.LATIN_SMALL_A && cp <= CP.LATIN_SMALL_F);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isReservedCodePoint(long cp) =>
             cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool isReservedCodePoint(int cp) =>
             cp >= 0xD800 && cp <= 0xDFFF || cp > 0x10FFFF;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int toAsciiLowerCodePoint(int cp) =>
             cp + 0x0020;
 
