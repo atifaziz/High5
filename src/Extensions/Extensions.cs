@@ -35,20 +35,12 @@ namespace ParseFive.Extensions
         public static int indexOf(this string str, char ch) =>
             str.IndexOf(ch);
 
-        public static int indexOf(this string str, string search) =>
-            str.IndexOf(search, StringComparison.Ordinal);
-
         public static string toLowerCase(this String str)
         {
             return str.ToLower();
         }
 
         public static int length<T>(this T[] array) => array.Length;
-
-        public static int indexOf<T> (this T[] first, T e)
-        {
-            return Array.IndexOf(first, e);
-        }
 
         public static void push<T>(this List<T> list, T elem)
         {

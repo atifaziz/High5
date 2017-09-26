@@ -129,7 +129,7 @@ namespace ParseFive.Common
         {
             for (var i = 0; i < prefixes.Length; i++)
             {
-                if (publicId.indexOf(prefixes[i]) == 0)
+                if (publicId.IndexOf(prefixes[i], StringComparison.Ordinal) == 0)
                     return true;
             }
             return false;
@@ -147,7 +147,7 @@ namespace ParseFive.Common
             {
                 publicId = publicId.toLowerCase();
 
-                if (QuirksModePublicIds.indexOf(publicId) > -1)
+                if (Array.IndexOf(QuirksModePublicIds, publicId) > -1)
                     return DOCUMENT_MODE.QUIRKS;
 
                 string[] prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
