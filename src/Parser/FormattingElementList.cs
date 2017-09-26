@@ -4,14 +4,14 @@ using ParseFive.Tokenizer;
 //using Attrs = ParseFive.Extensions.List<Attr>;
 
 
-public abstract class IEntry
+abstract class IEntry
 {
     public string type { get; set; }
     public Element element { get; set; }
     public Token token { get; set; }
 }
 
-public class MarkerEntry : IEntry
+class MarkerEntry : IEntry
 {
     public MarkerEntry(string type)
     {
@@ -19,7 +19,7 @@ public class MarkerEntry : IEntry
     }
 }
 
-public class ElementEntry : IEntry
+class ElementEntry : IEntry
 {
     public ElementEntry(string type, Element element, Token token)
     {
