@@ -118,24 +118,6 @@ namespace ParseFive.Common
             }
         }
 
-        static string enquoteDoctypeId(string id)
-        {
-            char quote = id.indexOf('"') != -1
-                        ? '\\'
-                        : '"';
-            return quote + id + quote;
-        }
-
-        static bool hasPrefix(string publicId, IEnumerable<string> prefixes)
-        {
-            foreach (var prefix in prefixes)
-            {
-                if (publicId.IndexOf(prefix, StringComparison.Ordinal) == 0)
-                    return true;
-            }
-            return false;
-        }
-
         public static string getDocumentMode(string name, string publicId, string systemId)
         {
             if (name != ValidDoctypeName)
@@ -153,16 +135,26 @@ namespace ParseFive.Common
 
                 string[] prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
 
-                if (hasPrefix(publicId, prefixes))
+                if (HasPrefix(publicId, prefixes))
                     return DOCUMENT_MODE.QUIRKS;
 
                 prefixes = systemId == null ? LimitedQuirksPublicIdPrefixes : LimitedQuirksWithSystemIdPublicIdPrefixes;
 
-                if (hasPrefix(publicId, prefixes))
+                if (HasPrefix(publicId, prefixes))
                     return DOCUMENT_MODE.LIMITED_QUIRKS;
             }
 
             return DOCUMENT_MODE.NO_QUIRKS;
+
+            bool HasPrefix(string str, IEnumerable<string> prefixes)
+            {
+                foreach (var prefix in prefixes)
+                {
+                    if (str.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                        return true;
+                }
+                return false;
+            }
         }
 
         public static string serializeContent(string name, string publicId, string systemId)
@@ -173,15 +165,23 @@ namespace ParseFive.Common
                 str += name;
 
             if (publicId != null)
-                str += " PUBLIC " + enquoteDoctypeId(publicId);
+                str += " PUBLIC " + EnquoteDoctypeId(publicId);
 
             else if (systemId != null)
                 str += " SYSTEM";
 
             if (systemId != null)
-                str += " " + enquoteDoctypeId(systemId);
+                str += " " + EnquoteDoctypeId(systemId);
 
             return str;
+
+            string EnquoteDoctypeId(string id)
+            {
+                char quote = id.indexOf('"') != -1
+                           ? '\\'
+                           : '"';
+                return quote + id + quote;
+            }
         }
     }
 }
