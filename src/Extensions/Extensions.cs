@@ -4,17 +4,21 @@ using System.Linq;
 
 namespace ParseFive.Extensions
 {
-    public static class Extensions
+    static class BooleanExtensions
     {
         public static bool IsTruthy(this object o) => o != null;
-        public static bool IsTruthy(this string s) => !string.IsNullOrEmpty(s);
+        public static bool IsTruthy(this string s) => !String.IsNullOrEmpty(s);
         public static bool IsTruthy(this int n) => n != 0;
+    }
 
-        public static string toLowerCase(this String str)
-        {
-            return str.ToLower();
-        }
+    static class StringExtensions
+    {
+        public static string toLowerCase(this string str) => str.ToLower();
+        public static int charCodeAt(this string str, int index) => (int)str[index];
+    }
 
+    public static class ListExtensions
+    {
         public static void push<T>(this List<T> list, T elem)
         {
             list.Add(elem);
@@ -48,7 +52,5 @@ namespace ParseFive.Extensions
             list.RemoveAt(0);
             return temp;
         }
-
-        public static int charCodeAt(this string str, int index) => (int)str[index];
     }
 }
