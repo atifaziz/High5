@@ -193,18 +193,6 @@ namespace ParseFive.Tokenizer
             return -1;
         }
 
-        // Token types
-
-        public const string CHARACTER_TOKEN = "CHARACTER_TOKEN";
-        public const string NULL_CHARACTER_TOKEN = "NULL_CHARACTER_TOKEN";
-        public const string WHITESPACE_CHARACTER_TOKEN = "WHITESPACE_CHARACTER_TOKEN";
-        public const string START_TAG_TOKEN = "START_TAG_TOKEN";
-        public const string END_TAG_TOKEN = "END_TAG_TOKEN";
-        public const string COMMENT_TOKEN = "COMMENT_TOKEN";
-        public const string DOCTYPE_TOKEN = "DOCTYPE_TOKEN";
-        public const string EOF_TOKEN = "EOF_TOKEN";
-        public const string HIBERNATION_TOKEN = "HIBERNATION_TOKEN";
-
         // Fields
 
         readonly Preprocessor preprocessor;
@@ -327,7 +315,7 @@ namespace ParseFive.Tokenizer
                     this.preprocessor.Retreat();
 
                 this.active = false;
-                this.tokenQueue.push(new Token(HIBERNATION_TOKEN));
+                this.tokenQueue.push(new Token(TokenType.HIBERNATION_TOKEN));
 
                 return true;
             }
@@ -430,22 +418,22 @@ namespace ParseFive.Tokenizer
 
         void createStartTagToken()
         {
-            this.currentToken = new Token(START_TAG_TOKEN, "", false, new Attrs());
+            this.currentToken = new Token(TokenType.START_TAG_TOKEN, "", false, new Attrs());
         }
 
         void createEndTagToken()
         {
-            this.currentToken = new Token(END_TAG_TOKEN, "", new Attrs());
+            this.currentToken = new Token(TokenType.END_TAG_TOKEN, "", new Attrs());
         }
 
         void createCommentToken()
         {
-            this.currentToken = new Token(COMMENT_TOKEN, "");
+            this.currentToken = new Token(TokenType.COMMENT_TOKEN, "");
         }
 
         void createDoctypeToken(string initialName)
         {
-            this.currentToken = new Token(DOCTYPE_TOKEN, name: initialName, forceQuirks: false, publicId: null, systemId: null);
+            this.currentToken = new Token(TokenType.DOCTYPE_TOKEN, name: initialName, forceQuirks: false, publicId: null, systemId: null);
         }
 
         void createCharacterToken(string type, string ch)
@@ -493,7 +481,7 @@ namespace ParseFive.Tokenizer
             this.emitCurrentCharacterToken();
 
             // NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
-            if (this.currentToken.type == START_TAG_TOKEN)
+            if (this.currentToken.type == TokenType.START_TAG_TOKEN)
                 this.lastStartTagName = this.currentToken.tagName;
 
             this.tokenQueue.push(this.currentToken);
@@ -512,7 +500,7 @@ namespace ParseFive.Tokenizer
         void emitEOFToken()
         {
             this.emitCurrentCharacterToken();
-            this.tokenQueue.push(new Token(EOF_TOKEN));
+            this.tokenQueue.push(new Token(TokenType.EOF_TOKEN));
         }
 
         // Characters emission
@@ -540,13 +528,13 @@ namespace ParseFive.Tokenizer
 
         void emitCodePoint(int cp)
         {
-            var type = CHARACTER_TOKEN;
+            var type = TokenType.CHARACTER_TOKEN;
 
             if (isWhitespace(cp))
-                type = WHITESPACE_CHARACTER_TOKEN;
+                type = TokenType.WHITESPACE_CHARACTER_TOKEN;
 
             else if (cp == CP.NULL)
-                type = NULL_CHARACTER_TOKEN;
+                type = TokenType.NULL_CHARACTER_TOKEN;
 
             this.appendCharToCurrentCharacterToken(type, toChar(cp));
         }
@@ -563,7 +551,7 @@ namespace ParseFive.Tokenizer
         void emitChar(char ch) => emitChar(ch.ToString());
         void emitChar(string ch)
         {
-            this.appendCharToCurrentCharacterToken(CHARACTER_TOKEN, ch);
+            this.appendCharToCurrentCharacterToken(TokenType.CHARACTER_TOKEN, ch);
         }
 
         // Character reference tokenization

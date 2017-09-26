@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using static ParseFive.Tokenizer.Tokenizer;
+using static ParseFive.Tokenizer.TokenType;
 using static ParseFive.Parser.Parser;
 using ParseFive.Tokenizer;
 
