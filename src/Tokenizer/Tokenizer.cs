@@ -418,7 +418,7 @@ namespace ParseFive.Tokenizer
             this.currentToken = new Token(TokenType.DOCTYPE_TOKEN, name: initialName, forceQuirks: false, publicId: null, systemId: null);
         }
 
-        void CreateCharacterToken(string type, string ch)
+        void CreateCharacterToken(TokenType type, string ch)
         {
             this.currentCharacterToken = new Token(type, ch[0]);
         }
@@ -496,7 +496,7 @@ namespace ParseFive.Tokenizer
         // 2)WHITESPACE_CHARACTER_TOKEN - any whitespace/new-line character sequences (e.g. '\n  \r\t   \f')
         // 3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#ɑ%^')
 
-        void AppendCharToCurrentCharacterToken(string type, string ch)
+        void AppendCharToCurrentCharacterToken(TokenType type, string ch)
         {
             if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.type != type)
                 this.EmitCurrentCharacterToken();

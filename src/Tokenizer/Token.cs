@@ -4,7 +4,7 @@ namespace ParseFive.Tokenizer
 
     sealed class Token
     {
-        public string type { get; set; }
+        public TokenType type { get; set; }
         public string tagName { get; set; }
         public List<Attr> attrs { get; set; }
         public bool selfClosing { get; set; }
@@ -15,7 +15,7 @@ namespace ParseFive.Tokenizer
         public string systemId { get; set; }
         public string chars { get; set; }
 
-        public Token(string type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
+        public Token(TokenType type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
         {
             this.type = type;
             this.tagName = tagName;
@@ -23,26 +23,26 @@ namespace ParseFive.Tokenizer
             this.attrs = attrs;
         }
 
-        public Token(string type, char ch)
+        public Token(TokenType type, char ch)
         {
             this.type = type;
             this.chars = ch.ToString();
         }
 
-        public Token(string type, string tagName, List<Attr> attrs) //end tag
+        public Token(TokenType type, string tagName, List<Attr> attrs) //end tag
         {
             this.type = type;
             this.tagName = tagName;
             this.attrs = attrs;
         }
 
-        public Token(string type, string data) //Comment
+        public Token(TokenType type, string data) //Comment
         {
             this.type = type;
             this.data = data;
         }
 
-        public Token(string type, string name, bool forceQuirks, string publicId, string systemId) //Doctype
+        public Token(TokenType type, string name, bool forceQuirks, string publicId, string systemId) //Doctype
         {
             this.type = type;
             this.name = name;
@@ -51,7 +51,7 @@ namespace ParseFive.Tokenizer
             this.systemId = systemId;
         }
 
-        public Token(string type) //Hibernation && EOF
+        public Token(TokenType type) //Hibernation && EOF
         {
             this.type = type;
         }
