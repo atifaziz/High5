@@ -6,9 +6,9 @@ using NS = HTML.NAMESPACES;
 
 namespace ParseFive.Parser
 {
-    class OpenElementStack
+    sealed class OpenElementStack
     {
-        class TreeAdapter
+        sealed class TreeAdapter
         {
             public readonly Func<Element, string> getNamespaceURI;
             public readonly Func<Element, string> getTagName;
