@@ -214,9 +214,9 @@ namespace ParseFive.Common
         public static bool CausesExit(Token startTagToken)
         {
             var tn = startTagToken.tagName;
-            var isFontWithAttrs = tn == T.FONT && (Tokenizer.getTokenAttr(startTagToken, ATTRS.COLOR) != null ||
-                                                    Tokenizer.getTokenAttr(startTagToken, ATTRS.SIZE) != null ||
-                                                    Tokenizer.getTokenAttr(startTagToken, ATTRS.FACE) != null);
+            var isFontWithAttrs = tn == T.FONT && (Tokenizer.GetTokenAttr(startTagToken, ATTRS.COLOR) != null ||
+                                                    Tokenizer.GetTokenAttr(startTagToken, ATTRS.SIZE) != null ||
+                                                    Tokenizer.GetTokenAttr(startTagToken, ATTRS.FACE) != null);
 
             return isFontWithAttrs ? true : ExitsForeignContent.TryGetValue(tn, out var value) ? value : false;
         }
