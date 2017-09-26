@@ -6,7 +6,5 @@ namespace ParseFive.Compatibility
         {
             return (char)cp;
         }
-
-        public static bool isTruthy(this string str) => !string.IsNullOrEmpty(str);
     }
 }
