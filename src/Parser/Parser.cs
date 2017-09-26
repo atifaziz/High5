@@ -20,7 +20,7 @@ namespace ParseFive.Parser
     // ReSharper disable InconsistentNaming
     // ReSharper disable ArrangeThisQualifier
 
-    public class Parser
+    public sealed class Parser
     {
         //Misc constants
         const string HIDDEN_INPUT_TYPE = "hidden";
