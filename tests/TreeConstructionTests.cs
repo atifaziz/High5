@@ -241,7 +241,7 @@ namespace ParseFive.Tests
             const string nsMath = "http://www.w3.org/1998/Math/MathML";
             const string nsHtml = "http://www.w3.org/1999/xhtml";
 
-            var parse = new Func<Parser, string, Node>((p, s) => p.parse(s));
+            var parse = new Func<Parser, string, Node>((p, s) => p.Parse(s));
 
             if (documentFragment != null)
             {
@@ -258,7 +258,7 @@ namespace ParseFive.Tests
                                : nsHtml,
                         new List<Attr>());
 
-                parse = (p, s) => p.parseFragment(s, context);
+                parse = (p, s) => p.ParseFragment(s, context);
             }
 
             var parser = new Parser();
