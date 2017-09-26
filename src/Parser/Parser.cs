@@ -477,7 +477,7 @@ namespace ParseFive.Parser
         {
             while (!this.stopped)
             {
-                this.SetupTokenizerCdataMode();
+                this.SetupTokenizerCDataMode();
 
                 var token = this.tokenizer.GetNextToken();
 
@@ -524,7 +524,7 @@ namespace ParseFive.Parser
         }
 
         //Text parsing
-        void SetupTokenizerCdataMode()
+        void SetupTokenizerCDataMode()
         {
             var current = this.GetAdjustedCurrentElement();
 
