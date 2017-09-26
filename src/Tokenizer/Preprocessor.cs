@@ -8,7 +8,7 @@ namespace ParseFive.Tokenizer
 
     sealed class Preprocessor
     {
-        const int DEFAULT_BUFFER_WATERLINE = 1 << 16;
+        const int DefaultBufferWaterline = 1 << 16;
 
         string html;
 
@@ -39,7 +39,7 @@ namespace ParseFive.Tokenizer
 
             this.lastChunkWritten = false;
             this.EndOfChunkHit = false;
-            this.bufferWaterline = DEFAULT_BUFFER_WATERLINE;
+            this.bufferWaterline = DefaultBufferWaterline;
         }
 
         public void DropParsedChunk()
