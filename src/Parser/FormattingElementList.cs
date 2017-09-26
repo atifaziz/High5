@@ -162,7 +162,7 @@ namespace ParseFive.Parser
                     break;
             }
 
-            this.entries.splice(bookmarkIdx + 1, 0, new ElementEntry(FormattingElementList.ELEMENT_ENTRY, element, token));
+            this.entries.splice(bookmarkIdx + 1, 0, new ElementEntry(ELEMENT_ENTRY, element, token));
 
             this.length++;
         }
@@ -188,7 +188,7 @@ namespace ParseFive.Parser
 
                 this.length--;
 
-                if (entry.type == FormattingElementList.MARKER_ENTRY)
+                if (entry.type == MARKER_ENTRY)
                     break;
             }
         }
@@ -201,7 +201,7 @@ namespace ParseFive.Parser
             {
                 var entry = this.entries[i];
 
-                if (entry.type == FormattingElementList.MARKER_ENTRY)
+                if (entry.type == MARKER_ENTRY)
                     return null;
 
                 if (this.treeAdapter.getTagName(entry.element) == tagName)
