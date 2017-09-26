@@ -94,19 +94,20 @@ namespace ParseFive.Tokenizer
         public const string HIBERNATION_TOKEN = "HIBERNATION_TOKEN";
 
         //Fields
-        private Preprocessor preprocessor;
-        private TokenQueue tokenQueue;
+        Preprocessor preprocessor;
+
+        TokenQueue tokenQueue;
         public bool allowCDATA;
         public string state { get ; set ; }
-        private string returnState;
-        private TempBuff tempBuff;
-        private int additionalAllowedCp;
-        private string lastStartTagName;
-        private int consumedAfterSnapshot;
-        private bool active;
-        private Token currentCharacterToken;
-        private Token currentToken;
-        private Attr currentAttr;
+        string returnState;
+        TempBuff tempBuff;
+        int additionalAllowedCp;
+        string lastStartTagName;
+        int consumedAfterSnapshot;
+        bool active;
+        Token currentCharacterToken;
+        Token currentToken;
+        Attr currentAttr;
 
 
         //Tokenizer

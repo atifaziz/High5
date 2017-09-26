@@ -64,13 +64,13 @@ namespace ParseFive.Tokenizer
             }
         }
 
-        private void addGap()
+        void addGap()
         {
             this.gapStack.Push(this.lastGapPos);
             this.lastGapPos = this.pos;
         }
 
-        private int processHighRangeCodePoint(int cp)
+        int processHighRangeCodePoint(int cp)
         {
             //NOTE: try to peek a surrogate pair
             if (this.pos != this.lastCharPos)

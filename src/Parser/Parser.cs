@@ -21,24 +21,24 @@ namespace ParseFive.Parser
     {
         readonly TreeAdapter treeAdapter;
         Element pendingScript;
-        private string originalInsertionMode;
-        private Element headElement;
-        private Element formElement;
-        private OpenElementStack openElements;
-        private FormattingElementList activeFormattingElements;
-        private List<string> tmplInsertionModeStack;
-        private int tmplInsertionModeStackTop;
-        private string currentTmplInsertionMode;
-        private List<Token> pendingCharacterTokens;
-        private bool hasNonWhitespacePendingCharacterToken;
-        private bool framesetOk;
-        private bool skipNextNewLine;
-        private bool fosterParentingEnabled;
+        string originalInsertionMode;
+        Element headElement;
+        Element formElement;
+        OpenElementStack openElements;
+        FormattingElementList activeFormattingElements;
+        List<string> tmplInsertionModeStack;
+        int tmplInsertionModeStackTop;
+        string currentTmplInsertionMode;
+        List<Token> pendingCharacterTokens;
+        bool hasNonWhitespacePendingCharacterToken;
+        bool framesetOk;
+        bool skipNextNewLine;
+        bool fosterParentingEnabled;
 
         Tokenizer.Tokenizer tokenizer;
         public bool stopped { get; private set; }
         public string insertionMode { get; private set; }
-        private Node document { get; set; }
+        Node document { get; set; }
         public Node fragmentContext { get; private set; }
 
         internal class Location
@@ -110,7 +110,7 @@ namespace ParseFive.Parser
         }
 
         //Bootstrap parser
-        private void _bootstrap(Node document, Node fragmentContext)
+        void _bootstrap(Node document, Node fragmentContext)
         {
             this.tokenizer = new Tokenizer.Tokenizer();
 
@@ -1793,7 +1793,7 @@ namespace ParseFive.Parser
             p._closePElement();
         }
 
-        private static void pEndTagInBody(Parser p, Token token)
+        static void pEndTagInBody(Parser p, Token token)
         {
             pEndTagInBody(p);
         }
