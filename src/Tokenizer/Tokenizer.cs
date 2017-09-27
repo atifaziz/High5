@@ -200,6 +200,7 @@ namespace ParseFive.Tokenizer
         Attr currentAttr;
 
         DoctypeToken CurrentDoctypeToken => (DoctypeToken) currentToken;
+        CommentToken CurrentCommentToken => (CommentToken) currentToken;
 
         // Tokenizer
 
@@ -412,7 +413,7 @@ namespace ParseFive.Tokenizer
 
         void CreateCommentToken()
         {
-            this.currentToken = new Token(TokenType.COMMENT_TOKEN, "");
+            this.currentToken = new CommentToken("");
         }
 
         void CreateDoctypeToken(string initialName)
@@ -1789,7 +1790,7 @@ namespace ParseFive.Tokenizer
 
                     else
                     {
-                        @this.currentToken.Data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
+                        @this.CurrentCommentToken.Data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
 
                         @this.HibernationSnapshot();
                         cp = @this.Consume();
@@ -1840,7 +1841,7 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1858,7 +1859,7 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1872,8 +1873,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.Data += '-';
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += '-';
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1891,8 +1892,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.Data += '-';
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += '-';
+                    @this.CurrentCommentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1905,7 +1906,7 @@ namespace ParseFive.Tokenizer
                     @this.State = COMMENT_END_DASH_STATE;
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                 {
@@ -1914,7 +1915,7 @@ namespace ParseFive.Tokenizer
                 }
 
                 else
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += ToChar(cp);
             }
 
             // 12.2.4.49 Comment end dash state
@@ -1926,8 +1927,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.Data += '-';
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += '-';
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1939,8 +1940,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.Data += '-';
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += '-';
+                    @this.CurrentCommentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1959,12 +1960,12 @@ namespace ParseFive.Tokenizer
                     @this.State = COMMENT_END_BANG_STATE;
 
                 else if (cp == CP.HYPHEN_MINUS)
-                    @this.currentToken.Data += '-';
+                    @this.CurrentCommentToken.Data += '-';
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.Data += "--";
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += "--";
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1976,8 +1977,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.Data += "--";
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += "--";
+                    @this.CurrentCommentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1988,7 +1989,7 @@ namespace ParseFive.Tokenizer
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
-                    @this.currentToken.Data += "--!";
+                    @this.CurrentCommentToken.Data += "--!";
                     @this.State = COMMENT_END_DASH_STATE;
                 }
 
@@ -2000,8 +2001,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.Data += "--!";
-                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentCommentToken.Data += "--!";
+                    @this.CurrentCommentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -2013,8 +2014,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.Data += "--!";
-                    @this.currentToken.Data += ToChar(cp);
+                    @this.CurrentCommentToken.Data += "--!";
+                    @this.CurrentCommentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }

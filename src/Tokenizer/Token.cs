@@ -9,7 +9,6 @@ namespace ParseFive.Tokenizer
         public string TagName { get; set; }
         public List<Attr> Attrs { get; set; }
         public bool SelfClosing { get; set; }
-        public string Data { get; set; }
         public string Chars { get; set; }
 
         public Token(TokenType type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
@@ -31,12 +30,6 @@ namespace ParseFive.Tokenizer
             this.Type = type;
             this.TagName = tagName;
             this.Attrs = attrs;
-        }
-
-        public Token(TokenType type, string data) //Comment
-        {
-            this.Type = type;
-            this.Data = data;
         }
 
         public Token(TokenType type) //Hibernation && EOF
@@ -62,6 +55,17 @@ namespace ParseFive.Tokenizer
             this.ForceQuirks = forceQuirks;
             this.PublicId = publicId;
             this.SystemId = systemId;
+        }
+    }
+
+    sealed class CommentToken : Token
+    {
+        public string Data { get; set; }
+
+        public CommentToken(string data) :
+            base(COMMENT_TOKEN)
+        {
+            this.Data = data;
         }
     }
 }

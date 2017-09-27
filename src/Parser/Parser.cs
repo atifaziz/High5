@@ -657,7 +657,7 @@ namespace ParseFive.Parser
             this.openElements.Push(element);
         }
 
-        void AppendCommentNode(Token token, Node parent)
+        void AppendCommentNode(CommentToken token, Node parent)
         {
             var commentNode = this.treeAdapter.CreateCommentNode(token.Data);
 
@@ -1190,17 +1190,17 @@ namespace ParseFive.Parser
 
         static void AppendComment(Parser p, Token token)
         {
-            p.AppendCommentNode(token, p.openElements.CurrentTmplContent ?? p.openElements.Current); //|| operator
+            p.AppendCommentNode((CommentToken) token, p.openElements.CurrentTmplContent ?? p.openElements.Current); //|| operator
         }
 
         static void AppendCommentToRootHtmlElement(Parser p, Token token)
         {
-            p.AppendCommentNode(token, p.openElements[0]);
+            p.AppendCommentNode((CommentToken) token, p.openElements[0]);
         }
 
         static void AppendCommentToDocument(Parser p, Token token)
         {
-            p.AppendCommentNode(token, p.document);
+            p.AppendCommentNode((CommentToken) token, p.document);
         }
 
         static void InsertCharacters(Parser p, Token token)
