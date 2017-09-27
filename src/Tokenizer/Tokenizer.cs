@@ -199,11 +199,41 @@ namespace ParseFive.Tokenizer
         Token currentToken;
         Attr currentAttr;
 
-        DoctypeToken CurrentDoctypeToken => (DoctypeToken) currentToken;
-        CommentToken CurrentCommentToken => (CommentToken) currentToken;
-        TagToken CurrentTagToken => (TagToken) currentToken;
-        StartTagToken CurrentStartTagToken => (StartTagToken) currentToken;
-        EndTagToken CurrentEndTagToken => (EndTagToken) currentToken;
+        DoctypeToken  currentDoctypeToken ;
+        CommentToken  currentCommentToken ;
+        StartTagToken currentStartTagToken;
+        EndTagToken   currentEndTagToken  ;
+
+        DoctypeToken  CurrentDoctypeToken  => currentDoctypeToken ;
+        CommentToken  CurrentCommentToken  => currentCommentToken ;
+        TagToken      CurrentTagToken      => (TagToken) currentStartTagToken ?? currentEndTagToken;
+        StartTagToken CurrentStartTagToken => currentStartTagToken;
+        EndTagToken   CurrentEndTagToken   => currentEndTagToken  ;
+
+        public Token CurrentToken
+        {
+            get => currentToken;
+            set
+            {
+                switch (value)
+                {
+                    case DoctypeToken t: SetCurrentTokens(value, doctype: t); break;
+                    case CommentToken t: SetCurrentTokens(value, comment: t); break;
+                    case StartTagToken t: SetCurrentTokens(value, start: t); break;
+                    case EndTagToken t: SetCurrentTokens(value, end: t); break;
+                    default: SetCurrentTokens(value); break;
+                }
+            }
+        }
+
+        void SetCurrentTokens(Token value, DoctypeToken doctype = null, CommentToken comment = null, StartTagToken start = null, EndTagToken end = null)
+        {
+            currentToken = value;
+            currentDoctypeToken = doctype;
+            currentCommentToken = comment;
+            currentStartTagToken = start;
+            currentEndTagToken = end;
+        }
 
         // Tokenizer
 
@@ -226,7 +256,7 @@ namespace ParseFive.Tokenizer
             this.active = false;
 
             this.currentCharacterToken = null;
-            this.currentToken = null;
+            this.CurrentToken = null;
             this.currentAttr = null;
         }
 
@@ -406,22 +436,22 @@ namespace ParseFive.Tokenizer
 
         void CreateStartTagToken()
         {
-            this.currentToken = new StartTagToken("", false, new List<Attr>());
+            this.CurrentToken = new StartTagToken("", false, new List<Attr>());
         }
 
         void CreateEndTagToken()
         {
-            this.currentToken = new EndTagToken("", new List<Attr>());
+            this.CurrentToken = new EndTagToken("", new List<Attr>());
         }
 
         void CreateCommentToken()
         {
-            this.currentToken = new CommentToken("");
+            this.CurrentToken = new CommentToken("");
         }
 
         void CreateDoctypeToken(string initialName)
         {
-            this.currentToken = new DoctypeToken(initialName);
+            this.CurrentToken = new DoctypeToken(initialName);
         }
 
         void CreateCharacterToken(TokenType type, string ch)
@@ -469,11 +499,11 @@ namespace ParseFive.Tokenizer
             this.EmitCurrentCharacterToken();
 
             // NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
-            if (this.currentToken is StartTagToken startTagToken)
+            if (this.CurrentToken is StartTagToken startTagToken)
                 this.lastStartTagName = startTagToken.TagName;
 
-            this.tokenQueue.Push(this.currentToken);
-            this.currentToken = null;
+            this.tokenQueue.Push(this.CurrentToken);
+            this.CurrentToken = null;
         }
 
         void EmitCurrentCharacterToken()
@@ -1752,7 +1782,7 @@ namespace ParseFive.Tokenizer
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    if (@this.currentToken is StartTagToken startTagToken)
+                    if (@this.CurrentToken is StartTagToken startTagToken)
                         startTagToken.SelfClosing = true;
                     @this.State = DATA_STATE;
                     @this.EmitCurrentToken();
