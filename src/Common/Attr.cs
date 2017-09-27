@@ -1,9 +1,9 @@
 public class Attr
 {
-    public string prefix;
-    public string name;
-    public string @namespace;
-    public string value;
+    public string prefix { get; internal set; }
+    public string name { get; internal set; }
+    public string @namespace { get; internal set; }
+    public string value { get; internal set; }
 
     public Attr(string name, string value)
     {
