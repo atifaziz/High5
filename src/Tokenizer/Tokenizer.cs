@@ -12,10 +12,10 @@ namespace ParseFive.Tokenizer
 
     static class NamedEntityTreeFlags
     {
-        public const int HAS_DATA_FLAG = 1 << 0;
-        public const int DATA_DUPLET_FLAG = 1 << 1;
-        public const int HAS_BRANCHES_FLAG = 1 << 2;
-        public const int MAX_BRANCH_MARKER_VALUE = HAS_DATA_FLAG | DATA_DUPLET_FLAG | HAS_BRANCHES_FLAG;
+        public const int HasDataFlag = 1 << 0;
+        public const int DataDupletFlag = 1 << 1;
+        public const int HasBranchesFlag = 1 << 2;
+        public const int MaxBranchMarkerValue = HasDataFlag | DataDupletFlag | HasBranchesFlag;
     }
 
     sealed class Tokenizer
@@ -587,12 +587,12 @@ namespace ParseFive.Tokenizer
             for (var i = 0; i > -1;)
             {
                 var current = neTree[i];
-                var inNode = current < MAX_BRANCH_MARKER_VALUE;
-                var nodeWithData = inNode && (current & HAS_DATA_FLAG) == HAS_DATA_FLAG;
+                var inNode = current < MaxBranchMarkerValue;
+                var nodeWithData = inNode && (current & HasDataFlag) == HasDataFlag;
 
                 if (nodeWithData)
                 {
-                    referencedCodePoints = (current & DATA_DUPLET_FLAG) == DATA_DUPLET_FLAG ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] };
+                    referencedCodePoints = (current & DataDupletFlag) == DataDupletFlag ? new[] { neTree[++i], neTree[++i] } : new[] { neTree[++i] };
                     referenceSize = consumedCount;
 
                     if (cp == CP.SEMICOLON)
@@ -611,7 +611,7 @@ namespace ParseFive.Tokenizer
                     break;
 
                 if (inNode)
-                    i = (current & HAS_BRANCHES_FLAG) == HAS_BRANCHES_FLAG ? FindNamedEntityTreeBranch(i, cp) : -1;
+                    i = (current & HasBranchesFlag) == HasBranchesFlag ? FindNamedEntityTreeBranch(i, cp) : -1;
 
                 else
                     i = cp == current ? ++i : -1;
