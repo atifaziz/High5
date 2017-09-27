@@ -593,7 +593,7 @@ namespace ParseFive.Parser
         }
 
         //Tree mutation
-        void SetDocumentType(Token token)
+        void SetDocumentType(DoctypeToken token)
         {
             this.treeAdapter.SetDocumentType((Document) this.document, token.Name, token.PublicId, token.SystemId);
         }
@@ -1215,8 +1215,9 @@ namespace ParseFive.Parser
 
         //12.2.5.4.1 The "initial" insertion mode
         //------------------------------------------------------------------
-        static void DoctypeInInitialMode(Parser p, Token token)
+        static void DoctypeInInitialMode(Parser p, Token tokenObject)
         {
+            var token = (DoctypeToken) tokenObject;
             p.SetDocumentType(token);
 
             var mode = token.ForceQuirks ?

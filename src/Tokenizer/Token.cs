@@ -1,18 +1,15 @@
 namespace ParseFive.Tokenizer
 {
     using System.Collections.Generic;
+    using static TokenType;
 
-    sealed class Token
+    class Token
     {
         public TokenType Type { get; }
         public string TagName { get; set; }
         public List<Attr> Attrs { get; set; }
         public bool SelfClosing { get; set; }
         public string Data { get; set; }
-        public string Name { get; set; }
-        public bool ForceQuirks { get; set; }
-        public string PublicId { get; set; }
-        public string SystemId { get; set; }
         public string Chars { get; set; }
 
         public Token(TokenType type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
@@ -42,18 +39,29 @@ namespace ParseFive.Tokenizer
             this.Data = data;
         }
 
-        public Token(TokenType type, string name, bool forceQuirks, string publicId, string systemId) //Doctype
+        public Token(TokenType type) //Hibernation && EOF
         {
             this.Type = type;
+        }
+    }
+
+    sealed class DoctypeToken : Token
+    {
+        public string Name { get; set; }
+        public bool ForceQuirks { get; set; }
+        public string PublicId { get; set; }
+        public string SystemId { get; set; }
+
+        public DoctypeToken(string name,
+                            bool forceQuirks = false,
+                            string publicId = null,
+                            string systemId = null) :
+            base(DOCTYPE_TOKEN)
+        {
             this.Name = name;
             this.ForceQuirks = forceQuirks;
             this.PublicId = publicId;
             this.SystemId = systemId;
-        }
-
-        public Token(TokenType type) //Hibernation && EOF
-        {
-            this.Type = type;
         }
     }
 }
