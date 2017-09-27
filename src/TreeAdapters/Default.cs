@@ -37,14 +37,14 @@ namespace ParseFive.TreeAdapters
             newNode.ParentNode = parentNode;
         }
 
-        public void SetTemplateContent(Node templateElement, Node contentElement)
+        public void SetTemplateContent(TemplateElement templateElement, Node contentElement)
         {
-            ((TemplateElement)templateElement).Content = contentElement;
+            (templateElement).Content = contentElement;
         }
 
-        public Node GetTemplateContent(Node templateElement)
+        public Node GetTemplateContent(TemplateElement templateElement)
         {
-            return ((TemplateElement)templateElement).Content;
+            return templateElement.Content;
         }
 
         public void SetDocumentType(Document document, string name, string publicId, string systemId)

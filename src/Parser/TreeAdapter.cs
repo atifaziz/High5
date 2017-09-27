@@ -16,8 +16,8 @@ namespace ParseFive
 
         void AppendChild(Node parentNode, Node newNode);
         void InsertBefore(Node parentNode, Node newNode, Node referenceNode);
-        void SetTemplateContent(Node templateElement, Node contentElement);
-        Node GetTemplateContent(Node templateElement);
+        void SetTemplateContent(TemplateElement templateElement, Node contentElement);
+        Node GetTemplateContent(TemplateElement templateElement);
         void SetDocumentType(Document document, string name, string publicId, string systemId);
         void SetDocumentMode(Document document, string mode);
         string GetDocumentMode(Document document);

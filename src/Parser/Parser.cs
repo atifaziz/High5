@@ -956,7 +956,7 @@ namespace ParseFive.Parser
 
                 if (tn == T.TEMPLATE && ns == NS.HTML)
                 {
-                    location.parent = this.treeAdapter.GetTemplateContent(openElement);
+                    location.parent = this.treeAdapter.GetTemplateContent((TemplateElement) openElement);
                     break;
                 }
 
@@ -1133,7 +1133,7 @@ namespace ParseFive.Parser
                 var ns = p.treeAdapter.GetNamespaceUri(commonAncestor);
 
                 if (tn == T.TEMPLATE && ns == NS.HTML)
-                    commonAncestorNode = p.treeAdapter.GetTemplateContent(commonAncestor);
+                    commonAncestorNode = p.treeAdapter.GetTemplateContent((TemplateElement) commonAncestor);
 
                 p.treeAdapter.AppendChild(commonAncestorNode, lastElement);
             }
