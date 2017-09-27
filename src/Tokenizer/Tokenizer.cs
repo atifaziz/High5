@@ -201,6 +201,9 @@ namespace ParseFive.Tokenizer
 
         DoctypeToken CurrentDoctypeToken => (DoctypeToken) currentToken;
         CommentToken CurrentCommentToken => (CommentToken) currentToken;
+        TagToken CurrentTagToken => (TagToken) currentToken;
+        StartTagToken CurrentStartTagToken => (StartTagToken) currentToken;
+        EndTagToken CurrentEndTagToken => (EndTagToken) currentToken;
 
         // Tokenizer
 
@@ -245,7 +248,7 @@ namespace ParseFive.Tokenizer
 
         // Static
 
-        public static string GetTokenAttr(Token token, string attrName)
+        public static string GetTokenAttr(TagToken token, string attrName)
         {
             for (var i = token.Attrs.Count - 1; i >= 0; i--)
             {
@@ -403,12 +406,12 @@ namespace ParseFive.Tokenizer
 
         void CreateStartTagToken()
         {
-            this.currentToken = new Token(TokenType.START_TAG_TOKEN, "", false, new List<Attr>());
+            this.currentToken = new StartTagToken("", false, new List<Attr>());
         }
 
         void CreateEndTagToken()
         {
-            this.currentToken = new Token(TokenType.END_TAG_TOKEN, "", new List<Attr>());
+            this.currentToken = new EndTagToken("", new List<Attr>());
         }
 
         void CreateCommentToken()
@@ -435,7 +438,7 @@ namespace ParseFive.Tokenizer
 
         bool IsDuplicateAttr()
         {
-            return GetTokenAttr(this.currentToken, this.currentAttr.name) != null;
+            return GetTokenAttr(this.CurrentTagToken, this.currentAttr.name) != null;
         }
 
         void LeaveAttrName(string toState)
@@ -443,7 +446,7 @@ namespace ParseFive.Tokenizer
             this.State = toState;
 
             if (!this.IsDuplicateAttr())
-                this.currentToken.Attrs.Push(this.currentAttr);
+                this.CurrentTagToken.Attrs.Push(this.currentAttr);
         }
 
         void LeaveAttrValue(string toState)
@@ -456,7 +459,7 @@ namespace ParseFive.Tokenizer
 
         bool IsAppropriateEndTagToken()
         {
-            return this.lastStartTagName == this.currentToken.TagName;
+            return this.lastStartTagName == this.CurrentEndTagToken.TagName;
         }
 
         // Token emission
@@ -466,8 +469,8 @@ namespace ParseFive.Tokenizer
             this.EmitCurrentCharacterToken();
 
             // NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
-            if (this.currentToken.Type == TokenType.START_TAG_TOKEN)
-                this.lastStartTagName = this.currentToken.TagName;
+            if (this.currentToken is StartTagToken startTagToken)
+                this.lastStartTagName = startTagToken.TagName;
 
             this.tokenQueue.Push(this.currentToken);
             this.currentToken = null;
@@ -896,16 +899,16 @@ namespace ParseFive.Tokenizer
                 }
 
                 else if (IsAsciiUpper(cp))
-                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
+                    @this.CurrentTagToken.TagName += ToAsciiLowerChar(cp);
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.TagName += CP.REPLACEMENT_CHARACTER;
+                    @this.CurrentTagToken.TagName += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentToken.TagName += ToChar(cp);
+                    @this.CurrentTagToken.TagName += ToChar(cp);
             }
 
             // 12.2.4.11 RCDATA less-than sign state
@@ -949,13 +952,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.TagName += ToChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1031,13 +1034,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.TagName += ToChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1120,13 +1123,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.TagName += ToChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1321,13 +1324,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.TagName += ToChar(cp);
+                    @this.CurrentEndTagToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1749,7 +1752,8 @@ namespace ParseFive.Tokenizer
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.SelfClosing = true;
+                    if (@this.currentToken is StartTagToken startTagToken)
+                        startTagToken.SelfClosing = true;
                     @this.State = DATA_STATE;
                     @this.EmitCurrentToken();
                 }

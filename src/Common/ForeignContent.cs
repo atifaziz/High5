@@ -209,7 +209,7 @@ namespace ParseFive.Common
 
         //Check exit from foreign content
 
-        public static bool CausesExit(Token startTagToken)
+        public static bool CausesExit(StartTagToken startTagToken)
         {
             var tn = startTagToken.TagName;
             var isFontWithAttrs = tn == T.FONT && (Tokenizer.GetTokenAttr(startTagToken, ATTRS.COLOR) != null ||
@@ -221,7 +221,7 @@ namespace ParseFive.Common
 
         //Token adjustments
 
-        public static void AdjustTokenMathMlAttrs(Token token)
+        public static void AdjustTokenMathMlAttrs(StartTagToken token)
         {
             foreach (var attr in token.Attrs)
             {
@@ -233,7 +233,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void AdjustTokenSvgAttrs(Token token)
+        public static void AdjustTokenSvgAttrs(StartTagToken token)
         {
             foreach (var attr in token.Attrs)
             {
@@ -242,7 +242,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void AdjustTokenXmlAttrs(Token token)
+        public static void AdjustTokenXmlAttrs(StartTagToken token)
         {
             foreach (var attr in token.Attrs)
             {
@@ -255,7 +255,7 @@ namespace ParseFive.Common
             }
         }
 
-        public static void AdjustTokenSvgTagName(Token token)
+        public static void AdjustTokenSvgTagName(StartTagToken token)
         {
             if (SvgTagNamesAdjustmentMap.TryGetValue(token.TagName, out var adjustedTagName))
                 token.TagName = adjustedTagName;
