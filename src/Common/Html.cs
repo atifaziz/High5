@@ -37,150 +37,150 @@ namespace ParseFive.Common
 
         public static class TAG_NAMES
         {
-            public static string A = "a";
-            public static string ADDRESS = "address";
-            public static string ANNOTATION_XML = "annotation-xml";
-            public static string APPLET = "applet";
-            public static string AREA = "area";
-            public static string ARTICLE = "article";
-            public static string ASIDE = "aside";
+            public const string A = "a";
+            public const string ADDRESS = "address";
+            public const string ANNOTATION_XML = "annotation-xml";
+            public const string APPLET = "applet";
+            public const string AREA = "area";
+            public const string ARTICLE = "article";
+            public const string ASIDE = "aside";
 
-            public static string B = "b";
-            public static string BASE = "base";
-            public static string BASEFONT = "basefont";
-            public static string BGSOUND = "bgsound";
-            public static string BIG = "big";
-            public static string BLOCKQUOTE = "blockquote";
-            public static string BODY = "body";
-            public static string BR = "br";
-            public static string BUTTON = "button";
+            public const string B = "b";
+            public const string BASE = "base";
+            public const string BASEFONT = "basefont";
+            public const string BGSOUND = "bgsound";
+            public const string BIG = "big";
+            public const string BLOCKQUOTE = "blockquote";
+            public const string BODY = "body";
+            public const string BR = "br";
+            public const string BUTTON = "button";
 
-            public static string CAPTION = "caption";
-            public static string CENTER = "center";
-            public static string CODE = "code";
-            public static string COL = "col";
-            public static string COLGROUP = "colgroup";
+            public const string CAPTION = "caption";
+            public const string CENTER = "center";
+            public const string CODE = "code";
+            public const string COL = "col";
+            public const string COLGROUP = "colgroup";
 
-            public static string DD = "dd";
-            public static string DESC = "desc";
-            public static string DETAILS = "details";
-            public static string DIALOG = "dialog";
-            public static string DIR = "dir";
-            public static string DIV = "div";
-            public static string DL = "dl";
-            public static string DT = "dt";
+            public const string DD = "dd";
+            public const string DESC = "desc";
+            public const string DETAILS = "details";
+            public const string DIALOG = "dialog";
+            public const string DIR = "dir";
+            public const string DIV = "div";
+            public const string DL = "dl";
+            public const string DT = "dt";
 
-            public static string EM = "em";
-            public static string EMBED = "embed";
+            public const string EM = "em";
+            public const string EMBED = "embed";
 
-            public static string FIELDSET = "fieldset";
-            public static string FIGCAPTION = "figcaption";
-            public static string FIGURE = "figure";
-            public static string FONT = "font";
-            public static string FOOTER = "footer";
-            public static string FOREIGN_OBJECT = "foreignObject";
-            public static string FORM = "form";
-            public static string FRAME = "frame";
-            public static string FRAMESET = "frameset";
+            public const string FIELDSET = "fieldset";
+            public const string FIGCAPTION = "figcaption";
+            public const string FIGURE = "figure";
+            public const string FONT = "font";
+            public const string FOOTER = "footer";
+            public const string FOREIGN_OBJECT = "foreignObject";
+            public const string FORM = "form";
+            public const string FRAME = "frame";
+            public const string FRAMESET = "frameset";
 
-            public static string H1 = "h1";
-            public static string H2 = "h2";
-            public static string H3 = "h3";
-            public static string H4 = "h4";
-            public static string H5 = "h5";
-            public static string H6 = "h6";
-            public static string HEAD = "head";
-            public static string HEADER = "header";
-            public static string HGROUP = "hgroup";
-            public static string HR = "hr";
-            public static string HTML = "html";
+            public const string H1 = "h1";
+            public const string H2 = "h2";
+            public const string H3 = "h3";
+            public const string H4 = "h4";
+            public const string H5 = "h5";
+            public const string H6 = "h6";
+            public const string HEAD = "head";
+            public const string HEADER = "header";
+            public const string HGROUP = "hgroup";
+            public const string HR = "hr";
+            public const string HTML = "html";
 
-            public static string I = "i";
-            public static string IMG = "img";
-            public static string IMAGE = "image";
-            public static string INPUT = "input";
-            public static string IFRAME = "iframe";
+            public const string I = "i";
+            public const string IMG = "img";
+            public const string IMAGE = "image";
+            public const string INPUT = "input";
+            public const string IFRAME = "iframe";
 
-            public static string KEYGEN = "keygen";
+            public const string KEYGEN = "keygen";
 
-            public static string LABEL = "label";
-            public static string LI = "li";
-            public static string LINK = "link";
-            public static string LISTING = "listing";
+            public const string LABEL = "label";
+            public const string LI = "li";
+            public const string LINK = "link";
+            public const string LISTING = "listing";
 
-            public static string MAIN = "main";
-            public static string MALIGNMARK = "malignmark";
-            public static string MARQUEE = "marquee";
-            public static string MATH = "math";
-            public static string MENU = "menu";
-            public static string MENUITEM = "menuitem";
-            public static string META = "meta";
-            public static string MGLYPH = "mglyph";
-            public static string MI = "mi";
-            public static string MO = "mo";
-            public static string MN = "mn";
-            public static string MS = "ms";
-            public static string MTEXT = "mtext";
+            public const string MAIN = "main";
+            public const string MALIGNMARK = "malignmark";
+            public const string MARQUEE = "marquee";
+            public const string MATH = "math";
+            public const string MENU = "menu";
+            public const string MENUITEM = "menuitem";
+            public const string META = "meta";
+            public const string MGLYPH = "mglyph";
+            public const string MI = "mi";
+            public const string MO = "mo";
+            public const string MN = "mn";
+            public const string MS = "ms";
+            public const string MTEXT = "mtext";
 
-            public static string NAV = "nav";
-            public static string NOBR = "nobr";
-            public static string NOFRAMES = "noframes";
-            public static string NOEMBED = "noembed";
-            public static string NOSCRIPT = "noscript";
+            public const string NAV = "nav";
+            public const string NOBR = "nobr";
+            public const string NOFRAMES = "noframes";
+            public const string NOEMBED = "noembed";
+            public const string NOSCRIPT = "noscript";
 
-            public static string OBJECT = "object";
-            public static string OL = "ol";
-            public static string OPTGROUP = "optgroup";
-            public static string OPTION = "option";
+            public const string OBJECT = "object";
+            public const string OL = "ol";
+            public const string OPTGROUP = "optgroup";
+            public const string OPTION = "option";
 
-            public static string P = "p";
-            public static string PARAM = "param";
-            public static string PLAINTEXT = "plaintext";
-            public static string PRE = "pre";
+            public const string P = "p";
+            public const string PARAM = "param";
+            public const string PLAINTEXT = "plaintext";
+            public const string PRE = "pre";
 
-            public static string RB = "rb";
-            public static string RP = "rp";
-            public static string RT = "rt";
-            public static string RTC = "rtc";
-            public static string RUBY = "ruby";
+            public const string RB = "rb";
+            public const string RP = "rp";
+            public const string RT = "rt";
+            public const string RTC = "rtc";
+            public const string RUBY = "ruby";
 
-            public static string S = "s";
-            public static string SCRIPT = "script";
-            public static string SECTION = "section";
-            public static string SELECT = "select";
-            public static string SOURCE = "source";
-            public static string SMALL = "small";
-            public static string SPAN = "span";
-            public static string STRIKE = "strike";
-            public static string STRONG = "strong";
-            public static string STYLE = "style";
-            public static string SUB = "sub";
-            public static string SUMMARY = "summary";
-            public static string SUP = "sup";
+            public const string S = "s";
+            public const string SCRIPT = "script";
+            public const string SECTION = "section";
+            public const string SELECT = "select";
+            public const string SOURCE = "source";
+            public const string SMALL = "small";
+            public const string SPAN = "span";
+            public const string STRIKE = "strike";
+            public const string STRONG = "strong";
+            public const string STYLE = "style";
+            public const string SUB = "sub";
+            public const string SUMMARY = "summary";
+            public const string SUP = "sup";
 
-            public static string TABLE = "table";
-            public static string TBODY = "tbody";
-            public static string TEMPLATE = "template";
-            public static string TEXTAREA = "textarea";
-            public static string TFOOT = "tfoot";
-            public static string TD = "td";
-            public static string TH = "th";
-            public static string THEAD = "thead";
-            public static string TITLE = "title";
-            public static string TR = "tr";
-            public static string TRACK = "track";
-            public static string TT = "tt";
+            public const string TABLE = "table";
+            public const string TBODY = "tbody";
+            public const string TEMPLATE = "template";
+            public const string TEXTAREA = "textarea";
+            public const string TFOOT = "tfoot";
+            public const string TD = "td";
+            public const string TH = "th";
+            public const string THEAD = "thead";
+            public const string TITLE = "title";
+            public const string TR = "tr";
+            public const string TRACK = "track";
+            public const string TT = "tt";
 
-            public static string U = "u";
-            public static string UL = "ul";
+            public const string U = "u";
+            public const string UL = "ul";
 
-            public static string SVG = "svg";
+            public const string SVG = "svg";
 
-            public static string VAR = "var";
+            public const string VAR = "var";
 
-            public static string WBR = "wbr";
+            public const string WBR = "wbr";
 
-            public static string XMP = "xmp";
+            public const string XMP = "xmp";
         }
 
         public static IDictionary<string, IDictionary<string, bool>> SPECIAL_ELEMENTS = new Dictionary<string, IDictionary<string, bool>>
