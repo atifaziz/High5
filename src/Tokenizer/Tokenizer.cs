@@ -303,7 +303,7 @@ namespace ParseFive.Tokenizer
                     this.preprocessor.Retreat();
 
                 this.active = false;
-                this.tokenQueue.Push(new Token(TokenType.HIBERNATION_TOKEN));
+                this.tokenQueue.Push(HibernationToken.Instance);
 
                 return true;
             }
@@ -488,7 +488,7 @@ namespace ParseFive.Tokenizer
         void EmitEofToken()
         {
             this.EmitCurrentCharacterToken();
-            this.tokenQueue.Push(new Token(TokenType.EOF_TOKEN));
+            this.tokenQueue.Push(EofToken.Instance);
         }
 
         // Characters emission

@@ -4,14 +4,28 @@ namespace ParseFive.Tokenizer
     using System.Diagnostics;
     using static TokenType;
 
-    class Token
+    abstract class Token
     {
         public TokenType Type { get; }
 
-        public Token(TokenType type) //Hibernation && EOF
-        {
+        protected Token(TokenType type) =>
             this.Type = type;
-        }
+    }
+
+    sealed class EofToken : Token
+    {
+        public static readonly EofToken Instance = new EofToken();
+
+        EofToken() :
+            base(EOF_TOKEN) { }
+    }
+
+    sealed class HibernationToken : Token
+    {
+        public static readonly HibernationToken Instance = new HibernationToken();
+
+        HibernationToken() :
+            base(HIBERNATION_TOKEN) { }
     }
 
     abstract class TagToken : Token
