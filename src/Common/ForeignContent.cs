@@ -211,7 +211,7 @@ namespace ParseFive.Common
 
         public static bool CausesExit(Token startTagToken)
         {
-            var tn = startTagToken.tagName;
+            var tn = startTagToken.TagName;
             var isFontWithAttrs = tn == T.FONT && (Tokenizer.GetTokenAttr(startTagToken, ATTRS.COLOR) != null ||
                                                     Tokenizer.GetTokenAttr(startTagToken, ATTRS.SIZE) != null ||
                                                     Tokenizer.GetTokenAttr(startTagToken, ATTRS.FACE) != null);
@@ -223,7 +223,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenMathMlAttrs(Token token)
         {
-            foreach (var attr in token.attrs)
+            foreach (var attr in token.Attrs)
             {
                 if (attr.name == DefinitionUrlAttr)
                 {
@@ -235,7 +235,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenSvgAttrs(Token token)
         {
-            foreach (var attr in token.attrs)
+            foreach (var attr in token.Attrs)
             {
                 if (SvgAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrName))
                     attr.name = adjustedAttrName;
@@ -244,7 +244,7 @@ namespace ParseFive.Common
 
         public static void AdjustTokenXmlAttrs(Token token)
         {
-            foreach (var attr in token.attrs)
+            foreach (var attr in token.Attrs)
             {
                 if (XmlAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrEntry))
                 {
@@ -257,8 +257,8 @@ namespace ParseFive.Common
 
         public static void AdjustTokenSvgTagName(Token token)
         {
-            if (SvgTagNamesAdjustmentMap.TryGetValue(token.tagName, out var adjustedTagName))
-                token.tagName = adjustedTagName;
+            if (SvgTagNamesAdjustmentMap.TryGetValue(token.TagName, out var adjustedTagName))
+                token.TagName = adjustedTagName;
         }
 
         //Integration points
