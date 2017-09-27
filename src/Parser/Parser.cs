@@ -105,8 +105,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagBeforeHtml,
-                    [END_TAG_TOKEN] = EndTagBeforeHtml,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHtml),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHtml),
                     [EOF_TOKEN] = TokenBeforeHtml,
                 },
 
@@ -117,8 +117,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagBeforeHead,
-                    [END_TAG_TOKEN] = EndTagBeforeHead,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHead),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHead),
                     [EOF_TOKEN] = TokenBeforeHead,
                 },
 
@@ -129,8 +129,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInHead,
-                    [END_TAG_TOKEN] = EndTagInHead,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInHead),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInHead),
                     [EOF_TOKEN] = TokenInHead,
                 },
 
@@ -141,8 +141,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagAfterHead,
-                    [END_TAG_TOKEN] = EndTagAfterHead,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterHead),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterHead),
                     [EOF_TOKEN] = TokenAfterHead,
                 },
 
@@ -153,8 +153,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInBody,
-                    [END_TAG_TOKEN] = EndTagInBody,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInBody),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInBody),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -166,7 +166,7 @@ namespace ParseFive.Parser
                     [COMMENT_TOKEN] = IgnoreToken,
                     [DOCTYPE_TOKEN] = IgnoreToken,
                     [START_TAG_TOKEN] = IgnoreToken,
-                    [END_TAG_TOKEN] = EndTagInText,
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInText),
                     [EOF_TOKEN] = EofInText,
                 },
 
@@ -177,8 +177,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInTable,
-                    [END_TAG_TOKEN] = EndTagInTable,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTable),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTable),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -201,8 +201,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInCaption,
-                    [END_TAG_TOKEN] = EndTagInCaption,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInCaption),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInCaption),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -213,8 +213,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInColumnGroup,
-                    [END_TAG_TOKEN] = EndTagInColumnGroup,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInColumnGroup),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInColumnGroup),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -225,8 +225,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInTableBody,
-                    [END_TAG_TOKEN] = EndTagInTableBody,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTableBody),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTableBody),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -237,8 +237,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInRow,
-                    [END_TAG_TOKEN] = EndTagInRow,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInRow),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInRow),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -249,8 +249,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInCell,
-                    [END_TAG_TOKEN] = EndTagInCell,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInCell),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInCell),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -261,8 +261,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInSelect,
-                    [END_TAG_TOKEN] = EndTagInSelect,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelect),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelect),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -273,8 +273,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInSelectInTable,
-                    [END_TAG_TOKEN] = EndTagInSelectInTable,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelectInTable),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelectInTable),
                     [EOF_TOKEN] = EofInBody,
                 },
 
@@ -285,8 +285,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInTemplate,
-                    [END_TAG_TOKEN] = EndTagInTemplate,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTemplate),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTemplate),
                     [EOF_TOKEN] = EofInTemplate,
                 },
 
@@ -297,8 +297,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendCommentToRootHtmlElement,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagAfterBody,
-                    [END_TAG_TOKEN] = EndTagAfterBody,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterBody),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterBody),
                     [EOF_TOKEN] = StopParsing,
                 },
 
@@ -309,8 +309,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagInFrameset,
-                    [END_TAG_TOKEN] = EndTagInFrameset,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInFrameset),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInFrameset),
                     [EOF_TOKEN] = StopParsing,
                 },
 
@@ -321,8 +321,8 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
                     [COMMENT_TOKEN] = AppendComment,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagAfterFrameset,
-                    [END_TAG_TOKEN] = EndTagAfterFrameset,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterFrameset),
+                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterFrameset),
                     [EOF_TOKEN] = StopParsing,
                 },
 
@@ -333,7 +333,7 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendCommentToDocument,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagAfterAfterBody,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterBody),
                     [END_TAG_TOKEN] = TokenAfterAfterBody,
                     [EOF_TOKEN] = StopParsing,
                 },
@@ -345,11 +345,14 @@ namespace ParseFive.Parser
                     [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
                     [COMMENT_TOKEN] = AppendCommentToDocument,
                     [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = StartTagAfterAfterFrameset,
+                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterFrameset),
                     [END_TAG_TOKEN] = IgnoreToken,
                     [EOF_TOKEN] = StopParsing,
                 },
             };
+
+        static Action<Parser, Token> F<T>(Action<Parser, T> action)
+            where T : Token => (p, token) => action(p, (T) token);
 
         readonly ITreeAdapter treeAdapter;
         Element pendingScript;
@@ -532,7 +535,7 @@ namespace ParseFive.Parser
                                         this.treeAdapter.GetNamespaceUri((Element)current) != NS.HTML && !this.IsIntegrationPoint((Element)current);
         }
 
-        void SwitchToTextParsing(Token currentToken, string nextTokenizerState)
+        void SwitchToTextParsing(StartTagToken currentToken, string nextTokenizerState)
         {
             this.InsertElement(currentToken, NS.HTML);
             this.tokenizer.State = nextTokenizerState;
@@ -611,14 +614,14 @@ namespace ParseFive.Parser
             }
         }
 
-        void AppendElement(Token token, string namespaceURI)
+        void AppendElement(StartTagToken token, string namespaceURI)
         {
             var element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.Attrs);
 
             this.AttachElementToTree(element);
         }
 
-        void InsertElement(Token token, string namespaceURI)
+        void InsertElement(StartTagToken token, string namespaceURI)
         {
             var element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.Attrs);
 
@@ -634,7 +637,7 @@ namespace ParseFive.Parser
             this.openElements.Push(element);
         }
 
-        void InsertTemplate(Token token)
+        void InsertTemplate(StartTagToken token)
         {
             var tmpl = (TemplateElement) this.treeAdapter.CreateElement(token.TagName, NS.HTML, token.Attrs);
             var content = this.treeAdapter.CreateDocumentFragment();
@@ -644,7 +647,7 @@ namespace ParseFive.Parser
             this.openElements.Push(tmpl);
         }
 
-        void InsertTemplate(Token token, string s)
+        void InsertTemplate(StartTagToken token, string s)
         {
             InsertTemplate(token);
         }
@@ -707,15 +710,15 @@ namespace ParseFive.Parser
                 return false;
 
             if (this.treeAdapter.GetTagName(current) == T.ANNOTATION_XML && ns == NS.MATHML &&
-                token.Type == START_TAG_TOKEN && token.TagName == T.SVG)
+                token is StartTagToken svg /* token.Type == START_TAG_TOKEN */ && svg.TagName == T.SVG)
                 return false;
 
             var isCharacterToken = token.Type == CHARACTER_TOKEN ||
                                    token.Type == NULL_CHARACTER_TOKEN ||
                                    token.Type == WHITESPACE_CHARACTER_TOKEN;
-            var isMathMLTextStartTag = token.Type == START_TAG_TOKEN &&
-                                       token.TagName != T.MGLYPH &&
-                                       token.TagName != T.MALIGNMARK;
+            var isMathMLTextStartTag = token is StartTagToken startTagToken /* token.Type == START_TAG_TOKEN */ &&
+                                       startTagToken.TagName != T.MGLYPH &&
+                                       startTagToken.TagName != T.MALIGNMARK;
 
             if ((isMathMLTextStartTag || isCharacterToken) && this.IsIntegrationPoint(current, NS.MATHML))
                 return false;
@@ -751,10 +754,10 @@ namespace ParseFive.Parser
                 AppendComment(this, token);
 
             else if (token.Type == START_TAG_TOKEN)
-                StartTagInForeignContent(this, token);
+                StartTagInForeignContent(this, (StartTagToken) token);
 
             else if (token.Type == END_TAG_TOKEN)
-                EndTagInForeignContent(this, token);
+                EndTagInForeignContent(this, (EndTagToken) token);
         }
 
         void ProcessInputToken(Token token)
@@ -806,7 +809,7 @@ namespace ParseFive.Parser
                 for (var i = unopenIdx; i < listLength; i++)
                 {
                     entry = this.activeFormattingElements[i];
-                    this.InsertElement(entry.Token, this.treeAdapter.GetNamespaceUri(entry.Element));
+                    this.InsertElement((StartTagToken) entry.Token, this.treeAdapter.GetNamespaceUri(entry.Element));
                     entry.Element = (Element) this.openElements.Current;
                 }
             }
@@ -1010,7 +1013,7 @@ namespace ParseFive.Parser
         //------------------------------------------------------------------
 
         //Steps 5-8 of the algorithm
-        static Entry AaObtainFormattingElementEntry(Parser p, Token token)
+        static Entry AaObtainFormattingElementEntry(Parser p, TagToken token)
         {
             var formattingElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(token.TagName);
 
@@ -1027,12 +1030,12 @@ namespace ParseFive.Parser
             }
 
             else
-                GenericEndTagInBody(p, token);
+                GenericEndTagInBody(p, (EndTagToken) token);
 
             return formattingElementEntry;
         }
 
-        static Entry AaObtainFormattingElementEntry(Parser p, Token token, Entry formattingElementEntry)
+        static Entry AaObtainFormattingElementEntry(Parser p, TagToken token, Entry formattingElementEntry)
         {
             return AaObtainFormattingElementEntry(p, token);
         }
@@ -1108,7 +1111,8 @@ namespace ParseFive.Parser
         static Element AaRecreateElementFromEntry(Parser p, Entry elementEntry)
         {
             var ns = p.treeAdapter.GetNamespaceUri(elementEntry.Element);
-            var newElement = p.treeAdapter.CreateElement(elementEntry.Token.TagName, ns, elementEntry.Token.Attrs);
+            var token = (StartTagToken) elementEntry.Token;
+            var newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.Attrs);
 
             p.openElements.Replace(elementEntry.Element, newElement);
             elementEntry.Element = newElement;
@@ -1139,7 +1143,7 @@ namespace ParseFive.Parser
         static void AaReplaceFormattingElement(Parser p, Element furthestBlock, Entry formattingElementEntry)
         {
             var ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
-            var token = formattingElementEntry.Token;
+            var token = (StartTagToken) formattingElementEntry.Token;
             var newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.Attrs);
 
             p.AdoptNodes(furthestBlock, newElement);
@@ -1153,7 +1157,7 @@ namespace ParseFive.Parser
         }
 
         //Algorithm entry point
-        static void CallAdoptionAgency(Parser p, Token token)
+        static void CallAdoptionAgency(Parser p, TagToken token)
         {
             Entry formattingElementEntry = null;
 
@@ -1244,7 +1248,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.2 The "before html" insertion mode
         //------------------------------------------------------------------
-        static void StartTagBeforeHtml(Parser p, Token token)
+        static void StartTagBeforeHtml(Parser p, StartTagToken token)
         {
             if (token.TagName == T.HTML)
             {
@@ -1256,7 +1260,7 @@ namespace ParseFive.Parser
                 TokenBeforeHtml(p, token);
         }
 
-        static void EndTagBeforeHtml(Parser p, Token token)
+        static void EndTagBeforeHtml(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -1274,7 +1278,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.3 The "before head" insertion mode
         //------------------------------------------------------------------
-        static void StartTagBeforeHead(Parser p, Token token)
+        static void StartTagBeforeHead(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -1292,7 +1296,7 @@ namespace ParseFive.Parser
                 TokenBeforeHead(p, token);
         }
 
-        static void EndTagBeforeHead(Parser p, Token token)
+        static void EndTagBeforeHead(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -1311,7 +1315,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.4 The "in head" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInHead(Parser p, Token token)
+        static void StartTagInHead(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -1345,7 +1349,7 @@ namespace ParseFive.Parser
                 TokenInHead(p, token);
         }
 
-        static void EndTagInHead(Parser p, Token token)
+        static void EndTagInHead(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -1378,7 +1382,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.6 The "after head" insertion mode
         //------------------------------------------------------------------
-        static void StartTagAfterHead(Parser p, Token token)
+        static void StartTagAfterHead(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -1410,7 +1414,7 @@ namespace ParseFive.Parser
                 TokenAfterHead(p, token);
         }
 
-        static void EndTagAfterHead(Parser p, Token token)
+        static void EndTagAfterHead(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -1444,13 +1448,13 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void HtmlStartTagInBody(Parser p, Token token)
+        static void HtmlStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.TmplCount == 0)
                 p.treeAdapter.AdoptAttributes(p.openElements[0], token.Attrs);
         }
 
-        static void BodyStartTagInBody(Parser p, Token token)
+        static void BodyStartTagInBody(Parser p, StartTagToken token)
         {
             var bodyElement = p.openElements.TryPeekProperlyNestedBodyElement();
 
@@ -1461,7 +1465,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void FramesetStartTagInBody(Parser p, Token token)
+        static void FramesetStartTagInBody(Parser p, StartTagToken token)
         {
             var bodyElement = p.openElements.TryPeekProperlyNestedBodyElement();
 
@@ -1474,7 +1478,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void AddressStartTagInBody(Parser p, Token token)
+        static void AddressStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1482,7 +1486,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void NumberedHeaderStartTagInBody(Parser p, Token token)
+        static void NumberedHeaderStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1495,7 +1499,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void PreStartTagInBody(Parser p, Token token)
+        static void PreStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1507,7 +1511,7 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void FormStartTagInBody(Parser p, Token token)
+        static void FormStartTagInBody(Parser p, StartTagToken token)
         {
             var inTemplate = p.openElements.TmplCount > 0;
 
@@ -1523,7 +1527,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void ListItemStartTagInBody(Parser p, Token token)
+        static void ListItemStartTagInBody(Parser p, StartTagToken token)
         {
             p.framesetOk = false;
 
@@ -1558,7 +1562,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void PlaintextStartTagInBody(Parser p, Token token)
+        static void PlaintextStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1567,7 +1571,7 @@ namespace ParseFive.Parser
             p.tokenizer.State = MODE.PLAINTEXT;
         }
 
-        static void ButtonStartTagInBody(Parser p, Token token)
+        static void ButtonStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInScope(T.BUTTON))
             {
@@ -1580,7 +1584,7 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void AStartTagInBody(Parser p, Token token)
+        static void AStartTagInBody(Parser p, StartTagToken token)
         {
             var activeElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(T.A);
 
@@ -1596,14 +1600,14 @@ namespace ParseFive.Parser
             p.activeFormattingElements.PushElement((Element) p.openElements.Current, token);
         }
 
-        static void BStartTagInBody(Parser p, Token token)
+        static void BStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.InsertElement(token, NS.HTML);
             p.activeFormattingElements.PushElement((Element) p.openElements.Current, token);
         }
 
-        static void NobrStartTagInBody(Parser p, Token token)
+        static void NobrStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
 
@@ -1617,7 +1621,7 @@ namespace ParseFive.Parser
             p.activeFormattingElements.PushElement((Element) p.openElements.Current, token);
         }
 
-        static void AppletStartTagInBody(Parser p, Token token)
+        static void AppletStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.InsertElement(token, NS.HTML);
@@ -1625,7 +1629,7 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void TableStartTagInBody(Parser p, Token token)
+        static void TableStartTagInBody(Parser p, StartTagToken token)
         {
             var mode = p.document is Document doc ? p.treeAdapter.GetDocumentMode(doc) : null;
             if (mode != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.HasInButtonScope(T.P))
@@ -1636,14 +1640,14 @@ namespace ParseFive.Parser
             p.insertionMode = IN_TABLE_MODE;
         }
 
-        static void AreaStartTagInBody(Parser p, Token token)
+        static void AreaStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.AppendElement(token, NS.HTML);
             p.framesetOk = false;
         }
 
-        static void InputStartTagInBody(Parser p, Token token)
+        static void InputStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.AppendElement(token, NS.HTML);
@@ -1655,12 +1659,12 @@ namespace ParseFive.Parser
 
         }
 
-        static void ParamStartTagInBody(Parser p, Token token)
+        static void ParamStartTagInBody(Parser p, StartTagToken token)
         {
             p.AppendElement(token, NS.HTML);
         }
 
-        static void HrStartTagInBody(Parser p, Token token)
+        static void HrStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1672,13 +1676,13 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void ImageStartTagInBody(Parser p, Token token)
+        static void ImageStartTagInBody(Parser p, StartTagToken token)
         {
             token.TagName = T.IMG;
             AreaStartTagInBody(p, token);
         }
 
-        static void TextareaStartTagInBody(Parser p, Token token)
+        static void TextareaStartTagInBody(Parser p, StartTagToken token)
         {
             p.InsertElement(token, NS.HTML);
             //NOTE: If the next token is a U+000A LINE FEED (LF) character token, then ignore that token and move
@@ -1690,7 +1694,7 @@ namespace ParseFive.Parser
             p.insertionMode = TEXT_MODE;
         }
 
-        static void XmpStartTagInBody(Parser p, Token token)
+        static void XmpStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1700,7 +1704,7 @@ namespace ParseFive.Parser
             p.SwitchToTextParsing(token, MODE.RAWTEXT);
         }
 
-        static void IframeStartTagInBody(Parser p, Token token)
+        static void IframeStartTagInBody(Parser p, StartTagToken token)
         {
             p.framesetOk = false;
             p.SwitchToTextParsing(token, MODE.RAWTEXT);
@@ -1708,12 +1712,12 @@ namespace ParseFive.Parser
 
         //NOTE: here we assume that we always act as an user agent with enabled plugins, so we parse
         //<noembed> as a rawtext.
-        static void NoembedStartTagInBody(Parser p, Token token)
+        static void NoembedStartTagInBody(Parser p, StartTagToken token)
         {
             p.SwitchToTextParsing(token, MODE.RAWTEXT);
         }
 
-        static void SelectStartTagInBody(Parser p, Token token)
+        static void SelectStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.InsertElement(token, NS.HTML);
@@ -1731,7 +1735,7 @@ namespace ParseFive.Parser
                 p.insertionMode = IN_SELECT_MODE;
         }
 
-        static void OptgroupStartTagInBody(Parser p, Token token)
+        static void OptgroupStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.CurrentTagName == T.OPTION)
                 p.openElements.Pop();
@@ -1740,7 +1744,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void RbStartTagInBody(Parser p, Token token)
+        static void RbStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInScope(T.RUBY))
                 p.openElements.GenerateImpliedEndTags();
@@ -1748,7 +1752,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void RtStartTagInBody(Parser p, Token token)
+        static void RtStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInScope(T.RUBY))
                 p.openElements.GenerateImpliedEndTagsWithExclusion(T.RTC);
@@ -1756,7 +1760,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void MenuitemStartTagInBody(Parser p, Token token)
+        static void MenuitemStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.CurrentTagName == T.MENUITEM)
                 p.openElements.Pop();
@@ -1767,7 +1771,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void MenuStartTagInBody(Parser p, Token token)
+        static void MenuStartTagInBody(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
@@ -1778,7 +1782,7 @@ namespace ParseFive.Parser
             p.InsertElement(token, NS.HTML);
         }
 
-        static void MathStartTagInBody(Parser p, Token token)
+        static void MathStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
 
@@ -1791,7 +1795,7 @@ namespace ParseFive.Parser
                 p.InsertElement(token, NS.MATHML);
         }
 
-        static void SvgStartTagInBody(Parser p, Token token)
+        static void SvgStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
 
@@ -1804,7 +1808,7 @@ namespace ParseFive.Parser
                 p.InsertElement(token, NS.SVG);
         }
 
-        static void GenericStartTagInBody(Parser p, Token token)
+        static void GenericStartTagInBody(Parser p, StartTagToken token)
         {
             p.ReconstructActiveFormattingElements();
             p.InsertElement(token, NS.HTML);
@@ -1812,7 +1816,7 @@ namespace ParseFive.Parser
 
         //OPTIMIZATION: Integer comparisons are low-cost, so we can use very fast tag name.Length filters here.
         //It's faster than using dictionary.
-        static void StartTagInBody(Parser p, Token token)
+        static void StartTagInBody(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2078,7 +2082,7 @@ namespace ParseFive.Parser
             BodyEndTagInBody(p);
         }
 
-        static void HtmlEndTagInBody(Parser p, Token token)
+        static void HtmlEndTagInBody(Parser p, EndTagToken token)
         {
             if (p.openElements.HasInScope(T.BODY))
             {
@@ -2087,7 +2091,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void AddressEndTagInBody(Parser p, Token token)
+        static void AddressEndTagInBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2118,7 +2122,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void FormEndTagInBody(Parser p, Token token)
+        static void FormEndTagInBody(Parser p, EndTagToken token)
         {
             FormEndTagInBody(p);
         }
@@ -2131,7 +2135,7 @@ namespace ParseFive.Parser
             p.ClosePElement();
         }
 
-        static void PEndTagInBody(Parser p, Token token)
+        static void PEndTagInBody(Parser p, EndTagToken token)
         {
             PEndTagInBody(p);
         }
@@ -2145,12 +2149,12 @@ namespace ParseFive.Parser
             }
         }
 
-        static void LiEndTagInBody(Parser p, Token token)
+        static void LiEndTagInBody(Parser p, EndTagToken token)
         {
             LiEndTagInBody(p);
         }
 
-        static void DdEndTagInBody(Parser p, Token token)
+        static void DdEndTagInBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2175,7 +2179,7 @@ namespace ParseFive.Parser
             NumberedHeaderEndTagInBody(p);
         }
 
-        static void AppletEndTagInBody(Parser p, Token token)
+        static void AppletEndTagInBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2195,12 +2199,12 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void BrEndTagInBody(Parser p, Token token)
+        static void BrEndTagInBody(Parser p, EndTagToken token)
         {
             BrEndTagInBody(p);
         }
 
-        static void GenericEndTagInBody(Parser p, Token token)
+        static void GenericEndTagInBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2222,7 +2226,7 @@ namespace ParseFive.Parser
 
         //OPTIMIZATION: Integer comparisons are low-cost, so we can use very fast tag name.Length filters here.
         //It's faster than using dictionary.
-        static void EndTagInBody(Parser p, Token token)
+        static void EndTagInBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2375,7 +2379,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.8 The "text" insertion mode
         //------------------------------------------------------------------
-        static void EndTagInText(Parser p, Token token)
+        static void EndTagInText(Parser p, EndTagToken token)
         {
             if (token.TagName == T.SCRIPT)
                 p.pendingScript = (Element) p.openElements.Current;
@@ -2412,7 +2416,7 @@ namespace ParseFive.Parser
                 TokenInTable(p, token);
         }
 
-        static void CaptionStartTagInTable(Parser p, Token token)
+        static void CaptionStartTagInTable(Parser p, StartTagToken token)
         {
             p.openElements.ClearBackToTableContext();
             p.activeFormattingElements.InsertMarker();
@@ -2420,7 +2424,7 @@ namespace ParseFive.Parser
             p.insertionMode = IN_CAPTION_MODE;
         }
 
-        static void ColgroupStartTagInTable(Parser p, Token token)
+        static void ColgroupStartTagInTable(Parser p, StartTagToken token)
         {
             p.openElements.ClearBackToTableContext();
             p.InsertElement(token, NS.HTML);
@@ -2435,14 +2439,14 @@ namespace ParseFive.Parser
             p.ProcessToken(token);
         }
 
-        static void TbodyStartTagInTable(Parser p, Token token)
+        static void TbodyStartTagInTable(Parser p, StartTagToken token)
         {
             p.openElements.ClearBackToTableContext();
             p.InsertElement(token, NS.HTML);
             p.insertionMode = IN_TABLE_BODY_MODE;
         }
 
-        static void TdStartTagInTable(Parser p, Token token)
+        static void TdStartTagInTable(Parser p, StartTagToken token)
         {
             p.openElements.ClearBackToTableContext();
             p.InsertFakeElement(T.TBODY);
@@ -2450,7 +2454,7 @@ namespace ParseFive.Parser
             p.ProcessToken(token);
         }
 
-        static void TableStartTagInTable(Parser p, Token token)
+        static void TableStartTagInTable(Parser p, StartTagToken token)
         {
             if (p.openElements.HasInTableScope(T.TABLE))
             {
@@ -2460,7 +2464,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void InputStartTagInTable(Parser p, Token token)
+        static void InputStartTagInTable(Parser p, StartTagToken token)
         {
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
@@ -2471,7 +2475,7 @@ namespace ParseFive.Parser
                 TokenInTable(p, token);
         }
 
-        static void FormStartTagInTable(Parser p, Token token)
+        static void FormStartTagInTable(Parser p, StartTagToken token)
         {
             if (!p.formElement.IsTruthy() && p.openElements.TmplCount == 0)
             {
@@ -2481,7 +2485,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void StartTagInTable(Parser p, Token token)
+        static void StartTagInTable(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2569,7 +2573,7 @@ namespace ParseFive.Parser
 
         }
 
-        static void EndTagInTable(Parser p, Token token)
+        static void EndTagInTable(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2634,7 +2638,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.11 The "in caption" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInCaption(Parser p, Token token)
+        static void StartTagInCaption(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2655,7 +2659,7 @@ namespace ParseFive.Parser
                 StartTagInBody(p, token);
         }
 
-        static void EndTagInCaption(Parser p, Token token)
+        static void EndTagInCaption(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2681,7 +2685,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.12 The "in column group" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInColumnGroup(Parser p, Token token)
+        static void StartTagInColumnGroup(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2698,7 +2702,7 @@ namespace ParseFive.Parser
                 TokenInColumnGroup(p, token);
         }
 
-        static void EndTagInColumnGroup(Parser p, Token token)
+        static void EndTagInColumnGroup(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2730,7 +2734,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.13 The "in table body" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInTableBody(Parser p, Token token)
+        static void StartTagInTableBody(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2766,7 +2770,7 @@ namespace ParseFive.Parser
                 StartTagInTable(p, token);
         }
 
-        static void EndTagInTableBody(Parser p, Token token)
+        static void EndTagInTableBody(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2798,7 +2802,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.14 The "in row" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInRow(Parser p, Token token)
+        static void StartTagInRow(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2826,7 +2830,7 @@ namespace ParseFive.Parser
                 StartTagInTable(p, token);
         }
 
-        static void EndTagInRow(Parser p, Token token)
+        static void EndTagInRow(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2870,7 +2874,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.15 The "in cell" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInCell(Parser p, Token token)
+        static void StartTagInCell(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2889,7 +2893,7 @@ namespace ParseFive.Parser
                 StartTagInBody(p, token);
         }
 
-        static void EndTagInCell(Parser p, Token token)
+        static void EndTagInCell(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2919,7 +2923,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.16 The "in select" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInSelect(Parser p, Token token)
+        static void StartTagInSelect(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -2961,7 +2965,7 @@ namespace ParseFive.Parser
                 StartTagInHead(p, token);
         }
 
-        static void EndTagInSelect(Parser p, Token token)
+        static void EndTagInSelect(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -2996,7 +3000,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.17 The "in select in table" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInSelectInTable(Parser p, Token token)
+        static void StartTagInSelectInTable(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -3012,7 +3016,7 @@ namespace ParseFive.Parser
                 StartTagInSelect(p, token);
         }
 
-        static void EndTagInSelectInTable(Parser p, Token token)
+        static void EndTagInSelectInTable(Parser p, EndTagToken token)
         {
             var tn = token.TagName;
 
@@ -3033,7 +3037,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.18 The "in template" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInTemplate(Parser p, Token token)
+        static void StartTagInTemplate(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -3052,7 +3056,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void EndTagInTemplate(Parser p, Token token)
+        static void EndTagInTemplate(Parser p, EndTagToken token)
         {
             if (token.TagName == T.TEMPLATE)
                 EndTagInHead(p, token);
@@ -3076,7 +3080,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.19 The "after body" insertion mode
         //------------------------------------------------------------------
-        static void StartTagAfterBody(Parser p, Token token)
+        static void StartTagAfterBody(Parser p, StartTagToken token)
         {
             if (token.TagName == T.HTML)
                 StartTagInBody(p, token);
@@ -3085,7 +3089,7 @@ namespace ParseFive.Parser
                 TokenAfterBody(p, token);
         }
 
-        static void EndTagAfterBody(Parser p, Token token)
+        static void EndTagAfterBody(Parser p, EndTagToken token)
         {
             if (token.TagName == T.HTML)
             {
@@ -3105,7 +3109,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.20 The "in frameset" insertion mode
         //------------------------------------------------------------------
-        static void StartTagInFrameset(Parser p, Token token)
+        static void StartTagInFrameset(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -3122,7 +3126,7 @@ namespace ParseFive.Parser
                 StartTagInHead(p, token);
         }
 
-        static void EndTagInFrameset(Parser p, Token token)
+        static void EndTagInFrameset(Parser p, EndTagToken token)
         {
             if (token.TagName == T.FRAMESET && !p.openElements.IsRootHtmlElementCurrent())
             {
@@ -3135,7 +3139,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.21 The "after frameset" insertion mode
         //------------------------------------------------------------------
-        static void StartTagAfterFrameset(Parser p, Token token)
+        static void StartTagAfterFrameset(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -3146,7 +3150,7 @@ namespace ParseFive.Parser
                 StartTagInHead(p, token);
         }
 
-        static void EndTagAfterFrameset(Parser p, Token token)
+        static void EndTagAfterFrameset(Parser p, EndTagToken token)
         {
             if (token.TagName == T.HTML)
                 p.insertionMode = AFTER_AFTER_FRAMESET_MODE;
@@ -3154,7 +3158,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.22 The "after after body" insertion mode
         //------------------------------------------------------------------
-        static void StartTagAfterAfterBody(Parser p, Token token)
+        static void StartTagAfterAfterBody(Parser p, StartTagToken token)
         {
             if (token.TagName == T.HTML)
                 StartTagInBody(p, token);
@@ -3171,7 +3175,7 @@ namespace ParseFive.Parser
 
         //12.2.5.4.23 The "after after frameset" insertion mode
         //------------------------------------------------------------------
-        static void StartTagAfterAfterFrameset(Parser p, Token token)
+        static void StartTagAfterAfterFrameset(Parser p, StartTagToken token)
         {
             var tn = token.TagName;
 
@@ -3197,7 +3201,7 @@ namespace ParseFive.Parser
             p.framesetOk = false;
         }
 
-        static void StartTagInForeignContent(Parser p, Token token)
+        static void StartTagInForeignContent(Parser p, StartTagToken token)
         {
             if (CausesExit(token) && !p.fragmentContext.IsTruthy())
             {
@@ -3230,7 +3234,7 @@ namespace ParseFive.Parser
             }
         }
 
-        static void EndTagInForeignContent(Parser p, Token token)
+        static void EndTagInForeignContent(Parser p, EndTagToken token)
         {
             for (var i = p.openElements.StackTop; i > 0; i--)
             {
