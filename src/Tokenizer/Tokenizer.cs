@@ -500,7 +500,7 @@ namespace ParseFive.Tokenizer
         // So, there are 3 types of character tokens in parse5:
         // 1)NULL_CHARACTER_TOKEN - \u0000-character sequences (e.g. '\u0000\u0000\u0000')
         // 2)WHITESPACE_CHARACTER_TOKEN - any whitespace/new-line character sequences (e.g. '\n  \r\t   \f')
-        // 3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#ɑ%^')
+        // 3)CHARACTER_TOKEN - any character sequence which don't belong to groups 1 and 2 (e.g. 'abcdef1234@@#$%^')
 
         void AppendCharToCurrentCharacterToken(TokenType type, string ch)
         {
