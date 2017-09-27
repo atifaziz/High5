@@ -12,11 +12,11 @@ namespace ParseFive.Parser
         {
             public readonly Func<Element, string> GetNamespaceUri;
             public readonly Func<Element, string> GetTagName;
-            public readonly Func<Element, Node> GetTemplateContent;
+            public readonly Func<TemplateElement, Node> GetTemplateContent;
 
             public TreeAdapter(Func<Element, string> getNamespaceUri,
                                Func<Element, string> getTagName,
-                               Func<Element, Node> getTemplateContent)
+                               Func<TemplateElement, Node> getTemplateContent)
             {
                 GetNamespaceUri = getNamespaceUri;
                 GetTagName = getTagName;
@@ -152,7 +152,7 @@ namespace ParseFive.Parser
             this.Current = this.items[this.StackTop];
             this.CurrentTagName = this.Current.IsTruthy() ? this.treeAdapter.GetTagName((Element) this.Current) : null;
 
-            this.CurrentTmplContent = this.IsInTemplate() ? this.treeAdapter.GetTemplateContent((Element) this.Current) : null;
+            this.CurrentTmplContent = this.IsInTemplate() ? this.treeAdapter.GetTemplateContent((TemplateElement) this.Current) : null;
         }
 
         //Mutations
