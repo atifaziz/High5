@@ -244,10 +244,10 @@ namespace ParseFive.Tokenizer
 
         public static string GetTokenAttr(Token token, string attrName)
         {
-            for (var i = token.attrs.Count - 1; i >= 0; i--)
+            for (var i = token.Attrs.Count - 1; i >= 0; i--)
             {
-                if (token.attrs[i].name == attrName)
-                    return token.attrs[i].value;
+                if (token.Attrs[i].name == attrName)
+                    return token.Attrs[i].value;
             }
 
             return null;
@@ -440,7 +440,7 @@ namespace ParseFive.Tokenizer
             this.State = toState;
 
             if (!this.IsDuplicateAttr())
-                this.currentToken.attrs.Push(this.currentAttr);
+                this.currentToken.Attrs.Push(this.currentAttr);
         }
 
         void LeaveAttrValue(string toState)
@@ -453,7 +453,7 @@ namespace ParseFive.Tokenizer
 
         bool IsAppropriateEndTagToken()
         {
-            return this.lastStartTagName == this.currentToken.tagName;
+            return this.lastStartTagName == this.currentToken.TagName;
         }
 
         // Token emission
@@ -463,8 +463,8 @@ namespace ParseFive.Tokenizer
             this.EmitCurrentCharacterToken();
 
             // NOTE: store emited start tag's tagName to determine is the following end tag token is appropriate.
-            if (this.currentToken.type == TokenType.START_TAG_TOKEN)
-                this.lastStartTagName = this.currentToken.tagName;
+            if (this.currentToken.Type == TokenType.START_TAG_TOKEN)
+                this.lastStartTagName = this.currentToken.TagName;
 
             this.tokenQueue.Push(this.currentToken);
             this.currentToken = null;
@@ -498,11 +498,11 @@ namespace ParseFive.Tokenizer
 
         void AppendCharToCurrentCharacterToken(TokenType type, string ch)
         {
-            if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.type != type)
+            if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.Type != type)
                 this.EmitCurrentCharacterToken();
 
             if (this.currentCharacterToken.IsTruthy())
-                this.currentCharacterToken.chars += ch;
+                this.currentCharacterToken.Chars += ch;
 
             else
                 this.CreateCharacterToken(type, ch);
@@ -893,16 +893,16 @@ namespace ParseFive.Tokenizer
                 }
 
                 else if (IsAsciiUpper(cp))
-                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.tagName += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.TagName += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentToken.tagName += ToChar(cp);
+                    @this.currentToken.TagName += ToChar(cp);
             }
 
             // 12.2.4.11 RCDATA less-than sign state
@@ -946,13 +946,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.tagName += ToChar(cp);
+                    @this.currentToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1028,13 +1028,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.tagName += ToChar(cp);
+                    @this.currentToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1117,13 +1117,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.tagName += ToChar(cp);
+                    @this.currentToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1318,13 +1318,13 @@ namespace ParseFive.Tokenizer
             {
                 if (IsAsciiUpper(cp))
                 {
-                    @this.currentToken.tagName += ToAsciiLowerChar(cp);
+                    @this.currentToken.TagName += ToAsciiLowerChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
                 else if (IsAsciiLower(cp))
                 {
-                    @this.currentToken.tagName += ToChar(cp);
+                    @this.currentToken.TagName += ToChar(cp);
                     @this.tempBuff.Push(cp);
                 }
 
@@ -1746,7 +1746,7 @@ namespace ParseFive.Tokenizer
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.selfClosing = true;
+                    @this.currentToken.SelfClosing = true;
                     @this.State = DATA_STATE;
                     @this.EmitCurrentToken();
                 }
@@ -1787,7 +1787,7 @@ namespace ParseFive.Tokenizer
 
                     else
                     {
-                        @this.currentToken.data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
+                        @this.currentToken.Data += (cp == CP.NULL ? ToChar(CP.REPLACEMENT_CHARACTER) : ToChar(cp));
 
                         @this.HibernationSnapshot();
                         cp = @this.Consume();
@@ -1838,7 +1838,7 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1856,7 +1856,7 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1870,8 +1870,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.data += '-';
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += '-';
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1889,8 +1889,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.data += '-';
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += '-';
+                    @this.currentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1903,7 +1903,7 @@ namespace ParseFive.Tokenizer
                     @this.State = COMMENT_END_DASH_STATE;
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                 {
@@ -1912,7 +1912,7 @@ namespace ParseFive.Tokenizer
                 }
 
                 else
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += ToChar(cp);
             }
 
             // 12.2.4.49 Comment end dash state
@@ -1924,8 +1924,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.data += '-';
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += '-';
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1937,8 +1937,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.data += '-';
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += '-';
+                    @this.currentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1957,12 +1957,12 @@ namespace ParseFive.Tokenizer
                     @this.State = COMMENT_END_BANG_STATE;
 
                 else if (cp == CP.HYPHEN_MINUS)
-                    @this.currentToken.data += '-';
+                    @this.currentToken.Data += '-';
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.data += "--";
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += "--";
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -1974,8 +1974,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.data += "--";
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += "--";
+                    @this.currentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -1986,7 +1986,7 @@ namespace ParseFive.Tokenizer
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
-                    @this.currentToken.data += "--!";
+                    @this.currentToken.Data += "--!";
                     @this.State = COMMENT_END_DASH_STATE;
                 }
 
@@ -1998,8 +1998,8 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.NULL)
                 {
-                    @this.currentToken.data += "--!";
-                    @this.currentToken.data += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Data += "--!";
+                    @this.currentToken.Data += CP.REPLACEMENT_CHARACTER;
                     @this.State = COMMENT_STATE;
                 }
 
@@ -2011,8 +2011,8 @@ namespace ParseFive.Tokenizer
 
                 else
                 {
-                    @this.currentToken.data += "--!";
-                    @this.currentToken.data += ToChar(cp);
+                    @this.currentToken.Data += "--!";
+                    @this.currentToken.Data += ToChar(cp);
                     @this.State = COMMENT_STATE;
                 }
             }
@@ -2027,7 +2027,7 @@ namespace ParseFive.Tokenizer
                 else if (cp == CP.GREATER_THAN_SIGN)
                 {
                     @this.CreateDoctypeToken(null);
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.State = DATA_STATE;
                 }
@@ -2035,7 +2035,7 @@ namespace ParseFive.Tokenizer
                 else if (cp == CP.EOF)
                 {
                     @this.CreateDoctypeToken(null);
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }
@@ -2054,13 +2054,13 @@ namespace ParseFive.Tokenizer
                     @this.ReconsumeInState(AFTER_DOCTYPE_NAME_STATE);
 
                 else if (IsAsciiUpper(cp))
-                    @this.currentToken.name += ToAsciiLowerChar(cp);
+                    @this.currentToken.Name += ToAsciiLowerChar(cp);
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.name += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.Name += CP.REPLACEMENT_CHARACTER;
 
                 else
-                    @this.currentToken.name += ToChar(cp);
+                    @this.currentToken.Name += ToChar(cp);
             }
 
             // 12.2.4.55 After DOCTYPE name state
@@ -2091,7 +2091,7 @@ namespace ParseFive.Tokenizer
 
                         else
                         {
-                            @this.currentToken.forceQuirks = true;
+                            @this.currentToken.ForceQuirks = true;
                             @this.State = BOGUS_DOCTYPE_STATE;
                         }
                     }
@@ -2107,19 +2107,19 @@ namespace ParseFive.Tokenizer
 
                 if (cp == CP.QUOTATION_MARK)
                 {
-                    @this.currentToken.publicId = "";
+                    @this.currentToken.PublicId = "";
                     @this.State = DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 }
 
                 else if (cp == CP.APOSTROPHE)
                 {
-                    @this.currentToken.publicId = "";
+                    @this.currentToken.PublicId = "";
                     @this.State = DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
                 }
 
                 else
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
                 }
             }
@@ -2132,24 +2132,24 @@ namespace ParseFive.Tokenizer
                     @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.PublicId += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.State = DATA_STATE;
                 }
 
                 else if (cp == CP.EOF)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }
 
                 else
-                    @this.currentToken.publicId += ToChar(cp);
+                    @this.currentToken.PublicId += ToChar(cp);
             }
 
             // 12.2.4.59 DOCTYPE public identifier (single-quoted) state
@@ -2160,24 +2160,24 @@ namespace ParseFive.Tokenizer
                     @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.publicId += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.PublicId += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.State = DATA_STATE;
                 }
 
                 else if (cp == CP.EOF)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }
 
                 else
-                    @this.currentToken.publicId += ToChar(cp);
+                    @this.currentToken.PublicId += ToChar(cp);
             }
 
             // 12.2.4.61 Between DOCTYPE public and system identifiers state
@@ -2195,19 +2195,19 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.QUOTATION_MARK)
                 {
-                    @this.currentToken.systemId = "";
+                    @this.currentToken.SystemId = "";
                     @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 }
 
                 else if (cp == CP.APOSTROPHE)
                 {
-                    @this.currentToken.systemId = "";
+                    @this.currentToken.SystemId = "";
                     @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
                 }
 
                 else
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
                 }
             }
@@ -2221,19 +2221,19 @@ namespace ParseFive.Tokenizer
 
                 if (cp == CP.QUOTATION_MARK)
                 {
-                    @this.currentToken.systemId = "";
+                    @this.currentToken.SystemId = "";
                     @this.State = DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 }
 
                 else if (cp == CP.APOSTROPHE)
                 {
-                    @this.currentToken.systemId = "";
+                    @this.currentToken.SystemId = "";
                     @this.State = DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
                 }
 
                 else
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.ReconsumeInState(BOGUS_DOCTYPE_STATE);
                 }
             }
@@ -2247,23 +2247,23 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.State = DATA_STATE;
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.SystemId += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }
 
                 else
-                    @this.currentToken.systemId += ToChar(cp);
+                    @this.currentToken.SystemId += ToChar(cp);
             }
 
             // 12.2.4.65 DOCTYPE system identifier (single-quoted) state
@@ -2275,23 +2275,23 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.GREATER_THAN_SIGN)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.State = DATA_STATE;
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentToken.systemId += CP.REPLACEMENT_CHARACTER;
+                    @this.currentToken.SystemId += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }
 
                 else
-                    @this.currentToken.systemId += ToChar(cp);
+                    @this.currentToken.SystemId += ToChar(cp);
             }
 
             // 12.2.4.66 After DOCTYPE system identifier state
@@ -2309,7 +2309,7 @@ namespace ParseFive.Tokenizer
 
                 else if (cp == CP.EOF)
                 {
-                    @this.currentToken.forceQuirks = true;
+                    @this.currentToken.ForceQuirks = true;
                     @this.EmitCurrentToken();
                     @this.ReconsumeInState(DATA_STATE);
                 }

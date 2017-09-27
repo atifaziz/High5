@@ -4,56 +4,56 @@ namespace ParseFive.Tokenizer
 
     sealed class Token
     {
-        public TokenType type { get; }
-        public string tagName { get; set; }
-        public List<Attr> attrs { get; set; }
-        public bool selfClosing { get; set; }
-        public string data { get; set; }
-        public string name { get; set; }
-        public bool forceQuirks { get; set; }
-        public string publicId { get; set; }
-        public string systemId { get; set; }
-        public string chars { get; set; }
+        public TokenType Type { get; }
+        public string TagName { get; set; }
+        public List<Attr> Attrs { get; set; }
+        public bool SelfClosing { get; set; }
+        public string Data { get; set; }
+        public string Name { get; set; }
+        public bool ForceQuirks { get; set; }
+        public string PublicId { get; set; }
+        public string SystemId { get; set; }
+        public string Chars { get; set; }
 
         public Token(TokenType type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
         {
-            this.type = type;
-            this.tagName = tagName;
-            this.selfClosing = selfClosing;
-            this.attrs = attrs;
+            this.Type = type;
+            this.TagName = tagName;
+            this.SelfClosing = selfClosing;
+            this.Attrs = attrs;
         }
 
         public Token(TokenType type, char ch)
         {
-            this.type = type;
-            this.chars = ch.ToString();
+            this.Type = type;
+            this.Chars = ch.ToString();
         }
 
         public Token(TokenType type, string tagName, List<Attr> attrs) //end tag
         {
-            this.type = type;
-            this.tagName = tagName;
-            this.attrs = attrs;
+            this.Type = type;
+            this.TagName = tagName;
+            this.Attrs = attrs;
         }
 
         public Token(TokenType type, string data) //Comment
         {
-            this.type = type;
-            this.data = data;
+            this.Type = type;
+            this.Data = data;
         }
 
         public Token(TokenType type, string name, bool forceQuirks, string publicId, string systemId) //Doctype
         {
-            this.type = type;
-            this.name = name;
-            this.forceQuirks = forceQuirks;
-            this.publicId = publicId;
-            this.systemId = systemId;
+            this.Type = type;
+            this.Name = name;
+            this.ForceQuirks = forceQuirks;
+            this.PublicId = publicId;
+            this.SystemId = systemId;
         }
 
         public Token(TokenType type) //Hibernation && EOF
         {
-            this.type = type;
+            this.Type = type;
         }
     }
 }
