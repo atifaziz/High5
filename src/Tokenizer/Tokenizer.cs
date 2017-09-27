@@ -22,7 +22,7 @@ namespace ParseFive.Tokenizer
     {
         // Replacement code points for numeric entities
 
-        static readonly IDictionary<int, int> NUMERIC_ENTITY_REPLACEMENTS = new Dictionary<int, int>
+        static readonly IDictionary<int, int> NumericEntityReplacements = new Dictionary<int, int>
         {
             { 0x00, 0xFFFD }, { 0x0D, 0x000D }, { 0x80, 0x20AC }, { 0x81, 0x0081 }, { 0x82, 0x201A }, { 0x83, 0x0192 }, { 0x84, 0x201E },
             { 0x85, 0x2026 }, { 0x86, 0x2020 }, { 0x87, 0x2021 }, { 0x88, 0x02C6 }, { 0x89, 0x2030 }, { 0x8A, 0x0160 }, { 0x8B, 0x2039 },
@@ -564,7 +564,7 @@ namespace ParseFive.Tokenizer
 
             var referencedCp = unchecked((int) referencedCpLong);
 
-            if (NUMERIC_ENTITY_REPLACEMENTS.TryGetValue(referencedCp, out var replacement))
+            if (NumericEntityReplacements.TryGetValue(referencedCp, out var replacement))
                 return replacement;
 
             if (IsReservedCodePoint(referencedCp))
