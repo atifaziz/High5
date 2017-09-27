@@ -488,12 +488,12 @@ namespace ParseFive.Parser
                 {
                     this.skipNextNewLine = false;
 
-                    if (token.Type == WHITESPACE_CHARACTER_TOKEN && token.Chars[0] == '\n')
+                    if (token is CharacterToken ctoken && token.Type == WHITESPACE_CHARACTER_TOKEN && ctoken.Chars[0] == '\n')
                     {
-                        if (token.Chars.Length == 1)
+                        if (ctoken.Chars.Length == 1)
                             continue;
 
-                        token.Chars = token.Chars.Substring(1);
+                        ctoken.Chars = ctoken.Chars.Substring(1);
                     }
                 }
 
@@ -664,7 +664,7 @@ namespace ParseFive.Parser
             this.treeAdapter.AppendChild(parent, commentNode);
         }
 
-        void InsertCharacters(Token token)
+        void InsertCharacters(CharacterToken token)
         {
             if (this.ShouldFosterParentOnInsertion())
                 this.FosterParentText(token.Chars);
@@ -739,13 +739,13 @@ namespace ParseFive.Parser
         void ProcessTokenInForeignContent(Token token)
         {
             if (token.Type == CHARACTER_TOKEN)
-                CharacterInForeignContent(this, token);
+                CharacterInForeignContent(this, (CharacterToken) token);
 
             else if (token.Type == NULL_CHARACTER_TOKEN)
-                NullCharacterInForeignContent(this, token);
+                NullCharacterInForeignContent(this, (CharacterToken) token);
 
             else if (token.Type == WHITESPACE_CHARACTER_TOKEN)
-                InsertCharacters(this, token);
+                InsertCharacters(this, (CharacterToken) token);
 
             else if (token.Type == COMMENT_TOKEN)
                 AppendComment(this, token);
@@ -1205,6 +1205,11 @@ namespace ParseFive.Parser
 
         static void InsertCharacters(Parser p, Token token)
         {
+            p.InsertCharacters((CharacterToken) token);
+        }
+
+        static void InsertCharacters(Parser p, CharacterToken token)
+        {
             p.InsertCharacters(token);
         }
 
@@ -1429,13 +1434,13 @@ namespace ParseFive.Parser
         static void WhitespaceCharacterInBody(Parser p, Token token)
         {
             p.ReconstructActiveFormattingElements();
-            p.InsertCharacters(token);
+            p.InsertCharacters((CharacterToken) token);
         }
 
         static void CharacterInBody(Parser p, Token token)
         {
             p.ReconstructActiveFormattingElements();
-            p.InsertCharacters(token);
+            p.InsertCharacters((CharacterToken) token);
             p.framesetOk = false;
         }
 
@@ -2610,18 +2615,16 @@ namespace ParseFive.Parser
 
         static void TokenInTableText(Parser p, Token token)
         {
-            var i = 0;
-
             if (p.hasNonWhitespacePendingCharacterToken)
             {
-                for (; i < p.pendingCharacterTokens.Count; i++)
-                    TokenInTable(p, p.pendingCharacterTokens[i]);
+                foreach (CharacterToken pendingCharacterToken in p.pendingCharacterTokens)
+                    TokenInTable(p, pendingCharacterToken);
             }
 
             else
             {
-                for (; i < p.pendingCharacterTokens.Count; i++)
-                    p.InsertCharacters(p.pendingCharacterTokens[i]);
+                foreach (CharacterToken pendingCharacterToken in p.pendingCharacterTokens)
+                    p.InsertCharacters(pendingCharacterToken);
             }
 
             p.insertionMode = p.originalInsertionMode;
@@ -3182,13 +3185,13 @@ namespace ParseFive.Parser
 
         //12.2.5.5 The rules for parsing tokens in foreign content
         //------------------------------------------------------------------
-        static void NullCharacterInForeignContent(Parser p, Token token)
+        static void NullCharacterInForeignContent(Parser p, CharacterToken token)
         {
             token.Chars = Unicode.ReplacementCharacter.ToString();
             p.InsertCharacters(token);
         }
 
-        static void CharacterInForeignContent(Parser p, Token token)
+        static void CharacterInForeignContent(Parser p, CharacterToken token)
         {
             p.InsertCharacters(token);
             p.framesetOk = false;

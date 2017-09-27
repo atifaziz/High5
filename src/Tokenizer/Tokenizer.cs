@@ -195,7 +195,7 @@ namespace ParseFive.Tokenizer
         string lastStartTagName;
         int consumedAfterSnapshot;
         bool active;
-        Token currentCharacterToken;
+        CharacterToken currentCharacterToken;
         Token currentToken;
         Attr currentAttr;
 
@@ -423,7 +423,7 @@ namespace ParseFive.Tokenizer
 
         void CreateCharacterToken(TokenType type, string ch)
         {
-            this.currentCharacterToken = new Token(type, ch[0]);
+            this.currentCharacterToken = new CharacterToken(type, ch[0]);
         }
 
         // Tag attributes

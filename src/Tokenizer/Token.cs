@@ -1,6 +1,7 @@
 namespace ParseFive.Tokenizer
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using static TokenType;
 
     class Token
@@ -9,7 +10,6 @@ namespace ParseFive.Tokenizer
         public string TagName { get; set; }
         public List<Attr> Attrs { get; set; }
         public bool SelfClosing { get; set; }
-        public string Chars { get; set; }
 
         public Token(TokenType type, string tagName, bool selfClosing, List<Attr> attrs) //START TAG
         {
@@ -17,12 +17,6 @@ namespace ParseFive.Tokenizer
             this.TagName = tagName;
             this.SelfClosing = selfClosing;
             this.Attrs = attrs;
-        }
-
-        public Token(TokenType type, char ch)
-        {
-            this.Type = type;
-            this.Chars = ch.ToString();
         }
 
         public Token(TokenType type, string tagName, List<Attr> attrs) //end tag
@@ -66,6 +60,20 @@ namespace ParseFive.Tokenizer
             base(COMMENT_TOKEN)
         {
             this.Data = data;
+        }
+    }
+
+    sealed class CharacterToken : Token
+    {
+        public string Chars { get; set; }
+
+        public CharacterToken(TokenType type, char ch) :
+            base(type)
+        {
+            Debug.Assert(type == CHARACTER_TOKEN
+                      || type == WHITESPACE_CHARACTER_TOKEN
+                      || type == NULL_CHARACTER_TOKEN);
+            this.Chars = ch.ToString();
         }
     }
 }
