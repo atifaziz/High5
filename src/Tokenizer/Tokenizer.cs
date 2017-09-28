@@ -285,8 +285,8 @@ namespace ParseFive.Tokenizer
         {
             for (var i = token.Attrs.Count - 1; i >= 0; i--)
             {
-                if (token.Attrs[i].name == attrName)
-                    return token.Attrs[i].value;
+                if (token.Attrs[i].Name == attrName)
+                    return token.Attrs[i].Value;
             }
 
             return null;
@@ -471,7 +471,7 @@ namespace ParseFive.Tokenizer
 
         bool IsDuplicateAttr()
         {
-            return GetTokenAttr(this.CurrentTagToken, this.currentAttr.name) != null;
+            return GetTokenAttr(this.CurrentTagToken, this.currentAttr.Name) != null;
         }
 
         void LeaveAttrName(string toState)
@@ -1596,16 +1596,16 @@ namespace ParseFive.Tokenizer
                     @this.LeaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
 
                 else if (IsAsciiUpper(cp))
-                    @this.currentAttr.name += ToAsciiLowerChar(cp);
+                    @this.currentAttr.Name += ToAsciiLowerChar(cp);
 
                 else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN)
-                    @this.currentAttr.name += ToChar(cp);
+                    @this.currentAttr.Name += ToChar(cp);
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.name += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttr.Name += CP.REPLACEMENT_CHARACTER;
 
                 else
-                    @this.currentAttr.name += ToChar(cp);
+                    @this.currentAttr.Name += ToChar(cp);
             }
 
             // 12.2.4.36 After attribute name state
@@ -1669,13 +1669,13 @@ namespace ParseFive.Tokenizer
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.value += ToChar(cp);
+                    @this.currentAttr.Value += ToChar(cp);
             }
 
             // 12.2.4.39 Attribute value (single-quoted) state
@@ -1693,13 +1693,13 @@ namespace ParseFive.Tokenizer
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.value += ToChar(cp);
+                    @this.currentAttr.Value += ToChar(cp);
             }
 
             // 12.2.4.40 Attribute value (unquoted) state
@@ -1723,17 +1723,17 @@ namespace ParseFive.Tokenizer
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
 
                 else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
                          cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
-                    @this.currentAttr.value += ToChar(cp);
+                    @this.currentAttr.Value += ToChar(cp);
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.value += ToChar(cp);
+                    @this.currentAttr.Value += ToChar(cp);
             }
 
             // 12.2.4.41 Character reference in attribute value state
@@ -1747,10 +1747,10 @@ namespace ParseFive.Tokenizer
                     if (referencedCodePoints != null)
                     {
                         foreach (var rcp in referencedCodePoints)
-                            @this.currentAttr.value += ToChar(rcp);
+                            @this.currentAttr.Value += ToChar(rcp);
                     }
                     else
-                        @this.currentAttr.value += '&';
+                        @this.currentAttr.Value += '&';
 
                     @this.State = @this.returnState;
                 }

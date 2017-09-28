@@ -1,15 +1,15 @@
 public class Attr
 {
-    public string prefix { get; internal set; }
-    public string name { get; internal set; }
-    public string @namespace { get; internal set; }
-    public string value { get; internal set; }
+    public string Prefix { get; internal set; }
+    public string Name { get; internal set; }
+    public string Namespace { get; internal set; }
+    public string Value { get; internal set; }
 
     public Attr(string name, string value)
     {
-        this.prefix = "";
-        this.name = name;
-        this.@namespace = "";
-        this.value = value;
+        this.Prefix = "";
+        this.Name = name;
+        this.Namespace = "";
+        this.Value = value;
     }
 }

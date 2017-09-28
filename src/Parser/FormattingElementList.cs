@@ -108,7 +108,7 @@ namespace ParseFive.Parser
                 {
                     var neAttr = neAttrs[i];
 
-                    neAttrsMap.Add(neAttr.name, neAttr.value);
+                    neAttrsMap.Add(neAttr.Name, neAttr.Value);
                     // neAttrsMap[neAttr.name] = neAttr.value;
                 }
 
@@ -118,7 +118,7 @@ namespace ParseFive.Parser
                     {
                         var cAttr = candidates[j].attrs[i];
 
-                        if ((neAttrsMap.TryGetValue(cAttr.name, out var v) ? v : null) != cAttr.value)
+                        if ((neAttrsMap.TryGetValue(cAttr.Name, out var v) ? v : null) != cAttr.Value)
                         {
                             candidates.Splice(j, 1);
                             cLength--;

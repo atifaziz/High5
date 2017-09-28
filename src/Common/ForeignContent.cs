@@ -226,9 +226,9 @@ namespace ParseFive.Common
         {
             foreach (var attr in token.Attrs)
             {
-                if (attr.name == DefinitionUrlAttr)
+                if (attr.Name == DefinitionUrlAttr)
                 {
-                    attr.name = AdjustedDefinitionUrlAttr;
+                    attr.Name = AdjustedDefinitionUrlAttr;
                     break;
                 }
             }
@@ -238,8 +238,8 @@ namespace ParseFive.Common
         {
             foreach (var attr in token.Attrs)
             {
-                if (SvgAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrName))
-                    attr.name = adjustedAttrName;
+                if (SvgAttrsAdjustmentMap.TryGetValue(attr.Name, out var adjustedAttrName))
+                    attr.Name = adjustedAttrName;
             }
         }
 
@@ -247,11 +247,11 @@ namespace ParseFive.Common
         {
             foreach (var attr in token.Attrs)
             {
-                if (XmlAttrsAdjustmentMap.TryGetValue(attr.name, out var adjustedAttrEntry))
+                if (XmlAttrsAdjustmentMap.TryGetValue(attr.Name, out var adjustedAttrEntry))
                 {
-                    attr.prefix = adjustedAttrEntry.Prefix;
-                    attr.name = adjustedAttrEntry.Name;
-                    attr.@namespace = adjustedAttrEntry.Namespace;
+                    attr.Prefix = adjustedAttrEntry.Prefix;
+                    attr.Name = adjustedAttrEntry.Name;
+                    attr.Namespace = adjustedAttrEntry.Namespace;
                 }
             }
         }
@@ -275,9 +275,9 @@ namespace ParseFive.Common
             {
                 foreach (var attr in attrs)
                 {
-                    if (attr.name == ATTRS.ENCODING)
+                    if (attr.Name == ATTRS.ENCODING)
                     {
-                        var value = attr.value.ToLowerCase();
+                        var value = attr.Value.ToLowerCase();
 
                         return value == MimeTypes.TextHtml || value == MimeTypes.ApplicationXml;
                     }

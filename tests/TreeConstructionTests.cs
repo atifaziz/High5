@@ -303,8 +303,8 @@ namespace ParseFive.Tests
                                : null;
                         yield return Print(level, "<", ns, e.TagName, ">");
                         foreach (var a in e.Attributes
-                                           .Select(a => (Name : (!string.IsNullOrEmpty(a.prefix) ? a.prefix + " " : null) + a.name,
-                                                         Value: a.value))
+                                           .Select(a => (Name : (!string.IsNullOrEmpty(a.Prefix) ? a.Prefix + " " : null) + a.Name,
+                                                         Value: a.Value))
                                            .OrderBy(a => a.Name, StringComparer.Ordinal))
                         {
                             yield return Print(level + 1, a.Name, "=", "\"", a.Value, "\"");
