@@ -39,9 +39,9 @@ public class Element : Node
 {
     public string TagName { get; }
     public string NamespaceUri { get; }
-    public List<Attr> Attributes { get; }
+    public IList<Attr> Attributes { get; }
 
-    public Element(string tagName, string namespaceUri, List<Attr> attributes)
+    public Element(string tagName, string namespaceUri, IList<Attr> attributes)
     {
         TagName = tagName;
         NamespaceUri = namespaceUri;
@@ -77,7 +77,7 @@ public class TemplateElement : Element
 {
     public Node Content { get; internal set; }
 
-    public TemplateElement(string tagName, string namespaceUri, List<Attr> attributes) : base(tagName, namespaceUri, attributes)
+    public TemplateElement(string tagName, string namespaceUri, IList<Attr> attributes) : base(tagName, namespaceUri, attributes)
     {
     }
 }

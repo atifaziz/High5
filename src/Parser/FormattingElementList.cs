@@ -84,9 +84,9 @@ namespace ParseFive.Parser
         // OPTIMIZATION: at first we try to find possible candidates for exclusion using
         // lightweight heuristics without thorough attributes check.
 
-        List<(int idx, List<Attr> attrs)> GetNoahArkConditionCandidates(Element newElement)
+        List<(int idx, IList<Attr> attrs)> GetNoahArkConditionCandidates(Element newElement)
         {
-            var candidates = new List<(int idx, List<Attr> attrs)>();
+            var candidates = new List<(int idx, IList<Attr> attrs)>();
 
             if (length >= NoahArkCapacity)
             {
@@ -112,7 +112,7 @@ namespace ParseFive.Parser
                 }
             }
 
-            return candidates.Count < NoahArkCapacity ? new List<(int, List<Attr>)>() : candidates;
+            return candidates.Count < NoahArkCapacity ? new List<(int, IList<Attr>)>() : candidates;
         }
 
         void EnsureNoahArkCondition(Element newElement)

@@ -278,8 +278,8 @@ namespace ParseFive.Tests
                 var context =
                     DefaultTreeAdapter.Instance.CreateElement(
                         tagName, ns == "svg" ? nsSvg
-                               : ns == "math" ? nsMath
-                               : nsHtml,
+                            : ns == "math" ? nsMath
+                                : nsHtml,
                         new List<Attr>());
 
                 parse = (p, s) => p.ParseFragment(s, context);
