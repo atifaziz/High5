@@ -3,11 +3,6 @@ namespace ParseFive.Extensions
     using System;
     using System.Collections.Generic;
 
-    static class BooleanExtensions
-    {
-        public static bool IsTruthy(this string s) => !String.IsNullOrEmpty(s);
-    }
-
     static class StringExtensions
     {
         public static string ToLowerCase(this string str) => str.ToLower();
