@@ -29,13 +29,14 @@ namespace ParseFive.Parser
     using Extensions;
     using Tokenizer;
 
-    abstract class Entry
+    abstract class Entry<TElement>
+        where TElement : class
     {
         public string Type { get; }
-        public Element Element { get; set; }
+        public TElement Element { get; set; }
         public Token Token { get; }
 
-        protected Entry(string type, Element element = null, Token token = null)
+        protected Entry(string type, TElement element = null, Token token = null)
         {
             Type = type;
             Element = element;
@@ -43,29 +44,32 @@ namespace ParseFive.Parser
         }
     }
 
-    sealed class MarkerEntry : Entry
+    sealed class MarkerEntry<TElement> : Entry<TElement>
+        where TElement : class
     {
         public MarkerEntry(string type) :
             base(type) {}
     }
 
-    sealed class ElementEntry : Entry
+    sealed class ElementEntry<TElement> : Entry<TElement>
+        where TElement : class
     {
-        public ElementEntry(string type, Element element, Token token) :
+        public ElementEntry(string type, TElement element, Token token) :
             base(type, element, token) {}
     }
 
-    sealed class FormattingElementList
+    sealed class FormattingElementList<TElement>
+        where TElement : class
     {
         sealed class TreeAdapter
         {
-            public readonly Func<Element, string> GetNamespaceUri;
-            public readonly Func<Element, string> GetTagName;
-            public readonly Func<Element, IList<Attr>> GetAttrList;
+            public readonly Func<TElement, string> GetNamespaceUri;
+            public readonly Func<TElement, string> GetTagName;
+            public readonly Func<TElement, IList<Attr>> GetAttrList;
 
-            public TreeAdapter(Func<Element, string> getNamespaceUri,
-                               Func<Element, string> getTagName,
-                               Func<Element, IList<Attr>> getAttrList)
+            public TreeAdapter(Func<TElement, string> getNamespaceUri,
+                               Func<TElement, string> getTagName,
+                               Func<TElement, IList<Attr>> getAttrList)
             {
                 GetNamespaceUri = getNamespaceUri;
                 GetTagName = getTagName;
@@ -79,31 +83,33 @@ namespace ParseFive.Parser
 
         readonly TreeAdapter treeAdapter;
         int length;
-        readonly List<Entry> entries;
+        readonly List<Entry<TElement>> entries;
 
         public object Bookmark { get; set; }
         public int Length => this.length;
-        public Entry this[int index] => this.entries[index];
+        public Entry<TElement> this[int index] => this.entries[index];
 
         // Entry types
 
         public const string MARKER_ENTRY = "MARKER_ENTRY";
         public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
 
-        public FormattingElementList(ITreeAdapter treeAdapter)
+        public FormattingElementList(Func<TElement, string> getNamespaceUri,
+                                     Func<TElement, string> getTagName,
+                                     Func<TElement, IList<Attr>> getAttrList)
         {
-            this.treeAdapter = new TreeAdapter(treeAdapter.GetNamespaceUri,
-                                               treeAdapter.GetTagName,
-                                               treeAdapter.GetAttrList);
+            this.treeAdapter = new TreeAdapter(getNamespaceUri,
+                                               getTagName,
+                                               getAttrList);
             length = 0;
-            entries = new List<Entry>();
+            entries = new List<Entry<TElement>>();
         }
 
         // Noah Ark's condition
         // OPTIMIZATION: at first we try to find possible candidates for exclusion using
         // lightweight heuristics without thorough attributes check.
 
-        List<(int idx, IList<Attr> attrs)> GetNoahArkConditionCandidates(Element newElement)
+        List<(int idx, IList<Attr> attrs)> GetNoahArkConditionCandidates(TElement newElement)
         {
             var candidates = new List<(int idx, IList<Attr> attrs)>();
 
@@ -134,7 +140,7 @@ namespace ParseFive.Parser
             return candidates.Count < NoahArkCapacity ? new List<(int, IList<Attr>)>() : candidates;
         }
 
-        void EnsureNoahArkCondition(Element newElement)
+        void EnsureNoahArkCondition(TElement newElement)
         {
             var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.Count;
@@ -186,19 +192,19 @@ namespace ParseFive.Parser
 
         public void InsertMarker()
         {
-            entries.Push(new MarkerEntry(MARKER_ENTRY));
+            entries.Push(new MarkerEntry<TElement>(MARKER_ENTRY));
             length++;
         }
 
-        public void PushElement(Element element, Token token)
+        public void PushElement(TElement element, Token token)
         {
             this.EnsureNoahArkCondition(element);
 
-            this.entries.Push(new ElementEntry(ELEMENT_ENTRY, element, token));
+            this.entries.Push(new ElementEntry<TElement>(ELEMENT_ENTRY, element, token));
             length++;
         }
 
-        internal void InsertElementAfterBookmark(Element element, Token token)
+        internal void InsertElementAfterBookmark(TElement element, Token token)
         {
             var bookmarkIdx = this.length - 1;
 
@@ -208,12 +214,12 @@ namespace ParseFive.Parser
                     break;
             }
 
-            this.entries.Splice(bookmarkIdx + 1, 0, new ElementEntry(ELEMENT_ENTRY, element, token));
+            this.entries.Splice(bookmarkIdx + 1, 0, new ElementEntry<TElement>(ELEMENT_ENTRY, element, token));
 
             this.length++;
         }
 
-        public void RemoveEntry(Entry entry)
+        public void RemoveEntry(Entry<TElement> entry)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
@@ -241,7 +247,7 @@ namespace ParseFive.Parser
 
         // Search
 
-        public Entry GetElementEntryInScopeWithTagName(string tagName)
+        public Entry<TElement> GetElementEntryInScopeWithTagName(string tagName)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
@@ -257,7 +263,7 @@ namespace ParseFive.Parser
             return null;
         }
 
-        public Entry GetElementEntry(Element element)
+        public Entry<TElement> GetElementEntry(TElement element)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
