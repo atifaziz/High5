@@ -10,6 +10,7 @@ namespace ParseFive.Parser
     using static Tokenizer.Tokenizer.MODE;
     using static Common.ForeignContent;
     using static Common.Doctype;
+    using static Truthiness;
     using ATTRS = Common.HTML.ATTRS;
     using NS = Common.HTML.NAMESPACES;
     using MODE = Tokenizer.Tokenizer.MODE;
@@ -1545,7 +1546,7 @@ namespace ParseFive.Parser
                 else if ((tn == T.DD || tn == T.DT) && (elementTn == T.DD || elementTn == T.DT))
                     closeTn = elementTn;
 
-                if (closeTn.IsTruthy())
+                if (IsTruthy(closeTn))
                 {
                     p.openElements.GenerateImpliedEndTagsWithExclusion(closeTn);
                     p.openElements.PopUntilTagNamePopped(closeTn);
@@ -1654,7 +1655,7 @@ namespace ParseFive.Parser
 
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (!inputType.IsTruthy() || inputType.ToLowerCase() != HIDDEN_INPUT_TYPE)
+            if (!IsTruthy(inputType) || inputType.ToLowerCase() != HIDDEN_INPUT_TYPE)
                 p.framesetOk = false;
 
         }
@@ -2468,7 +2469,7 @@ namespace ParseFive.Parser
         {
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (inputType.IsTruthy() && inputType.ToLowerCase() == HIDDEN_INPUT_TYPE)
+            if (IsTruthy(inputType) && inputType.ToLowerCase() == HIDDEN_INPUT_TYPE)
                 p.AppendElement(token, NS.HTML);
 
             else

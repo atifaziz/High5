@@ -3,6 +3,7 @@ namespace ParseFive.Tokenizer
     using System.Collections.Generic;
     using Extensions;
     using CP = Common.Unicode.CodePoints;
+    using static Truthiness;
 
     sealed class Preprocessor
     {
@@ -93,7 +94,7 @@ namespace ParseFive.Tokenizer
 
         public void Write(string chunk, bool isLastChunk)
         {
-            if (this.html.IsTruthy())
+            if (IsTruthy(this.html))
                 this.html += chunk;
             else
                 this.html = chunk;

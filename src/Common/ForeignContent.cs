@@ -3,6 +3,7 @@ namespace ParseFive.Common
     using System.Collections.Generic;
     using Extensions;
     using Tokenizer;
+    using static Truthiness;
     using Tokenizer = Tokenizer.Tokenizer;
     using T = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
@@ -288,10 +289,10 @@ namespace ParseFive.Common
 
         public static bool IsIntegrationPoint(string tn, string ns, List<Attr> attrs, string foreignNS)
         {
-            if ((!foreignNS.IsTruthy() || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
+            if ((!IsTruthy(foreignNS) || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
                 return true;
 
-            if ((!foreignNS.IsTruthy() || foreignNS == NS.MATHML) && IsMathMlTextIntegrationPoint(tn, ns))
+            if ((!IsTruthy(foreignNS) || foreignNS == NS.MATHML) && IsMathMlTextIntegrationPoint(tn, ns))
                 return true;
 
             return false;
