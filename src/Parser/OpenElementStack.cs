@@ -30,7 +30,10 @@ namespace ParseFive.Parser
     using T = Common.HTML.TAG_NAMES;
     using NS = Common.HTML.NAMESPACES;
 
-    sealed class OpenElementStack
+    sealed class OpenElementStack<Node, Element, TemplateElement>
+        where Node            : class
+        where Element         : class, Node
+        where TemplateElement : Node
     {
         sealed class TreeAdapter
         {
@@ -58,7 +61,10 @@ namespace ParseFive.Parser
         public int StackTop { get; private set; }
 
         //Stack of open elements
-        public OpenElementStack(Node document, ITreeAdapter treeAdapter)
+        public OpenElementStack(Node document,
+                                Func<Element, string> getNamespaceUri,
+                                Func<Element, string> getTagName,
+                                Func<TemplateElement, Node> getTemplateContent)
         {
             this.StackTop = -1;
             this.items = new List<Element>();
@@ -66,9 +72,9 @@ namespace ParseFive.Parser
             this.CurrentTagName = null;
             this.CurrentTmplContent = null;
             this.TmplCount = 0;
-            this.treeAdapter = new TreeAdapter(treeAdapter.GetNamespaceUri,
-                                               treeAdapter.GetTagName,
-                                               treeAdapter.GetTemplateContent);
+            this.treeAdapter = new TreeAdapter(getNamespaceUri,
+                                               getTagName,
+                                               getTemplateContent);
         }
 
         static bool IsImpliedEndTagRequired(string tn)

@@ -33,9 +33,9 @@ namespace ParseFive.Tests
     using System.Text;
     using System.Text.RegularExpressions;
     using MoreLinq;
-    using Parser;
     using TreeAdapters;
     using Xunit;
+    using Parser = Parser.Parser<Node, Document, DocumentFragment, Element, TemplateElement, Comment, Text>;
 
     public class TreeConstructionTests
     {
@@ -285,7 +285,7 @@ namespace ParseFive.Tests
                 parse = (p, s) => p.ParseFragment(s, context);
             }
 
-            var parser = new Parser();
+            var parser = DefaultTreeAdapter.Instance.CreateParser();
             var doc = parse(parser, html);
             char[] indent = {};
             var actuals = Dump(doc).Concat(string.Empty);

@@ -29,6 +29,7 @@ namespace Demo
     using System.Net.Http;
     using System.Text;
     using ParseFive.Parser;
+    using ParseFive.TreeAdapters;
 
     static class Program
     {
@@ -55,7 +56,7 @@ namespace Demo
                 html = File.ReadAllText(source);
             }
 
-            var parser = new Parser();
+            var parser = DefaultTreeAdapter.Instance.CreateParser();
             var doc = parser.Parse(html);
             char[] indent = {};
             Dump(doc, Console.Out);

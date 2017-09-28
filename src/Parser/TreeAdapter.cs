@@ -26,39 +26,48 @@ namespace ParseFive
 {
     using System.Collections.Generic;
 
-    public interface ITreeAdapter
+    public interface ITreeAdapter<TNode,
+                                  TDocument, TDocumentFragment,
+                                  TElement, TTemplateElement,
+                                  TComment, TText>
+        where TDocument         : TNode
+        where TDocumentFragment : TNode
+        where TElement          : TNode
+        where TTemplateElement  : TElement
+        where TComment          : TNode
+        where TText             : TNode
     {
         // Node construction
 
-        Document CreateDocument();
-        DocumentFragment CreateDocumentFragment();
-        Element CreateElement(string tagName, string namespaceUri, IList<Attr> attrs);
-        Comment CreateCommentNode(string data);
-        Text CreateTextNode(string value);
+        TDocument CreateDocument();
+        TDocumentFragment CreateDocumentFragment();
+        TElement CreateElement(string tagName, string namespaceUri, IList<Attr> attrs);
+        TComment CreateCommentNode(string data);
+        TText CreateTextNode(string value);
 
         // Tree mutation
 
-        void AppendChild(Node parentNode, Node newNode);
-        void InsertBefore(Node parentNode, Node newNode, Node referenceNode);
-        void SetTemplateContent(TemplateElement templateElement, Node contentElement);
-        Node GetTemplateContent(TemplateElement templateElement);
-        void SetDocumentType(Document document, string name, string publicId, string systemId);
-        void SetDocumentMode(Document document, string mode);
-        string GetDocumentMode(Document document);
-        void DetachNode(Node node);
-        void InsertText(Node parentNode, string text);
-        void InsertTextBefore(Node parentNode, string text, Node referenceNode);
-        void AdoptAttributes(Element recipient, IList<Attr> attrs);
+        void AppendChild(TNode parentNode, TNode newNode);
+        void InsertBefore(TNode parentNode, TNode newNode, TNode referenceNode);
+        void SetTemplateContent(TTemplateElement templateElement, TNode contentElement);
+        TNode GetTemplateContent(TTemplateElement templateElement);
+        void SetDocumentType(TDocument document, string name, string publicId, string systemId);
+        void SetDocumentMode(TDocument document, string mode);
+        string GetDocumentMode(TDocument document);
+        void DetachNode(TNode node);
+        void InsertText(TNode parentNode, string text);
+        void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
+        void AdoptAttributes(TElement recipient, IList<Attr> attrs);
 
         // Tree traversing
 
-        Node GetFirstChild(Node node);
-        Node GetParentNode(Node node);
-        IList<Attr> GetAttrList(Element element);
+        TNode GetFirstChild(TNode node);
+        TNode GetParentNode(TNode node);
+        IList<Attr> GetAttrList(TElement element);
 
         // Node data
 
-        string GetTagName(Element element);
-        string GetNamespaceUri(Element element);
+        string GetTagName(TElement element);
+        string GetNamespaceUri(TElement element);
     }
 }

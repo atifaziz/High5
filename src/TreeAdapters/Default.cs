@@ -26,11 +26,15 @@ namespace ParseFive.TreeAdapters
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Parser;
     using Extensions;
 
-    public sealed class DefaultTreeAdapter : ITreeAdapter
+    public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, TemplateElement, Comment, Text>
     {
-        public static ITreeAdapter Instance = new DefaultTreeAdapter();
+        public static DefaultTreeAdapter Instance = new DefaultTreeAdapter();
+
+        public Parser<Node, Document, DocumentFragment, Element, TemplateElement, Comment, Text>
+            CreateParser() => new Parser<Node, Document, DocumentFragment, Element, TemplateElement, Comment, Text>(this);
 
         public Document CreateDocument() => new Document();
 
