@@ -93,7 +93,7 @@ namespace ParseFive.Tokenizer
 
         public void Write(string chunk, bool isLastChunk)
         {
-            if (this.html.IsTruthy())
+            if (!string.IsNullOrEmpty(this.html))
                 this.html += chunk;
             else
                 this.html = chunk;

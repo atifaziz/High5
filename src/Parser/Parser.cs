@@ -1545,7 +1545,7 @@ namespace ParseFive.Parser
                 else if ((tn == T.DD || tn == T.DT) && (elementTn == T.DD || elementTn == T.DT))
                     closeTn = elementTn;
 
-                if (closeTn.IsTruthy())
+                if (!string.IsNullOrEmpty(closeTn))
                 {
                     p.openElements.GenerateImpliedEndTagsWithExclusion(closeTn);
                     p.openElements.PopUntilTagNamePopped(closeTn);
@@ -1654,7 +1654,7 @@ namespace ParseFive.Parser
 
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (!inputType.IsTruthy() || inputType.ToLowerCase() != HIDDEN_INPUT_TYPE)
+            if (string.IsNullOrEmpty(inputType) || inputType.ToLowerCase() != HIDDEN_INPUT_TYPE)
                 p.framesetOk = false;
 
         }
@@ -2468,7 +2468,7 @@ namespace ParseFive.Parser
         {
             var inputType = Tokenizer.GetTokenAttr(token, ATTRS.TYPE);
 
-            if (inputType.IsTruthy() && inputType.ToLowerCase() == HIDDEN_INPUT_TYPE)
+            if (!string.IsNullOrEmpty(inputType) && inputType.ToLowerCase() == HIDDEN_INPUT_TYPE)
                 p.AppendElement(token, NS.HTML);
 
             else
