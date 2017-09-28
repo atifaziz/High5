@@ -296,7 +296,7 @@ namespace ParseFive.Tokenizer
 
         public Token GetNextToken()
         {
-            while (!this.tokenQueue.Count.IsTruthy() && this.active)
+            while (this.tokenQueue.Count == 0 && this.active)
             {
                 this.HibernationSnapshot();
 
@@ -360,7 +360,7 @@ namespace ParseFive.Tokenizer
 
         void UnconsumeSeveral(int count)
         {
-            while ((count--).IsTruthy())
+            while (count-- > 0)
                 this.Unconsume();
         }
 
