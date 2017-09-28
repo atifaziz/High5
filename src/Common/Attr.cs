@@ -24,6 +24,8 @@
 
 public class Attr
 {
+    public static Attr[] NilAttrArray = null;
+
     public string Prefix { get; internal set; }
     public string Name { get; internal set; }
     public string Namespace { get; internal set; }
