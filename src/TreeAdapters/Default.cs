@@ -51,7 +51,7 @@ namespace ParseFive.TreeAdapters
         {
             var doctypeNode = document.ChildNodes.OfType<DocumentType>().FirstOrDefault();
 
-            if (doctypeNode.IsTruthy())
+            if (doctypeNode != null)
             {
                 doctypeNode.Name = name;
                 doctypeNode.PublicId = publicId;
@@ -97,7 +97,7 @@ namespace ParseFive.TreeAdapters
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
-            if (prevNode.IsTruthy() && IsTextNode(prevNode))
+            if (prevNode != null && IsTextNode(prevNode))
                 ((Text)prevNode).Value += text;
             else
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);

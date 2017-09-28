@@ -511,7 +511,7 @@ namespace ParseFive.Tokenizer
 
         void EmitCurrentCharacterToken()
         {
-            if (this.currentCharacterToken.IsTruthy())
+            if (this.currentCharacterToken != null)
             {
                 this.tokenQueue.Push(this.currentCharacterToken);
                 this.currentCharacterToken = null;
@@ -537,10 +537,10 @@ namespace ParseFive.Tokenizer
 
         void AppendCharToCurrentCharacterToken(TokenType type, string ch)
         {
-            if (this.currentCharacterToken.IsTruthy() && this.currentCharacterToken.Type != type)
+            if (this.currentCharacterToken != null && this.currentCharacterToken.Type != type)
                 this.EmitCurrentCharacterToken();
 
-            if (this.currentCharacterToken.IsTruthy())
+            if (this.currentCharacterToken != null)
                 this.currentCharacterToken.Chars += ch;
 
             else
@@ -650,7 +650,7 @@ namespace ParseFive.Tokenizer
                     i = cp == current ? ++i : -1;
             }
 
-            if (referencedCodePoints.IsTruthy())
+            if (referencedCodePoints != null)
             {
                 if (!semicolonTerminated)
                 {
@@ -759,7 +759,7 @@ namespace ParseFive.Tokenizer
 
                 if (!@this.EnsureHibernation())
                 {
-                    if (referencedCodePoints.IsTruthy())
+                    if (referencedCodePoints != null)
                         @this.EmitSeveralCodePoints(referencedCodePoints);
 
                     else
@@ -801,7 +801,7 @@ namespace ParseFive.Tokenizer
 
                 if (!@this.EnsureHibernation())
                 {
-                    if (referencedCodePoints.IsTruthy())
+                    if (referencedCodePoints != null)
                         @this.EmitSeveralCodePoints(referencedCodePoints);
 
                     else
@@ -1744,7 +1744,7 @@ namespace ParseFive.Tokenizer
 
                 if (!@this.EnsureHibernation())
                 {
-                    if (referencedCodePoints.IsTruthy())
+                    if (referencedCodePoints != null)
                     {
                         foreach (var rcp in referencedCodePoints)
                             @this.currentAttr.value += ToChar(rcp);

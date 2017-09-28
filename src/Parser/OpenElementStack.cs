@@ -150,7 +150,7 @@ namespace ParseFive.Parser
         void UpdateCurrentElement()
         {
             this.Current = this.items[this.StackTop];
-            this.CurrentTagName = this.Current.IsTruthy() ? this.treeAdapter.GetTagName((Element) this.Current) : null;
+            this.CurrentTagName = this.Current != null ? this.treeAdapter.GetTagName((Element) this.Current) : null;
 
             this.CurrentTmplContent = this.IsInTemplate() ? this.treeAdapter.GetTemplateContent((TemplateElement) this.Current) : null;
         }
@@ -311,7 +311,7 @@ namespace ParseFive.Parser
             //Properly nested <body> element (should be second element in stack).
             var element = this.items.Count > 1 ? this.items[1] : null;
 
-            return element.IsTruthy() && this.treeAdapter.GetTagName(element) == T.BODY ? element : null;
+            return element != null && this.treeAdapter.GetTagName(element) == T.BODY ? element : null;
         }
 
         public bool Contains(Element element)
