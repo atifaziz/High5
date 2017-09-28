@@ -288,10 +288,10 @@ namespace ParseFive.Common
 
         public static bool IsIntegrationPoint(string tn, string ns, List<Attr> attrs, string foreignNS)
         {
-            if ((string.IsNullOrEmpty(foreignNS) || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
+            if ((!foreignNS.IsTruthy() || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
                 return true;
 
-            if ((string.IsNullOrEmpty(foreignNS) || foreignNS == NS.MATHML) && IsMathMlTextIntegrationPoint(tn, ns))
+            if ((!foreignNS.IsTruthy() || foreignNS == NS.MATHML) && IsMathMlTextIntegrationPoint(tn, ns))
                 return true;
 
             return false;
