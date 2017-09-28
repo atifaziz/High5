@@ -293,7 +293,7 @@ namespace ParseFive.Common
             return ns == NS.MATHML && (tn == T.MI || tn == T.MO || tn == T.MN || tn == T.MS || tn == T.MTEXT);
         }
 
-        static bool IsHtmlIntegrationPoint(string tn, string ns, List<Attr> attrs)
+        static bool IsHtmlIntegrationPoint(string tn, string ns, IEnumerable<Attr> attrs)
         {
             if (ns == NS.MATHML && tn == T.ANNOTATION_XML)
             {
@@ -311,7 +311,7 @@ namespace ParseFive.Common
             return ns == NS.SVG && (tn == T.FOREIGN_OBJECT || tn == T.DESC || tn == T.TITLE);
         }
 
-        public static bool IsIntegrationPoint(string tn, string ns, List<Attr> attrs, string foreignNS)
+        public static bool IsIntegrationPoint(string tn, string ns, IEnumerable<Attr> attrs, string foreignNS)
         {
             if ((!IsTruthy(foreignNS) || foreignNS == NS.HTML) && IsHtmlIntegrationPoint(tn, ns, attrs))
                 return true;

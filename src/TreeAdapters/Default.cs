@@ -41,7 +41,7 @@ namespace ParseFive.TreeAdapters
 
         public DocumentFragment CreateDocumentFragment() => new DocumentFragment();
 
-        public Element CreateElement(string tagName, string namespaceURI, List<Attr> attrs) => tagName == "template" ? 
+        public Element CreateElement(string tagName, string namespaceURI, IList<Attr> attrs) => tagName == "template" ? 
             new TemplateElement(tagName, namespaceURI, attrs) : new Element(tagName, namespaceURI, attrs);
 
         public Comment CreateCommentNode(string data) => new Comment(data);
@@ -127,7 +127,7 @@ namespace ParseFive.TreeAdapters
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void AdoptAttributes(Element recipient, List<Attr> attrs)
+        public void AdoptAttributes(Element recipient, IList<Attr> attrs)
         {
             var recipientAttrsMap = new HashSet<string>();
 
@@ -156,7 +156,7 @@ namespace ParseFive.TreeAdapters
             return node.ParentNode;
         }
 
-        public List<Attr> GetAttrList(Element element)
+        public IList<Attr> GetAttrList(Element element)
         {
             return element.Attributes;
         }

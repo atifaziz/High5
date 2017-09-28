@@ -32,7 +32,7 @@ namespace ParseFive
 
         Document CreateDocument();
         DocumentFragment CreateDocumentFragment();
-        Element CreateElement(string tagName, string namespaceUri, List<Attr> attrs);
+        Element CreateElement(string tagName, string namespaceUri, IList<Attr> attrs);
         Comment CreateCommentNode(string data);
         Text CreateTextNode(string value);
 
@@ -48,14 +48,14 @@ namespace ParseFive
         void DetachNode(Node node);
         void InsertText(Node parentNode, string text);
         void InsertTextBefore(Node parentNode, string text, Node referenceNode);
-        void AdoptAttributes(Element recipient, List<Attr> attrs);
+        void AdoptAttributes(Element recipient, IList<Attr> attrs);
 
         // Tree traversing
 
         Node GetFirstChild(Node node);
         List<Node> GetChildNodes(Node node);
         Node GetParentNode(Node node);
-        List<Attr> GetAttrList(Element element);
+        IList<Attr> GetAttrList(Element element);
 
         // Node data
 
