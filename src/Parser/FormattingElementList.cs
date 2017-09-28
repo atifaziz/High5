@@ -24,6 +24,7 @@
 
 namespace ParseFive.Parser
 {
+    using System;
     using System.Collections.Generic;
     using Extensions;
     using Tokenizer;
@@ -56,11 +57,27 @@ namespace ParseFive.Parser
 
     sealed class FormattingElementList
     {
+        sealed class TreeAdapter
+        {
+            public readonly Func<Element, string> GetNamespaceUri;
+            public readonly Func<Element, string> GetTagName;
+            public readonly Func<Element, IList<Attr>> GetAttrList;
+
+            public TreeAdapter(Func<Element, string> getNamespaceUri,
+                               Func<Element, string> getTagName,
+                               Func<Element, IList<Attr>> getAttrList)
+            {
+                GetNamespaceUri = getNamespaceUri;
+                GetTagName = getTagName;
+                GetAttrList = getAttrList;
+            }
+        }
+
         // Const
 
         const int NoahArkCapacity = 3;
 
-        readonly ITreeAdapter treeAdapter;
+        readonly TreeAdapter treeAdapter;
         int length;
         readonly List<Entry> entries;
 
@@ -75,7 +92,9 @@ namespace ParseFive.Parser
 
         public FormattingElementList(ITreeAdapter treeAdapter)
         {
-            this.treeAdapter = treeAdapter;
+            this.treeAdapter = new TreeAdapter(treeAdapter.GetNamespaceUri,
+                                               treeAdapter.GetTagName,
+                                               treeAdapter.GetAttrList);
             length = 0;
             entries = new List<Entry>();
         }
