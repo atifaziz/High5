@@ -416,7 +416,7 @@ namespace ParseFive.Parser
         {
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
-            if (!fragmentContext.IsTruthy())
+            if (fragmentContext == null)
                 fragmentContext = this.treeAdapter.CreateElement(T.TEMPLATE, NS.HTML, new List<Attr>());
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
@@ -502,7 +502,7 @@ namespace ParseFive.Parser
 
                 this.ProcessInputToken(token);
 
-                if (scriptHandler.IsTruthy() && this.pendingScript.IsTruthy())
+                if (scriptHandler != null && this.pendingScript != null)
                     break;
             }
         }
@@ -511,7 +511,7 @@ namespace ParseFive.Parser
         {
             this.RunParsingLoop(scriptHandler);
 
-            if (scriptHandler.IsTruthy() && this.pendingScript.IsTruthy())
+            if (scriptHandler != null && this.pendingScript != null)
             {
                 var script = this.pendingScript;
 
@@ -522,7 +522,7 @@ namespace ParseFive.Parser
                 return;
             }
 
-            if (writeCallback.IsTruthy())
+            if (writeCallback != null)
                 writeCallback();
         }
 
@@ -531,7 +531,7 @@ namespace ParseFive.Parser
         {
             var current = this.GetAdjustedCurrentElement();
 
-            this.tokenizer.AllowCData = current.IsTruthy() && current != this.document &&
+            this.tokenizer.AllowCData = current != null && current != this.document &&
                                         this.treeAdapter.GetNamespaceUri((Element)current) != NS.HTML && !this.IsIntegrationPoint((Element)current);
         }
 
@@ -553,7 +553,7 @@ namespace ParseFive.Parser
         //Fragment parsing
         Node GetAdjustedCurrentElement()
         {
-            return (this.openElements.StackTop == 0 && this.fragmentContext.IsTruthy() ?
+            return (this.openElements.StackTop == 0 && this.fragmentContext != null ?
                 this.fragmentContext :
                 this.openElements.Current);
         }
@@ -571,7 +571,7 @@ namespace ParseFive.Parser
                 }
 
                 node = (Element) this.treeAdapter.GetParentNode(node);
-            } while (node.IsTruthy());
+            } while (node != null);
         }
 
         void InitTokenizerForFragmentParsing()
@@ -686,7 +686,7 @@ namespace ParseFive.Parser
             {
                 var child = this.treeAdapter.GetFirstChild(donor);
 
-                if (!child.IsTruthy())
+                if (child == null)
                     break;
 
                 this.treeAdapter.DetachNode(child);
@@ -699,7 +699,7 @@ namespace ParseFive.Parser
         {
             var current_ = this.GetAdjustedCurrentElement();
 
-            if (!current_.IsTruthy() || current_ == this.document)
+            if (current_ == null || current_ == this.document)
                 return false;
 
             var current = (Element) current_;
@@ -842,7 +842,7 @@ namespace ParseFive.Parser
                 {
                     last = true;
 
-                    if (this.fragmentContext.IsTruthy())
+                    if (this.fragmentContext != null)
                         element = (Element) this.fragmentContext;
                 }
 
@@ -880,7 +880,7 @@ namespace ParseFive.Parser
 
                 else if (tn == T.HTML)
                 {
-                    this.insertionMode = this.headElement.IsTruthy() ? AFTER_HEAD_MODE : BEFORE_HEAD_MODE;
+                    this.insertionMode = this.headElement != null ? AFTER_HEAD_MODE : BEFORE_HEAD_MODE;
                     break;
                 }
 
@@ -964,7 +964,7 @@ namespace ParseFive.Parser
                 {
                     location.parent = this.treeAdapter.GetParentNode(openElement);
 
-                    if (location.parent.IsTruthy())
+                    if (location.parent != null)
                         location.beforeElement = openElement;
                     else
                         location.parent = this.openElements[i - 1];
@@ -973,7 +973,7 @@ namespace ParseFive.Parser
                 }
             }
 
-            if (!location.parent.IsTruthy())
+            if (location.parent == null)
                 location.parent = this.openElements[0];
 
             return location;
@@ -983,7 +983,7 @@ namespace ParseFive.Parser
         {
             var location = this.FindFosterParentingLocation();
 
-            if (location.beforeElement.IsTruthy())
+            if (location.beforeElement != null)
                 this.treeAdapter.InsertBefore(location.parent, element, location.beforeElement);
             else
                 this.treeAdapter.AppendChild(location.parent, element);
@@ -993,7 +993,7 @@ namespace ParseFive.Parser
         {
             var location = this.FindFosterParentingLocation();
 
-            if (location.beforeElement.IsTruthy())
+            if (location.beforeElement != null)
                 this.treeAdapter.InsertTextBefore(location.parent, chars, location.beforeElement);
             else
                 this.treeAdapter.InsertText(location.parent, chars);
@@ -1017,7 +1017,7 @@ namespace ParseFive.Parser
         {
             var formattingElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(token.TagName);
 
-            if (formattingElementEntry.IsTruthy())
+            if (formattingElementEntry != null)
             {
                 if (!p.openElements.Contains(formattingElementEntry.Element))
                 {
@@ -1056,7 +1056,7 @@ namespace ParseFive.Parser
                     furthestBlock = element;
             }
 
-            if (!furthestBlock.IsTruthy())
+            if (furthestBlock == null)
             {
                 p.openElements.PopUntilElementPopped(formattingElementEntry.Element);
                 p.activeFormattingElements.RemoveEntry(formattingElementEntry);
@@ -1079,12 +1079,12 @@ namespace ParseFive.Parser
                 nextElement = p.openElements.GetCommonAncestor(element);
 
                 var elementEntry = p.activeFormattingElements.GetElementEntry(element);
-                var counterOverflow = elementEntry.IsTruthy() && i >= AA_INNER_LOOP_ITER;
-                var shouldRemoveFromOpenElements = !elementEntry.IsTruthy() || counterOverflow;
+                var counterOverflow = elementEntry != null && i >= AA_INNER_LOOP_ITER;
+                var shouldRemoveFromOpenElements = elementEntry == null || counterOverflow;
 
                 if (shouldRemoveFromOpenElements)
                 {
-                    if (counterOverflow.IsTruthy())
+                    if (counterOverflow)
                         p.activeFormattingElements.RemoveEntry(elementEntry);
 
                     p.openElements.Remove(element);
@@ -1165,12 +1165,12 @@ namespace ParseFive.Parser
             {
                 formattingElementEntry = AaObtainFormattingElementEntry(p, token, formattingElementEntry);
 
-                if (!formattingElementEntry.IsTruthy())
+                if (formattingElementEntry == null)
                     break;
 
                 var furthestBlock = AaObtainFurthestBlock(p, formattingElementEntry);
 
-                if (!furthestBlock.IsTruthy())
+                if (furthestBlock == null)
                     break;
 
                 p.activeFormattingElements.Bookmark = formattingElementEntry;
@@ -1458,7 +1458,7 @@ namespace ParseFive.Parser
         {
             var bodyElement = p.openElements.TryPeekProperlyNestedBodyElement();
 
-            if (bodyElement.IsTruthy() && p.openElements.TmplCount == 0)
+            if (bodyElement != null && p.openElements.TmplCount == 0)
             {
                 p.framesetOk = false;
                 p.treeAdapter.AdoptAttributes(bodyElement, token.Attrs);
@@ -1469,7 +1469,7 @@ namespace ParseFive.Parser
         {
             var bodyElement = p.openElements.TryPeekProperlyNestedBodyElement();
 
-            if (p.framesetOk && bodyElement.IsTruthy())
+            if (p.framesetOk && bodyElement != null)
             {
                 p.treeAdapter.DetachNode(bodyElement);
                 p.openElements.PopAllUpToHtmlElement();
@@ -1515,7 +1515,7 @@ namespace ParseFive.Parser
         {
             var inTemplate = p.openElements.TmplCount > 0;
 
-            if (!p.formElement.IsTruthy() || inTemplate)
+            if (p.formElement == null || inTemplate)
             {
                 if (p.openElements.HasInButtonScope(T.P))
                     p.ClosePElement();
@@ -1588,7 +1588,7 @@ namespace ParseFive.Parser
         {
             var activeElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(T.A);
 
-            if (activeElementEntry.IsTruthy())
+            if (activeElementEntry != null)
             {
                 CallAdoptionAgency(p, token);
                 p.openElements.Remove(activeElementEntry.Element);
@@ -2110,7 +2110,7 @@ namespace ParseFive.Parser
             if (!inTemplate)
                 p.formElement = null;
 
-            if ((formElement.IsTruthy() || inTemplate) && p.openElements.HasInScope(T.FORM))
+            if ((formElement != null || inTemplate) && p.openElements.HasInScope(T.FORM))
             {
                 p.openElements.GenerateImpliedEndTags();
 
@@ -2477,7 +2477,7 @@ namespace ParseFive.Parser
 
         static void FormStartTagInTable(Parser p, StartTagToken token)
         {
-            if (!p.formElement.IsTruthy() && p.openElements.TmplCount == 0)
+            if (p.formElement == null && p.openElements.TmplCount == 0)
             {
                 p.InsertElement(token, NS.HTML);
                 p.formElement = (Element) p.openElements.Current;
@@ -2973,7 +2973,7 @@ namespace ParseFive.Parser
             {
                 var prevOpenElement = p.openElements[p.openElements.StackTop - 1];
                 var prevOpenElementTn = // prevOpenElement && p.treeAdapter.getTagName(prevOpenElement)
-                                        prevOpenElement.IsTruthy() ? p.treeAdapter.GetTagName(prevOpenElement) : null;
+                                        prevOpenElement != null ? p.treeAdapter.GetTagName(prevOpenElement) : null;
 
                 if (p.openElements.CurrentTagName == T.OPTION && prevOpenElementTn == T.OPTGROUP)
                     p.openElements.Pop();
@@ -3093,7 +3093,7 @@ namespace ParseFive.Parser
         {
             if (token.TagName == T.HTML)
             {
-                if (!p.fragmentContext.IsTruthy())
+                if (p.fragmentContext == null)
                     p.insertionMode = AFTER_AFTER_BODY_MODE;
             }
 
@@ -3132,7 +3132,7 @@ namespace ParseFive.Parser
             {
                 p.openElements.Pop();
 
-                if (!p.fragmentContext.IsTruthy() && p.openElements.CurrentTagName != T.FRAMESET)
+                if (p.fragmentContext == null && p.openElements.CurrentTagName != T.FRAMESET)
                     p.insertionMode = AFTER_FRAMESET_MODE;
             }
         }
@@ -3203,7 +3203,7 @@ namespace ParseFive.Parser
 
         static void StartTagInForeignContent(Parser p, StartTagToken token)
         {
-            if (CausesExit(token) && !p.fragmentContext.IsTruthy())
+            if (CausesExit(token) && p.fragmentContext == null)
             {
                 while (p.treeAdapter.GetNamespaceUri((Element) p.openElements.Current) != NS.HTML && !p.IsIntegrationPoint((Element) p.openElements.Current))
                     p.openElements.Pop();
