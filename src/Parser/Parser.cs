@@ -789,7 +789,7 @@ namespace ParseFive.Parser
         {
             var listLength = this.activeFormattingElements.Length;
 
-            if (listLength.IsTruthy())
+            if (listLength > 0)
             {
                 var unopenIdx = listLength;
                 Entry entry;

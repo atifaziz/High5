@@ -80,7 +80,7 @@ namespace ParseFive.TreeAdapters
 
         public void InsertText(Node parentNode, string text)
         {
-            if (parentNode.ChildNodes.Count.IsTruthy())
+            if (parentNode.ChildNodes.Count > 0)
             {
                 if (parentNode.ChildNodes[parentNode.ChildNodes.Count - 1] is Text tn)
                 {

@@ -6,7 +6,6 @@ namespace ParseFive.Extensions
     static class BooleanExtensions
     {
         public static bool IsTruthy(this string s) => !String.IsNullOrEmpty(s);
-        public static bool IsTruthy(this int n) => n != 0;
     }
 
     static class StringExtensions

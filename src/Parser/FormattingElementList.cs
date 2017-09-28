@@ -96,7 +96,7 @@ namespace ParseFive.Parser
             var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.Count;
 
-            if (cLength.IsTruthy())
+            if (cLength > 0)
             {
                 var neAttrs = this.treeAdapter.GetAttrList(newElement);
                 var neAttrsLength = neAttrs.Count;
@@ -185,7 +185,7 @@ namespace ParseFive.Parser
 
         public void ClearToLastMarker()
         {
-            while (this.length.IsTruthy())
+            while (this.length > 0)
             {
                 var entry = this.entries.Pop();
 
