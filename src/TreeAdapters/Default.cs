@@ -108,10 +108,10 @@ namespace ParseFive.TreeAdapters
             var recipientAttrsMap = new HashSet<string>();
 
             foreach (var attr in recipient.Attributes)
-                recipientAttrsMap.Add(attr.name);
+                recipientAttrsMap.Add(attr.Name);
 
             foreach (var attr in attrs) {
-                if (!recipientAttrsMap.Contains(attr.name))
+                if (!recipientAttrsMap.Contains(attr.Name))
                     recipient.Attributes.Push(attr);
             }
         }

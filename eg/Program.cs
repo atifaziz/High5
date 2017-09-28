@@ -72,7 +72,7 @@ namespace Demo
                                : null;
                         Print(output, level, "<", ns, e.TagName, ">");
                         foreach (var a in e.Attributes)
-                            Print(output, level + 1, a.name, "=", Jsonify(a.value));
+                            Print(output, level + 1, a.Name, "=", Jsonify(a.Value));
                         break;
                     case Text t:
                         Print(output, level, "\"" + t.Value + "\"");
