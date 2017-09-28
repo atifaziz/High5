@@ -442,12 +442,12 @@ namespace ParseFive.Parser
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
             if (fragmentContext == null)
-                fragmentContext = this.treeAdapter.CreateElement(T.TEMPLATE, NS.HTML, new List<Attr>());
+                fragmentContext = this.treeAdapter.CreateElement(T.TEMPLATE, NS.HTML, Attr.NilAttrArray);
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
             //This is important for jsdom there 'document' can't be recreated, therefore
             //fragment parsing causes messing of the main `document`.
-            var documentMock = this.treeAdapter.CreateElement("documentmock", NS.HTML, new List<Attr>());
+            var documentMock = this.treeAdapter.CreateElement("documentmock", NS.HTML, Attr.NilAttrArray);
 
             this.Bootstrap(documentMock, fragmentContext);
 
@@ -656,7 +656,7 @@ namespace ParseFive.Parser
 
         void InsertFakeElement(string tagName)
         {
-            var element = this.treeAdapter.CreateElement(tagName, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.CreateElement(tagName, NS.HTML, Attr.NilAttrArray);
 
             this.AttachElementToTree(element);
             this.openElements.Push(element);
@@ -679,7 +679,7 @@ namespace ParseFive.Parser
 
         void InsertFakeRootElement()
         {
-            var element = this.treeAdapter.CreateElement(T.HTML, NS.HTML, new List<Attr>());
+            var element = this.treeAdapter.CreateElement(T.HTML, NS.HTML, Attr.NilAttrArray);
 
             this.treeAdapter.AppendChild(this.openElements.Current, element);
             this.openElements.Push(element);

@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using ParseFive.Extensions;
 
 public abstract class Node
 {
@@ -37,15 +38,31 @@ public class Document : Node
 public class DocumentFragment : Node {}
 public class Element : Node
 {
+    IList<Attr> attrs;
+
     public string TagName { get; }
     public string NamespaceUri { get; }
-    public IList<Attr> Attributes { get; }
+
+    static readonly Attr[] ZeroAttrs = new Attr[0];
+
+    public IList<Attr> Attributes
+    {
+        get { return attrs ?? ZeroAttrs; }
+        private set { attrs = value; }
+    }
 
     public Element(string tagName, string namespaceUri, IList<Attr> attributes)
     {
         TagName = tagName;
         NamespaceUri = namespaceUri;
         Attributes = attributes;
+    }
+
+    internal void AttributesPush(Attr attr)
+    {
+        if (attrs is null)
+            attrs = new List<Attr>();
+        attrs.Push(attr);
     }
 }
 public class Comment : Node
