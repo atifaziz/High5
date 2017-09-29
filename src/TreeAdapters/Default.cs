@@ -116,8 +116,8 @@ namespace ParseFive.TreeAdapters
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
-            if (prevNode != null && IsTextNode(prevNode))
-                ((Text)prevNode).Value += text;
+            if (prevNode is Text textNode)
+                textNode.Value += text;
             else
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
@@ -141,11 +141,6 @@ namespace ParseFive.TreeAdapters
             return node.ChildNodes.Count() > 0 ? node.ChildNodes[0] : null;
         }
 
-        public List<Node> GetChildNodes(Node node)
-        {
-            return node.ChildNodes;
-        }
-
         public Node GetParentNode(Node node)
         {
             return node.ParentNode;
@@ -165,52 +160,6 @@ namespace ParseFive.TreeAdapters
         public string GetNamespaceUri(Element element)
         {
             return element.NamespaceUri;
-        }
-
-        public string GetTextNodeContent(Text textNode)
-        {
-            return textNode.Value;
-        }
-
-        public string GetCommentNodeContent(Comment commentNode)
-        {
-            return commentNode.Data;
-        }
-
-        public string GetDocumentTypeNodeName(DocumentType doctypeNode)
-        {
-            return doctypeNode.Name;
-        }
-
-        public string GetDocumentTypeNodePublicId(DocumentType doctypeNode)
-        {
-            return doctypeNode.PublicId;
-        }
-
-        public string GetDocumentTypeNodeSystemId(DocumentType doctypeNode)
-        {
-            return doctypeNode.SystemId;
-        }
-
-        //Node types
-        public bool IsTextNode(Node node)
-        {
-            return node is Text;
-        }
-
-        public bool IsCommentNode(Node node)
-        {
-            return node is Comment;
-        }
-
-        public bool IsDocumentTypeNode(Node node)
-        {
-            return node is Document;
-        }
-
-        public bool IsElementNode(Node node)
-        {
-            return node is Element;
         }
     }
 }

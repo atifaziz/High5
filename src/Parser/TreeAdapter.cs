@@ -53,7 +53,6 @@ namespace ParseFive
         // Tree traversing
 
         Node GetFirstChild(Node node);
-        List<Node> GetChildNodes(Node node);
         Node GetParentNode(Node node);
         IList<Attr> GetAttrList(Element element);
 
@@ -61,17 +60,5 @@ namespace ParseFive
 
         string GetTagName(Element element);
         string GetNamespaceUri(Element element);
-        string GetTextNodeContent(Text textNode);
-        string GetCommentNodeContent(Comment commentNode);
-        string GetDocumentTypeNodeName(DocumentType doctypeNode);
-        string GetDocumentTypeNodePublicId(DocumentType doctypeNode);
-        string GetDocumentTypeNodeSystemId(DocumentType doctypeNode);
-
-        // Node types
-
-        bool IsTextNode(Node node);
-        bool IsCommentNode(Node node);
-        bool IsDocumentTypeNode(Node node);
-        bool IsElementNode(Node node);
     }
 }
