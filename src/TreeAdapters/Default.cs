@@ -28,11 +28,6 @@ namespace ParseFive.TreeAdapters
     using System.Linq;
     using Extensions;
 
-    static class StockTreeAdapters
-    {
-        public static ITreeAdapter defaultTreeAdapter = null;
-    }
-
     public sealed class DefaultTreeAdapter : ITreeAdapter
     {
         public static ITreeAdapter Instance = new DefaultTreeAdapter();
