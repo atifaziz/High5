@@ -22,6 +22,7 @@
 //
 #endregion
 
+using System;
 using System.Collections.Generic;
 using ParseFive.Extensions;
 
@@ -38,30 +39,30 @@ public class Document : Node
 public class DocumentFragment : Node {}
 public class Element : Node
 {
-    IList<Attr> attrs;
+    IList<(string Namespace, string Prefix, string Name, string Value)> attrs;
 
     public string TagName { get; }
     public string NamespaceUri { get; }
 
-    static readonly Attr[] ZeroAttrs = new Attr[0];
+    static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
 
-    public IList<Attr> Attributes
+    public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
     {
         get { return attrs ?? ZeroAttrs; }
         private set { attrs = value; }
     }
 
-    public Element(string tagName, string namespaceUri, IList<Attr> attributes)
+    public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
     {
         TagName = tagName;
         NamespaceUri = namespaceUri;
         Attributes = attributes;
     }
 
-    internal void AttributesPush(Attr attr)
+    internal void AttributesPush((string, string, string, string) attr)
     {
-        if (attrs is null)
-            attrs = new List<Attr>();
+        if (attrs is null || (attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0))
+            attrs = new List<(string, string, string, string)>();
         attrs.Push(attr);
     }
 }
@@ -94,7 +95,8 @@ public class TemplateElement : Element
 {
     public Node Content { get; internal set; }
 
-    public TemplateElement(string tagName, string namespaceUri, IList<Attr> attributes) : base(tagName, namespaceUri, attributes)
+    public TemplateElement(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes) :
+        base(tagName, namespaceUri, attributes)
     {
     }
 }

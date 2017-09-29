@@ -24,6 +24,7 @@
 
 namespace ParseFive.Tokenizer
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using static TokenType;
@@ -62,6 +63,15 @@ namespace ParseFive.Tokenizer
         {
             this.TagName = tagName;
             this.Attrs = attrs;
+        }
+
+        public ArraySegment<T> CopyAttrsTo<T>(ref T[] attrs, Func<string, string, string, string, T> attrFactory)
+        {
+            PooledArray.Resize(ref attrs, Attrs.Count);
+            var i = 0;
+            foreach (var attr in Attrs)
+                attrs[i++] = attrFactory(attr.Namespace, attr.Prefix, attr.Name, attr.Value);
+            return ArraySegment.Create(attrs, 0, Attrs.Count);
         }
     }
 

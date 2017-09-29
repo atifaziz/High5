@@ -58,22 +58,28 @@ namespace ParseFive.Parser
             base(type, element, token) {}
     }
 
-    sealed class FormattingElementList<TElement>
+    sealed class FormattingElementList<TElement, TAttr>
         where TElement : class
     {
         sealed class TreeAdapter
         {
             public readonly Func<TElement, string> GetNamespaceUri;
             public readonly Func<TElement, string> GetTagName;
-            public readonly Func<TElement, IList<Attr>> GetAttrList;
+            public readonly Func<TElement, int> GetAttrListCount;
+            public readonly Func<TElement, ArraySegment<TAttr>, int> GetAttrList;
+            public readonly Func<TAttr, (string, string)> GetAttr;
 
             public TreeAdapter(Func<TElement, string> getNamespaceUri,
                                Func<TElement, string> getTagName,
-                               Func<TElement, IList<Attr>> getAttrList)
+                               Func<TElement, int> getAttrListCount,
+                               Func<TElement, ArraySegment<TAttr>, int> getAttrList,
+                               Func<TAttr, (string, string)> getAttr)
             {
                 GetNamespaceUri = getNamespaceUri;
                 GetTagName = getTagName;
+                GetAttrListCount = getAttrListCount;
                 GetAttrList = getAttrList;
+                GetAttr = getAttr;
             }
         }
 
@@ -96,11 +102,16 @@ namespace ParseFive.Parser
 
         public FormattingElementList(Func<TElement, string> getNamespaceUri,
                                      Func<TElement, string> getTagName,
-                                     Func<TElement, IList<Attr>> getAttrList)
+                                     Func<TElement, int> getAttrListCount,
+                                     Func<TElement, ArraySegment<TAttr>, int> getAttrList,
+                                     Func<TAttr, string> getAttrName,
+                                     Func<TAttr, string> getAttrValue)
         {
             this.treeAdapter = new TreeAdapter(getNamespaceUri,
                                                getTagName,
-                                               getAttrList);
+                                               getAttrListCount,
+                                               getAttrList,
+                                               a => (getAttrName(a), getAttrValue(a)));
             length = 0;
             entries = new List<Entry<TElement>>();
         }
@@ -109,15 +120,16 @@ namespace ParseFive.Parser
         // OPTIMIZATION: at first we try to find possible candidates for exclusion using
         // lightweight heuristics without thorough attributes check.
 
-        List<(int idx, IList<Attr> attrs)> GetNoahArkConditionCandidates(TElement newElement)
+        List<(int idx, (string Name, string Value)[] attrs)> GetNoahArkConditionCandidates(TElement newElement)
         {
-            var candidates = new List<(int idx, IList<Attr> attrs)>();
+            var candidates = new List<(int idx, (string, string)[] attrs)>();
 
             if (length >= NoahArkCapacity)
             {
-                var neAttrsLength = this.treeAdapter.GetAttrList(newElement).Count;
+                var neAttrsLength = this.treeAdapter.GetAttrListCount(newElement);
                 var neTagName = this.treeAdapter.GetTagName(newElement);
                 var neNamespaceUri = this.treeAdapter.GetNamespaceUri(newElement);
+                var elementAttrObjs = default(TAttr[]);
 
                 for (var i = this.length - 1; i >= 0; i--)
                 {
@@ -127,28 +139,40 @@ namespace ParseFive.Parser
                         break;
 
                     var element = entry.Element;
-                    var elementAttrs = this.treeAdapter.GetAttrList(element);
+                    var attrsLength = this.treeAdapter.GetAttrListCount(element);
+                    PooledArray.Resize(ref elementAttrObjs, attrsLength);
+                    this.treeAdapter.GetAttrList(element, ArraySegment.Create(elementAttrObjs, 0, attrsLength));
+                    var elementAttrs = new (string, string)[attrsLength];
+                    for (var ai = 0; ai < attrsLength; ai++)
+                        elementAttrs[ai] = this.treeAdapter.GetAttr(elementAttrObjs[ai]);
                     var isCandidate = this.treeAdapter.GetTagName(element) == neTagName &&
                                       this.treeAdapter.GetNamespaceUri(element) == neNamespaceUri &&
-                                      elementAttrs.Count == neAttrsLength;
+                                      attrsLength == neAttrsLength;
 
                     if (isCandidate)
                         candidates.Push((idx: i, attrs: elementAttrs));
                 }
             }
 
-            return candidates.Count < NoahArkCapacity ? new List<(int, IList<Attr>)>() : candidates;
+            return candidates.Count < NoahArkCapacity ? new List<(int, (string, string)[])>() : candidates;
         }
 
         void EnsureNoahArkCondition(TElement newElement)
         {
             var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.Count;
+            var neAttrObjs = default(TAttr[]);
+            var neAttrs = default((string Name, string Value)[]);
 
             if (cLength > 0)
             {
-                var neAttrs = this.treeAdapter.GetAttrList(newElement);
-                var neAttrsLength = neAttrs.Count;
+                var neAttrsLength = this.treeAdapter.GetAttrListCount(newElement);
+                PooledArray.Resize(ref neAttrObjs, neAttrsLength);
+                this.treeAdapter.GetAttrList(newElement, ArraySegment.Create(neAttrObjs, 0, neAttrsLength));
+                PooledArray.Resize(ref neAttrs, neAttrsLength);
+                for (var i = 0; i < neAttrsLength; i++)
+                    neAttrs[i] = this.treeAdapter.GetAttr(neAttrObjs[i]);
+
                 var neAttrsMap = new Dictionary<string, string>();
 
                 // NOTE: build attrs map for the new element so we can perform fast lookups

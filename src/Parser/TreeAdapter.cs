@@ -24,11 +24,12 @@
 
 namespace ParseFive
 {
+    using System;
     using System.Collections.Generic;
 
     public interface ITreeAdapter<TNode,
                                   TDocument, TDocumentFragment,
-                                  TElement, TTemplateElement,
+                                  TElement, TAttr, TTemplateElement,
                                   TComment, TText>
         where TDocument         : TNode
         where TDocumentFragment : TNode
@@ -41,7 +42,8 @@ namespace ParseFive
 
         TDocument CreateDocument();
         TDocumentFragment CreateDocumentFragment();
-        TElement CreateElement(string tagName, string namespaceUri, IList<Attr> attrs);
+        TElement CreateElement(string tagName, string namespaceUri, ArraySegment<TAttr> attrs);
+        TAttr CreateAttribute(string ns, string prefix, string name, string value);
         TComment CreateCommentNode(string data);
         TText CreateTextNode(string value);
 
@@ -57,13 +59,16 @@ namespace ParseFive
         void DetachNode(TNode node);
         void InsertText(TNode parentNode, string text);
         void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
-        void AdoptAttributes(TElement recipient, IList<Attr> attrs);
+        void AdoptAttributes(TElement recipient, IList<TAttr> attrs);
 
         // Tree traversing
 
         TNode GetFirstChild(TNode node);
         TNode GetParentNode(TNode node);
-        IList<Attr> GetAttrList(TElement element);
+        int GetAttrListCount(TElement element);
+        int GetAttrList(TElement element, ArraySegment<TAttr> buffer);
+        string GetAttrName(TAttr attr);
+        string GetAttrValue(TAttr attr);
 
         // Node data
 
