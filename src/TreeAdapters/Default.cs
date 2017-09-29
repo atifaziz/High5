@@ -29,24 +29,25 @@ namespace ParseFive.TreeAdapters
     using System.Linq;
     using Parser;
     using Extensions;
+    using Attr = System.ValueTuple<string, string, string, string>;
 
-    public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>
+    public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>
     {
         public static DefaultTreeAdapter Instance = new DefaultTreeAdapter();
 
-        public Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>
-            CreateParser() => new Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>(this);
+        public Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>
+            CreateParser() => new Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>(this);
 
         public Document CreateDocument() => new Document();
 
         public DocumentFragment CreateDocumentFragment() => new DocumentFragment();
 
-        public Element CreateElement(string tagName, string namespaceUri, ArraySegment<(string Namespace, string Prefix, string Name, string Value)> attrs) =>
+        public Element CreateElement(string tagName, string namespaceUri, ArraySegment<Attr> attrs) =>
             tagName == "template"
             ? new TemplateElement(tagName, namespaceUri, attrs.ToList())
             : new Element(tagName, namespaceUri, attrs.ToList());
 
-        public (string Namespace, string Prefix, string Name, string Value) CreateAttribute(string ns, string prefix, string name, string value) =>
+        public Attr CreateAttribute(string ns, string prefix, string name, string value) =>
             (ns, prefix, name, value);
 
         public Comment CreateCommentNode(string data) => new Comment(data);
@@ -132,7 +133,7 @@ namespace ParseFive.TreeAdapters
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void AdoptAttributes(Element recipient, ArraySegment<(string Namespace, string Prefix, string Name, string Value)> attrs)
+        public void AdoptAttributes(Element recipient, ArraySegment<Attr> attrs)
         {
             var recipientAttrsMap = new HashSet<string>();
 
@@ -140,7 +141,8 @@ namespace ParseFive.TreeAdapters
                 recipientAttrsMap.Add(attr.Name);
 
             foreach (var attr in attrs) {
-                if (!recipientAttrsMap.Contains(attr.Name))
+                var (_, _, name, _) = attr;
+                if (!recipientAttrsMap.Contains(name))
                     recipient.AttributesPush(attr);
             }
         }
@@ -160,7 +162,7 @@ namespace ParseFive.TreeAdapters
             element.Attributes.Count;
 
 
-        public int GetAttrList(Element element, ArraySegment<(string Namespace, string Prefix, string Name, string Value)> buffer)
+        public int GetAttrList(Element element, ArraySegment<Attr> buffer)
         {
             var cc = 0;
             var bi = 0;
@@ -173,11 +175,17 @@ namespace ParseFive.TreeAdapters
             return cc;
         }
 
-        public string GetAttrName((string Namespace, string Prefix, string Name, string Value) attr) =>
-            attr.Name;
+        public string GetAttrName(Attr attr)
+        {
+            var (_, _, name, _) = attr;
+            return name;
+        }
 
-        public string GetAttrValue((string Namespace, string Prefix, string Name, string Value) attr) =>
-            attr.Value;
+        public string GetAttrValue(Attr attr)
+        {
+            var (_, _, _, value) = attr;
+            return value;
+        }
 
         //Node data
         public string GetTagName(Element element)
