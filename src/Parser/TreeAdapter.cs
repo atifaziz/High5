@@ -25,7 +25,6 @@
 namespace ParseFive
 {
     using System;
-    using System.Collections.Generic;
 
     public interface ITreeAdapter<TNode,
                                   TDocument, TDocumentFragment,
@@ -59,7 +58,7 @@ namespace ParseFive
         void DetachNode(TNode node);
         void InsertText(TNode parentNode, string text);
         void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
-        void AdoptAttributes(TElement recipient, IList<TAttr> attrs);
+        void AdoptAttributes(TElement recipient, ArraySegment<TAttr> attrs);
 
         // Tree traversing
 
