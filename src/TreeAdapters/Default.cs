@@ -132,7 +132,7 @@ namespace ParseFive.TreeAdapters
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void AdoptAttributes(Element recipient, IList<(string Namespace, string Prefix, string Name, string Value)> attrs)
+        public void AdoptAttributes(Element recipient, ArraySegment<(string Namespace, string Prefix, string Name, string Value)> attrs)
         {
             var recipientAttrsMap = new HashSet<string>();
 
