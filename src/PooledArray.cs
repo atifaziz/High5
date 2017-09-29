@@ -1,7 +1,5 @@
 #region Copyright (c) 2017 Atif Aziz, Adrian Guerra
 //
-// Portions Copyright (c) 2013 Ivan Nikulin
-//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -22,23 +20,13 @@
 //
 #endregion
 
-sealed class Attr
+namespace ParseFive
 {
-    public string Prefix { get; internal set; }
-    public string Name { get; internal set; }
-    public string Namespace { get; internal set; }
-    public string Value { get; internal set; }
+    using System;
 
-    public Attr(string name, string value)
+    static class PooledArray
     {
-        this.Prefix = "";
-        this.Name = name;
-        this.Namespace = "";
-        this.Value = value;
+        public static void Resize<T>(ref T[] array, int desiredSize) =>
+            Array.Resize(ref array, Math.Max(desiredSize, array?.Length ?? 0));
     }
-}
-
-static class PooledArray<T>
-{
-    public static T[] Array;
 }

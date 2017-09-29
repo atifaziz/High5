@@ -35,7 +35,7 @@ namespace ParseFive.Tests
     using MoreLinq;
     using TreeAdapters;
     using Xunit;
-    using Parser = Parser.Parser<Node, Document, DocumentFragment, Element, TemplateElement, Comment, Text>;
+    using Parser = Parser.Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>;
 
     public class TreeConstructionTests
     {
@@ -280,7 +280,7 @@ namespace ParseFive.Tests
                         tagName, ns == "svg" ? nsSvg
                             : ns == "math" ? nsMath
                                 : nsHtml,
-                        new List<Attr>());
+                        new ArraySegment<(string Namespace, string Prefix, string Name, string Value)>());
 
                 parse = (p, s) => p.ParseFragment(s, context);
             }
