@@ -841,14 +841,13 @@ namespace ParseFive.Parser
             if (listLength > 0)
             {
                 var unopenIdx = listLength;
-                Entry<Element> entry;
 
                 do
                 {
                     unopenIdx--;
-                    entry = this.activeFormattingElements[unopenIdx];
+                    var entry = this.activeFormattingElements[unopenIdx];
 
-                    if (entry.Type == FormattingElementList<Element, Attr>.MARKER_ENTRY || this.openElements.Contains(entry.Element))
+                    if (entry.Type == Entry.MARKER_ENTRY || this.openElements.Contains(((ElementEntry<Element>) entry).Element))
                     {
                         unopenIdx++;
                         break;
@@ -857,7 +856,7 @@ namespace ParseFive.Parser
 
                 for (var i = unopenIdx; i < listLength; i++)
                 {
-                    entry = this.activeFormattingElements[i];
+                    var entry = (ElementEntry<Element>) this.activeFormattingElements[i];
                     this.InsertElement((StartTagToken) entry.Token, this.treeAdapter.GetNamespaceUri(entry.Element));
                     entry.Element = (Element) this.openElements.Current;
                 }
@@ -1062,7 +1061,7 @@ namespace ParseFive.Parser
         //------------------------------------------------------------------
 
         //Steps 5-8 of the algorithm
-        static Entry<Element> AaObtainFormattingElementEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, TagToken token)
+        static ElementEntry<Element> AaObtainFormattingElementEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, TagToken token)
         {
             var formattingElementEntry = p.activeFormattingElements.GetElementEntryInScopeWithTagName(token.TagName);
 
@@ -1084,13 +1083,13 @@ namespace ParseFive.Parser
             return formattingElementEntry;
         }
 
-        static Entry<Element> AaObtainFormattingElementEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, TagToken token, Entry<Element> formattingElementEntry)
+        static ElementEntry<Element> AaObtainFormattingElementEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, TagToken token, ElementEntry<Element> formattingElementEntry)
         {
             return AaObtainFormattingElementEntry(p, token);
         }
 
         //Steps 9 and 10 of the algorithm
-        static Element AaObtainFurthestBlock(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, Entry<Element> formattingElementEntry)
+        static Element AaObtainFurthestBlock(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, ElementEntry<Element> formattingElementEntry)
         {
             Element furthestBlock = null;
 
@@ -1157,7 +1156,7 @@ namespace ParseFive.Parser
         }
 
         //Step 13.7 of the algorithm
-        static Element AaRecreateElementFromEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, Entry<Element> elementEntry)
+        static Element AaRecreateElementFromEntry(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, ElementEntry<Element> elementEntry)
         {
             var ns = p.treeAdapter.GetNamespaceUri(elementEntry.Element);
             var token = (StartTagToken) elementEntry.Token;
@@ -1189,7 +1188,7 @@ namespace ParseFive.Parser
         }
 
         //Steps 15-19 of the algorithm
-        static void AaReplaceFormattingElement(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, Element furthestBlock, Entry<Element> formattingElementEntry)
+        static void AaReplaceFormattingElement(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, Element furthestBlock, ElementEntry<Element> formattingElementEntry)
         {
             var ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
             var token = (StartTagToken) formattingElementEntry.Token;
@@ -1208,7 +1207,7 @@ namespace ParseFive.Parser
         //Algorithm entry point
         static void CallAdoptionAgency(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, TagToken token)
         {
-            Entry<Element> formattingElementEntry = null;
+            ElementEntry<Element> formattingElementEntry = null;
 
             for (var i = 0; i < AA_OUTER_LOOP_ITER; i++)
             {
