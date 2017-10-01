@@ -33,9 +33,8 @@ namespace ParseFive.Tests
     using System.Text;
     using System.Text.RegularExpressions;
     using MoreLinq;
-    using TreeAdapters;
     using Xunit;
-    using Parser = Parser.Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>;
+    using Parser = Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>;
 
     public class TreeConstructionTests
     {

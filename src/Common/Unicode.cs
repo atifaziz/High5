@@ -24,7 +24,7 @@
 
 // ReSharper disable InconsistentNaming
 
-namespace ParseFive.Common
+namespace ParseFive
 {
     static class Unicode
     {

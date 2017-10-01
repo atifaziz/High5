@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Tokenizer
+namespace ParseFive
 {
     enum TokenType
     {
