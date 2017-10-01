@@ -28,34 +28,36 @@ namespace ParseFive.Parser
     using System.Collections.Generic;
     using Extensions;
     using Tokenizer;
+    using static Entry;
 
-    abstract class Entry<TElement>
+    abstract class Entry
+    {
+        public const string MARKER_ENTRY = "MARKER_ENTRY";
+        public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
+
+        public string Type { get; }
+
+        protected Entry(string type) => Type = type;
+    }
+
+    sealed class MarkerEntry : Entry
+    {
+        public static readonly MarkerEntry Instance = new MarkerEntry();
+        MarkerEntry() : base(MARKER_ENTRY) {}
+    }
+
+    sealed class ElementEntry<TElement> : Entry
         where TElement : class
     {
-        public string Type { get; }
         public TElement Element { get; set; }
         public Token Token { get; }
 
-        protected Entry(string type, TElement element = null, Token token = null)
+        public ElementEntry(TElement element, Token token) :
+            base(ELEMENT_ENTRY)
         {
-            Type = type;
             Element = element;
             Token = token;
         }
-    }
-
-    sealed class MarkerEntry<TElement> : Entry<TElement>
-        where TElement : class
-    {
-        public MarkerEntry(string type) :
-            base(type) {}
-    }
-
-    sealed class ElementEntry<TElement> : Entry<TElement>
-        where TElement : class
-    {
-        public ElementEntry(string type, TElement element, Token token) :
-            base(type, element, token) {}
     }
 
     sealed class FormattingElementList<TElement, TAttr>
@@ -89,16 +91,13 @@ namespace ParseFive.Parser
 
         readonly TreeAdapter treeAdapter;
         int length;
-        readonly List<Entry<TElement>> entries;
+        readonly List<Entry> entries;
 
         public object Bookmark { get; set; }
         public int Length => this.length;
-        public Entry<TElement> this[int index] => this.entries[index];
+        public Entry this[int index] => this.entries[index];
 
         // Entry types
-
-        public const string MARKER_ENTRY = "MARKER_ENTRY";
-        public const string ELEMENT_ENTRY = "ELEMENT_ENTRY";
 
         public FormattingElementList(Func<TElement, string> getNamespaceUri,
                                      Func<TElement, string> getTagName,
@@ -113,7 +112,7 @@ namespace ParseFive.Parser
                                                getAttrList,
                                                a => (getAttrName(a), getAttrValue(a)));
             length = 0;
-            entries = new List<Entry<TElement>>();
+            entries = new List<Entry>();
         }
 
         // Noah Ark's condition
@@ -138,7 +137,7 @@ namespace ParseFive.Parser
                     if (entry.Type == MARKER_ENTRY)
                         break;
 
-                    var element = entry.Element;
+                    var element = ((ElementEntry<TElement>) entry).Element;
                     var attrsLength = this.treeAdapter.GetAttrListCount(element);
                     PooledArray.Resize(ref elementAttrObjs, attrsLength);
                     this.treeAdapter.GetAttrList(element, ArraySegment.Create(elementAttrObjs, 0, attrsLength));
@@ -216,7 +215,7 @@ namespace ParseFive.Parser
 
         public void InsertMarker()
         {
-            entries.Push(new MarkerEntry<TElement>(MARKER_ENTRY));
+            entries.Push(MarkerEntry.Instance);
             length++;
         }
 
@@ -224,7 +223,7 @@ namespace ParseFive.Parser
         {
             this.EnsureNoahArkCondition(element);
 
-            this.entries.Push(new ElementEntry<TElement>(ELEMENT_ENTRY, element, token));
+            this.entries.Push(new ElementEntry<TElement>(element, token));
             length++;
         }
 
@@ -238,12 +237,12 @@ namespace ParseFive.Parser
                     break;
             }
 
-            this.entries.Splice(bookmarkIdx + 1, 0, new ElementEntry<TElement>(ELEMENT_ENTRY, element, token));
+            this.entries.Splice(bookmarkIdx + 1, 0, new ElementEntry<TElement>(element, token));
 
             this.length++;
         }
 
-        public void RemoveEntry(Entry<TElement> entry)
+        public void RemoveEntry(Entry entry)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
@@ -271,7 +270,7 @@ namespace ParseFive.Parser
 
         // Search
 
-        public Entry<TElement> GetElementEntryInScopeWithTagName(string tagName)
+        public ElementEntry<TElement> GetElementEntryInScopeWithTagName(string tagName)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
@@ -280,20 +279,19 @@ namespace ParseFive.Parser
                 if (entry.Type == MARKER_ENTRY)
                     return null;
 
-                if (this.treeAdapter.GetTagName(entry.Element) == tagName)
-                    return entry;
+                var elementEntry = (ElementEntry<TElement>) entry;
+                if (this.treeAdapter.GetTagName(elementEntry.Element) == tagName)
+                    return elementEntry;
             }
 
             return null;
         }
 
-        public Entry<TElement> GetElementEntry(TElement element)
+        public ElementEntry<TElement> GetElementEntry(TElement element)
         {
             for (var i = this.length - 1; i >= 0; i--)
             {
-                var entry = this.entries[i];
-
-                if (entry.Type == ELEMENT_ENTRY && entry.Element == element)
+                if (this.entries[i] is ElementEntry<TElement> entry && entry.Element == element)
                     return entry;
             }
 
