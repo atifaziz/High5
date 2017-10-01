@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Tokenizer
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
@@ -31,8 +31,8 @@ namespace ParseFive.Tokenizer
     using static NamedEntityData;
     using static NamedEntityTreeFlags;
     using String = Compatibility.String;
-    using CP = Common.Unicode.CodePoints;
-    using CPS = Common.Unicode.CodePointSequences;
+    using CP = Unicode.CodePoints;
+    using CPS = Unicode.CodePointSequences;
 
     static class NamedEntityTreeFlags
     {

@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Tokenizer
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;

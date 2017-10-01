@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Common
+namespace ParseFive
 {
     using System.Collections.Generic;
     using NS = HTML.NAMESPACES;

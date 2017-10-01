@@ -22,81 +22,84 @@
 //
 #endregion
 
-using System;
-using System.Collections.Generic;
-using ParseFive.Extensions;
-
-public abstract class Node
+namespace ParseFive
 {
-    public Node ParentNode { get; internal set; }
-    public List<Node> ChildNodes { get; } = new List<Node>();
-}
+    using System;
+    using System.Collections.Generic;
+    using ParseFive.Extensions;
 
-public class Document : Node
-{
-    public string Mode { get; internal set; }
-}
-public class DocumentFragment : Node {}
-public class Element : Node
-{
-    IList<(string Namespace, string Prefix, string Name, string Value)> attrs;
-
-    public string TagName { get; }
-    public string NamespaceUri { get; }
-
-    static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
-
-    public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
+    public abstract class Node
     {
-        get { return attrs ?? ZeroAttrs; }
-        private set { attrs = value; }
+        public Node ParentNode { get; internal set; }
+        public List<Node> ChildNodes { get; } = new List<Node>();
     }
 
-    public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
+    public class Document : Node
     {
-        TagName = tagName;
-        NamespaceUri = namespaceUri;
-        Attributes = attributes;
+        public string Mode { get; internal set; }
+    }
+    public class DocumentFragment : Node {}
+    public class Element : Node
+    {
+        IList<(string Namespace, string Prefix, string Name, string Value)> attrs;
+
+        public string TagName { get; }
+        public string NamespaceUri { get; }
+
+        static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
+
+        public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
+        {
+            get { return attrs ?? ZeroAttrs; }
+            private set { attrs = value; }
+        }
+
+        public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
+        {
+            TagName = tagName;
+            NamespaceUri = namespaceUri;
+            Attributes = attributes;
+        }
+
+        internal void AttributesPush((string, string, string, string) attr)
+        {
+            if (attrs is null || (attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0))
+                attrs = new List<(string, string, string, string)>();
+            attrs.Push(attr);
+        }
+    }
+    public class Comment : Node
+    {
+        public string Data { get; }
+        public Comment(string data) => Data = data;
+    }
+    public class Text : Node
+    {
+        public string Value { get; internal set; }
+        public Text(string value) => Value = value;
     }
 
-    internal void AttributesPush((string, string, string, string) attr)
+    public class DocumentType : Node
     {
-        if (attrs is null || (attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0))
-            attrs = new List<(string, string, string, string)>();
-        attrs.Push(attr);
+        public string Name     { get; internal set; }
+        public string PublicId { get; internal set; }
+        public string SystemId { get; internal set; }
+
+        public DocumentType(string name, string publicId, string systemId)
+        {
+            Name = name;
+            PublicId = publicId;
+            SystemId = systemId;
+        }
     }
-}
-public class Comment : Node
-{
-    public string Data { get; }
-    public Comment(string data) => Data = data;
-}
-public class Text : Node
-{
-    public string Value { get; internal set; }
-    public Text(string value) => Value = value;
-}
 
-public class DocumentType : Node
-{
-    public string Name     { get; internal set; }
-    public string PublicId { get; internal set; }
-    public string SystemId { get; internal set; }
-
-    public DocumentType(string name, string publicId, string systemId)
+    public class TemplateElement : Element
     {
-        Name = name;
-        PublicId = publicId;
-        SystemId = systemId;
-    }
-}
+        public Node Content { get; internal set; }
 
-public class TemplateElement : Element
-{
-    public Node Content { get; internal set; }
-
-    public TemplateElement(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes) :
-        base(tagName, namespaceUri, attributes)
-    {
+        public TemplateElement(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes) :
+            base(tagName, namespaceUri, attributes)
+        {
+        }
     }
 }

@@ -22,12 +22,11 @@
 //
 #endregion
 
-namespace ParseFive.Parser
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
     using Extensions;
-    using Tokenizer;
     using static Entry;
 
     abstract class Entry

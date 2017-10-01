@@ -22,14 +22,12 @@
 //
 #endregion
 
-namespace ParseFive.Common
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
     using Extensions;
-    using Tokenizer;
     using static Truthiness;
-    using Tokenizer = Tokenizer.Tokenizer;
     using T = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
     using ATTRS = HTML.ATTRS;

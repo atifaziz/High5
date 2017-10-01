@@ -22,12 +22,11 @@
 //
 #endregion
 
-namespace ParseFive.TreeAdapters
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Parser;
     using Extensions;
     using Attr = System.ValueTuple<string, string, string, string>;
 

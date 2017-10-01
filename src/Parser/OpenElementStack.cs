@@ -22,13 +22,13 @@
 //
 #endregion
 
-namespace ParseFive.Parser
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
     using Extensions;
-    using T = Common.HTML.TAG_NAMES;
-    using NS = Common.HTML.NAMESPACES;
+    using T = HTML.TAG_NAMES;
+    using NS = HTML.NAMESPACES;
 
     sealed class OpenElementStack<Node, Element, TemplateElement>
         where Node            : class

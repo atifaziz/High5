@@ -28,8 +28,7 @@ namespace Demo
     using System.Linq;
     using System.Net.Http;
     using System.Text;
-    using ParseFive.Parser;
-    using ParseFive.TreeAdapters;
+    using ParseFive;
 
     static class Program
     {

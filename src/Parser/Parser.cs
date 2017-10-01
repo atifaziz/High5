@@ -22,25 +22,21 @@
 //
 #endregion
 
-namespace ParseFive.Parser
+namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Common;
     using Extensions;
-    using Tokenizer;
-    using static Tokenizer.TokenType;
-    using static Tokenizer.Tokenizer.MODE;
-    using static Common.ForeignContent;
-    using static Common.Doctype;
+    using static TokenType;
+    using static Tokenizer.MODE;
+    using static ForeignContent;
+    using static Doctype;
     using static Truthiness;
-    using ATTRS = Common.HTML.ATTRS;
-    using NS = Common.HTML.NAMESPACES;
-    using MODE = Tokenizer.Tokenizer.MODE;
-    using T = Common.HTML.TAG_NAMES;
-    using Tokenizer = Tokenizer.Tokenizer;
-    using Unicode = Common.Unicode;
+    using ATTRS = HTML.ATTRS;
+    using NS = HTML.NAMESPACES;
+    using MODE = Tokenizer.MODE;
+    using T = HTML.TAG_NAMES;
 
     // ReSharper disable ArrangeThisQualifier
 

@@ -22,11 +22,11 @@
 //
 #endregion
 
-namespace ParseFive.Tokenizer
+namespace ParseFive
 {
     using System.Collections.Generic;
     using Extensions;
-    using CP = Common.Unicode.CodePoints;
+    using CP = Unicode.CodePoints;
     using static Truthiness;
 
     sealed class Preprocessor
