@@ -29,4 +29,9 @@ namespace ParseFive
         public static void Resize<T>(ref T[] array, int desiredSize) =>
             Array.Resize(ref array, Math.Max(desiredSize, array?.Length ?? 0));
     }
+
+    static class PooledArray<T>
+    {
+        public static T[] Array;
+    }
 }

@@ -37,8 +37,3 @@ sealed class Attr
         this.Value = value;
     }
 }
-
-static class PooledArray<T>
-{
-    public static T[] Array;
-}
