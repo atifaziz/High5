@@ -27,7 +27,6 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using Attribute = System.ValueTuple<string, string, string, string>;
 
     public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, Attribute, TemplateElement, Comment, Text>
