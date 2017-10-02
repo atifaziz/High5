@@ -23,15 +23,52 @@
 namespace ParseFive
 {
     using System;
+    using System.Diagnostics;
+    using Microsoft.CodeAnalysis.PooledObjects;
 
-    static class PooledArray
+    sealed class PooledArray<T> : IDisposable
     {
-        public static void Resize<T>(ref T[] array, int desiredSize) =>
-            Array.Resize(ref array, Math.Max(desiredSize, array?.Length ?? 0));
-    }
+        public readonly Array<T> Array = new Array<T>();
 
-    static class PooledArray<T>
-    {
-        public static T[] Array;
+        readonly ObjectPool<PooledArray<T>> _pool;
+
+        PooledArray(ObjectPool<PooledArray<T>> pool)
+        {
+            Debug.Assert(pool != null);
+            _pool = pool;
+        }
+
+        public int Length => Array.Length;
+
+        public void Free()
+        {
+            var array = Array;
+
+            if (array.Length <= 1024) // do not pool arrays that are too large
+            {
+                array.Clear();
+                _pool.Free(this);
+            }
+            else
+            {
+                _pool.ForgetTrackedObject(this);
+            }
+        }
+
+        public void Dispose() => Free();
+
+        public static implicit operator Array<T>(PooledArray<T> pooled) =>
+            pooled.Array;
+
+        static readonly ObjectPool<PooledArray<T>> PoolInstance = CreatePool();
+
+        public static PooledArray<T> GetInstance() => PoolInstance.Allocate();
+
+        public static ObjectPool<PooledArray<T>> CreatePool(int size = 32)
+        {
+            ObjectPool<PooledArray<T>> pool = null;
+            pool = new ObjectPool<PooledArray<T>>(() => new PooledArray<T>(pool), size);
+            return pool;
+        }
     }
 }

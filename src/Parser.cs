@@ -27,6 +27,7 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using Extensions;
+    using Microsoft.CodeAnalysis.PooledObjects;
     using static TokenType;
     using static Tokenizer.MODE;
     using static ForeignContent;
@@ -651,14 +652,18 @@ namespace ParseFive
 
         void AppendElement(StartTagToken token, string namespaceURI)
         {
-            var element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.CopyAttrsTo(ref this.attrs, this.CreateAttribute));
+            Element element;
+            using (var attrs = attrsPool.Allocate())
+                element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.CopyAttrsTo(attrs, this.CreateAttribute));
 
             this.AttachElementToTree(element);
         }
 
         void InsertElement(StartTagToken token, string namespaceURI)
         {
-            var element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.CopyAttrsTo(ref this.attrs, this.CreateAttribute));
+            Element element;
+            using (var attrs = attrsPool.Allocate())
+                element = this.treeAdapter.CreateElement(token.TagName, namespaceURI, token.CopyAttrsTo(attrs, this.CreateAttribute));
 
             this.AttachElementToTree(element);
             this.openElements.Push(element);
@@ -674,7 +679,9 @@ namespace ParseFive
 
         void InsertTemplate(StartTagToken token)
         {
-            var tmpl = (TemplateElement) this.treeAdapter.CreateElement(token.TagName, NS.HTML, token.CopyAttrsTo(ref this.attrs, this.CreateAttribute));
+            TemplateElement tmpl;
+            using (var attrs = attrsPool.Allocate())
+                tmpl = (TemplateElement) this.treeAdapter.CreateElement(token.TagName, NS.HTML, token.CopyAttrsTo(attrs, this.CreateAttribute));
             var content = this.treeAdapter.CreateDocumentFragment();
 
             this.treeAdapter.SetTemplateContent(tmpl, content);
@@ -804,8 +811,8 @@ namespace ParseFive
                 this.ProcessToken(token);
         }
 
-        Attr[] attrs;
-        (string Name, string Value)[] nvattrs;
+        readonly ObjectPool<PooledArray<Attr>> attrsPool = PooledArray<Attr>.CreatePool();
+        readonly ObjectPool<PooledArray<(string Name, string Value)>> nvattrsPool = PooledArray<(string Name, string Value)>.CreatePool();
 
         //Integration points
         bool IsIntegrationPoint(Element element, string foreignNS)
@@ -813,14 +820,18 @@ namespace ParseFive
             var tn = this.treeAdapter.GetTagName(element);
             var ns = this.treeAdapter.GetNamespaceUri(element);
             var attrsLength = this.treeAdapter.GetAttrListCount(element);
-            PooledArray.Resize(ref this.attrs, attrsLength);
-            var attrs = new ArraySegment<Attr>(this.attrs, 0, attrsLength);
-            this.treeAdapter.GetAttrList(element, attrs);
-            PooledArray.Resize(ref this.nvattrs, attrsLength);
-            for (var i = 0; i < attrs.Count; i++)
-                nvattrs[i] = (this.treeAdapter.GetAttrName(attrs.Array[i]), this.treeAdapter.GetAttrValue(attrs.Array[i]));
-
-            return ForeignContent.IsIntegrationPoint(tn, ns, ArraySegment.Create(this.nvattrs, 0, attrsLength), foreignNS);
+            using (var attrs = attrsPool.Allocate())
+            {
+                attrs.Array.Init(attrsLength);
+                this.treeAdapter.GetAttrList(element, attrs.Array.ToArraySegment());
+                using (var nvattrs = nvattrsPool.Allocate())
+                {
+                    nvattrs.Array.Capacity = attrsLength;
+                    for (var i = 0; i < attrs.Length; i++)
+                        nvattrs.Array[i] = (this.treeAdapter.GetAttrName(attrs.Array[i]), this.treeAdapter.GetAttrValue(attrs.Array[i]));
+                    return ForeignContent.IsIntegrationPoint(tn, ns, nvattrs.Array.ToArraySegment(), foreignNS);
+                }
+            }
         }
 
         bool IsIntegrationPoint(Element element)
@@ -1155,7 +1166,9 @@ namespace ParseFive
         {
             var ns = p.treeAdapter.GetNamespaceUri(elementEntry.Element);
             var token = (StartTagToken) elementEntry.Token;
-            var newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.CopyAttrsTo(ref PooledArray<Attr>.Array, p.CreateAttribute));
+            Element newElement;
+            using (var attrs = PooledArray<Attr>.GetInstance())
+                newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.CopyAttrsTo(attrs, p.CreateAttribute));
 
             p.openElements.Replace(elementEntry.Element, newElement);
             elementEntry.Element = newElement;
@@ -1187,7 +1200,9 @@ namespace ParseFive
         {
             var ns = p.treeAdapter.GetNamespaceUri(formattingElementEntry.Element);
             var token = (StartTagToken) formattingElementEntry.Token;
-            var newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.CopyAttrsTo(ref PooledArray<Attr>.Array, p.CreateAttribute));
+            Element newElement;
+            using (var attrs = PooledArray<Attr>.GetInstance())
+                newElement = p.treeAdapter.CreateElement(token.TagName, ns, token.CopyAttrsTo(attrs.Array, p.CreateAttribute));
 
             p.AdoptNodes(furthestBlock, newElement);
             p.treeAdapter.AppendChild(furthestBlock, newElement);
@@ -1494,7 +1509,8 @@ namespace ParseFive
         static void HtmlStartTagInBody(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, StartTagToken token)
         {
             if (p.openElements.TmplCount == 0)
-                p.treeAdapter.AdoptAttributes(p.openElements[0], token.CopyAttrsTo(ref PooledArray<Attr>.Array, p.CreateAttribute));
+                using (var attrs = PooledArray<Attr>.GetInstance())
+                    p.treeAdapter.AdoptAttributes(p.openElements[0], token.CopyAttrsTo(attrs.Array, p.CreateAttribute));
         }
 
         static void BodyStartTagInBody(Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> p, StartTagToken token)
@@ -1504,7 +1520,8 @@ namespace ParseFive
             if (bodyElement != null && p.openElements.TmplCount == 0)
             {
                 p.framesetOk = false;
-                p.treeAdapter.AdoptAttributes(bodyElement, token.CopyAttrsTo(ref PooledArray<Attr>.Array, p.CreateAttribute));
+                using (var attrs = PooledArray<Attr>.GetInstance())
+                    p.treeAdapter.AdoptAttributes(bodyElement, token.CopyAttrsTo(attrs.Array, p.CreateAttribute));
             }
         }
 
