@@ -33,10 +33,38 @@ namespace ParseFive
     using static ForeignContent;
     using static Doctype;
     using static Truthiness;
+    using static ParserMode;
     using ATTRS = HTML.ATTRS;
     using NS = HTML.NAMESPACES;
     using MODE = Tokenizer.MODE;
     using T = HTML.TAG_NAMES;
+
+    enum ParserMode
+    {
+        NIL_MODE,
+        INITIAL_MODE,
+        BEFORE_HTML_MODE,
+        BEFORE_HEAD_MODE,
+        IN_HEAD_MODE,
+        AFTER_HEAD_MODE,
+        IN_BODY_MODE,
+        TEXT_MODE,
+        IN_TABLE_MODE,
+        IN_TABLE_TEXT_MODE,
+        IN_CAPTION_MODE,
+        IN_COLUMN_GROUP_MODE,
+        IN_TABLE_BODY_MODE,
+        IN_ROW_MODE,
+        IN_CELL_MODE,
+        IN_SELECT_MODE,
+        IN_SELECT_IN_TABLE_MODE,
+        IN_TEMPLATE_MODE,
+        AFTER_BODY_MODE,
+        IN_FRAMESET_MODE,
+        AFTER_FRAMESET_MODE,
+        AFTER_AFTER_BODY_MODE,
+        AFTER_AFTER_FRAMESET_MODE,
+    }
 
     // ReSharper disable ArrangeThisQualifier
 
@@ -60,31 +88,9 @@ namespace ParseFive
         const int AA_INNER_LOOP_ITER = 3;
 
         //Insertion modes
-        const string INITIAL_MODE = "INITIAL_MODE";
-        const string BEFORE_HTML_MODE = "BEFORE_HTML_MODE";
-        const string BEFORE_HEAD_MODE = "BEFORE_HEAD_MODE";
-        const string IN_HEAD_MODE = "IN_HEAD_MODE";
-        const string AFTER_HEAD_MODE = "AFTER_HEAD_MODE";
-        const string IN_BODY_MODE = "IN_BODY_MODE";
-        const string TEXT_MODE = "TEXT_MODE";
-        const string IN_TABLE_MODE = "IN_TABLE_MODE";
-        const string IN_TABLE_TEXT_MODE = "IN_TABLE_TEXT_MODE";
-        const string IN_CAPTION_MODE = "IN_CAPTION_MODE";
-        const string IN_COLUMN_GROUP_MODE = "IN_COLUMN_GROUP_MODE";
-        const string IN_TABLE_BODY_MODE = "IN_TABLE_BODY_MODE";
-        const string IN_ROW_MODE = "IN_ROW_MODE";
-        const string IN_CELL_MODE = "IN_CELL_MODE";
-        const string IN_SELECT_MODE = "IN_SELECT_MODE";
-        const string IN_SELECT_IN_TABLE_MODE = "IN_SELECT_IN_TABLE_MODE";
-        const string IN_TEMPLATE_MODE = "IN_TEMPLATE_MODE";
-        const string AFTER_BODY_MODE = "AFTER_BODY_MODE";
-        const string IN_FRAMESET_MODE = "IN_FRAMESET_MODE";
-        const string AFTER_FRAMESET_MODE = "AFTER_FRAMESET_MODE";
-        const string AFTER_AFTER_BODY_MODE = "AFTER_AFTER_BODY_MODE";
-        const string AFTER_AFTER_FRAMESET_MODE = "AFTER_AFTER_FRAMESET_MODE";
 
         //Insertion mode reset map
-        static readonly IDictionary<string, string> INSERTION_MODE_RESET_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, ParserMode> INSERTION_MODE_RESET_MAP = new Dictionary<string, ParserMode>
         {
             [T.TR] = IN_ROW_MODE,
             [T.TBODY] = IN_TABLE_BODY_MODE,
@@ -100,7 +106,7 @@ namespace ParseFive
 
 
         //Template insertion mode switch map
-        static readonly IDictionary<string, string> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, ParserMode> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, ParserMode>
         {
             [T.CAPTION] = IN_TABLE_MODE,
             [T.COLGROUP] = IN_TABLE_MODE,
@@ -114,271 +120,271 @@ namespace ParseFive
         };
 
         //Token handlers map for insertion modes
-        static readonly IDictionary<string, IDictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>> _ =
-            new Dictionary<string, IDictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>>
+        static readonly Array<Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>> _ =
+            new Array<Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>>
             {
-                [INITIAL_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) INITIAL_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenInInitialMode,
-                    [NULL_CHARACTER_TOKEN] = TokenInInitialMode,
-                    [WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = DoctypeInInitialMode,
-                    [START_TAG_TOKEN] = TokenInInitialMode,
-                    [END_TAG_TOKEN] = TokenInInitialMode,
-                    [EOF_TOKEN] = TokenInInitialMode,
+                    [(int) CHARACTER_TOKEN] = TokenInInitialMode,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenInInitialMode,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = DoctypeInInitialMode,
+                    [(int) START_TAG_TOKEN] = TokenInInitialMode,
+                    [(int) END_TAG_TOKEN] = TokenInInitialMode,
+                    [(int) EOF_TOKEN] = TokenInInitialMode,
                 },
 
-                [BEFORE_HTML_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) BEFORE_HTML_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenBeforeHtml,
-                    [NULL_CHARACTER_TOKEN] = TokenBeforeHtml,
-                    [WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHtml),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHtml),
-                    [EOF_TOKEN] = TokenBeforeHtml,
+                    [(int) CHARACTER_TOKEN] = TokenBeforeHtml,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenBeforeHtml,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHtml),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHtml),
+                    [(int) EOF_TOKEN] = TokenBeforeHtml,
                 },
 
-                [BEFORE_HEAD_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) BEFORE_HEAD_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenBeforeHead,
-                    [NULL_CHARACTER_TOKEN] = TokenBeforeHead,
-                    [WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHead),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHead),
-                    [EOF_TOKEN] = TokenBeforeHead,
+                    [(int) CHARACTER_TOKEN] = TokenBeforeHead,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenBeforeHead,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagBeforeHead),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagBeforeHead),
+                    [(int) EOF_TOKEN] = TokenBeforeHead,
                 },
 
-                [IN_HEAD_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_HEAD_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenInHead,
-                    [NULL_CHARACTER_TOKEN] = TokenInHead,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInHead),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInHead),
-                    [EOF_TOKEN] = TokenInHead,
+                    [(int) CHARACTER_TOKEN] = TokenInHead,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenInHead,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInHead),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInHead),
+                    [(int) EOF_TOKEN] = TokenInHead,
                 },
 
-                [AFTER_HEAD_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) AFTER_HEAD_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenAfterHead,
-                    [NULL_CHARACTER_TOKEN] = TokenAfterHead,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterHead),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterHead),
-                    [EOF_TOKEN] = TokenAfterHead,
+                    [(int) CHARACTER_TOKEN] = TokenAfterHead,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenAfterHead,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterHead),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterHead),
+                    [(int) EOF_TOKEN] = TokenAfterHead,
                 },
 
-                [IN_BODY_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_BODY_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInBody,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInBody),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInBody),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInBody,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInBody),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInBody),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [TEXT_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) TEXT_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = InsertCharacters,
-                    [NULL_CHARACTER_TOKEN] = InsertCharacters,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = IgnoreToken,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = IgnoreToken,
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInText),
-                    [EOF_TOKEN] = EofInText,
+                    [(int) CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) NULL_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = IgnoreToken,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = IgnoreToken,
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInText),
+                    [(int) EOF_TOKEN] = EofInText,
                 },
 
-                [IN_TABLE_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_TABLE_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInTable,
-                    [NULL_CHARACTER_TOKEN] = CharacterInTable,
-                    [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTable),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTable),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) NULL_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInTable),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInTable),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_TABLE_TEXT_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_TABLE_TEXT_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInTableText,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInTableText,
-                    [COMMENT_TOKEN] = TokenInTableText,
-                    [DOCTYPE_TOKEN] = TokenInTableText,
-                    [START_TAG_TOKEN] = TokenInTableText,
-                    [END_TAG_TOKEN] = TokenInTableText,
-                    [EOF_TOKEN] = TokenInTableText,
+                    [(int) CHARACTER_TOKEN] = CharacterInTableText,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInTableText,
+                    [(int) COMMENT_TOKEN] = TokenInTableText,
+                    [(int) DOCTYPE_TOKEN] = TokenInTableText,
+                    [(int) START_TAG_TOKEN] = TokenInTableText,
+                    [(int) END_TAG_TOKEN] = TokenInTableText,
+                    [(int) EOF_TOKEN] = TokenInTableText,
                 },
 
-                [IN_CAPTION_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_CAPTION_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInBody,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInCaption),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInCaption),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInBody,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInCaption),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInCaption),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_COLUMN_GROUP_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_COLUMN_GROUP_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenInColumnGroup,
-                    [NULL_CHARACTER_TOKEN] = TokenInColumnGroup,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInColumnGroup),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInColumnGroup),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = TokenInColumnGroup,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenInColumnGroup,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInColumnGroup),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInColumnGroup),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_TABLE_BODY_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_TABLE_BODY_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInTable,
-                    [NULL_CHARACTER_TOKEN] = CharacterInTable,
-                    [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTableBody),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTableBody),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) NULL_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInTableBody),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInTableBody),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_ROW_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_ROW_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInTable,
-                    [NULL_CHARACTER_TOKEN] = CharacterInTable,
-                    [WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInRow),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInRow),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) NULL_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = CharacterInTable,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInRow),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInRow),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_CELL_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_CELL_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInBody,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInCell),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInCell),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = CharacterInBody,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInCell),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInCell),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_SELECT_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_SELECT_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = InsertCharacters,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelect),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelect),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelect),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelect),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_SELECT_IN_TABLE_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_SELECT_IN_TABLE_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = InsertCharacters,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelectInTable),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelectInTable),
-                    [EOF_TOKEN] = EofInBody,
+                    [(int) CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInSelectInTable),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInSelectInTable),
+                    [(int) EOF_TOKEN] = EofInBody,
                 },
 
-                [IN_TEMPLATE_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_TEMPLATE_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = CharacterInBody,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInTemplate),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInTemplate),
-                    [EOF_TOKEN] = EofInTemplate,
+                    [(int) CHARACTER_TOKEN] = CharacterInBody,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInTemplate),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInTemplate),
+                    [(int) EOF_TOKEN] = EofInTemplate,
                 },
 
-                [AFTER_BODY_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) AFTER_BODY_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenAfterBody,
-                    [NULL_CHARACTER_TOKEN] = TokenAfterBody,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendCommentToRootHtmlElement,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterBody),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterBody),
-                    [EOF_TOKEN] = StopParsing,
+                    [(int) CHARACTER_TOKEN] = TokenAfterBody,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenAfterBody,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendCommentToRootHtmlElement,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterBody),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterBody),
+                    [(int) EOF_TOKEN] = StopParsing,
                 },
 
-                [IN_FRAMESET_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) IN_FRAMESET_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = IgnoreToken,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagInFrameset),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagInFrameset),
-                    [EOF_TOKEN] = StopParsing,
+                    [(int) CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagInFrameset),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagInFrameset),
+                    [(int) EOF_TOKEN] = StopParsing,
                 },
 
-                [AFTER_FRAMESET_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) AFTER_FRAMESET_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = IgnoreToken,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
-                    [COMMENT_TOKEN] = AppendComment,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterFrameset),
-                    [END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterFrameset),
-                    [EOF_TOKEN] = StopParsing,
+                    [(int) CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = InsertCharacters,
+                    [(int) COMMENT_TOKEN] = AppendComment,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterFrameset),
+                    [(int) END_TAG_TOKEN] = F<EndTagToken>(EndTagAfterFrameset),
+                    [(int) EOF_TOKEN] = StopParsing,
                 },
 
-                [AFTER_AFTER_BODY_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) AFTER_AFTER_BODY_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = TokenAfterAfterBody,
-                    [NULL_CHARACTER_TOKEN] = TokenAfterAfterBody,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendCommentToDocument,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterBody),
-                    [END_TAG_TOKEN] = TokenAfterAfterBody,
-                    [EOF_TOKEN] = StopParsing,
+                    [(int) CHARACTER_TOKEN] = TokenAfterAfterBody,
+                    [(int) NULL_CHARACTER_TOKEN] = TokenAfterAfterBody,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendCommentToDocument,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterBody),
+                    [(int) END_TAG_TOKEN] = TokenAfterAfterBody,
+                    [(int) EOF_TOKEN] = StopParsing,
                 },
 
-                [AFTER_AFTER_FRAMESET_MODE] = new Dictionary<TokenType, Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
+                [(int) AFTER_AFTER_FRAMESET_MODE] = new Array<Action<Parser<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text>, Token>>
                 {
-                    [CHARACTER_TOKEN] = IgnoreToken,
-                    [NULL_CHARACTER_TOKEN] = IgnoreToken,
-                    [WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
-                    [COMMENT_TOKEN] = AppendCommentToDocument,
-                    [DOCTYPE_TOKEN] = IgnoreToken,
-                    [START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterFrameset),
-                    [END_TAG_TOKEN] = IgnoreToken,
-                    [EOF_TOKEN] = StopParsing,
+                    [(int) CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) NULL_CHARACTER_TOKEN] = IgnoreToken,
+                    [(int) WHITESPACE_CHARACTER_TOKEN] = WhitespaceCharacterInBody,
+                    [(int) COMMENT_TOKEN] = AppendCommentToDocument,
+                    [(int) DOCTYPE_TOKEN] = IgnoreToken,
+                    [(int) START_TAG_TOKEN] = F<StartTagToken>(StartTagAfterAfterFrameset),
+                    [(int) END_TAG_TOKEN] = IgnoreToken,
+                    [(int) EOF_TOKEN] = StopParsing,
                 },
             };
 
@@ -387,14 +393,14 @@ namespace ParseFive
 
         readonly ITreeAdapter<Node, Document, DocumentFragment, Element, Attr, TemplateElement, Comment, Text> treeAdapter;
         Element pendingScript;
-        string originalInsertionMode;
+        ParserMode originalInsertionMode;
         Element headElement;
         Element formElement;
         OpenElementStack<Node, Element, TemplateElement> openElements;
         FormattingElementList<Element, Attr> activeFormattingElements;
-        List<string> tmplInsertionModeStack;
+        List<ParserMode> tmplInsertionModeStack;
         int tmplInsertionModeStackTop;
-        string currentTmplInsertionMode;
+        ParserMode currentTmplInsertionMode;
         List<Token> pendingCharacterTokens;
         bool hasNonWhitespacePendingCharacterToken;
         bool framesetOk;
@@ -403,7 +409,7 @@ namespace ParseFive
 
         Tokenizer tokenizer;
         bool stopped;
-        string insertionMode;
+        ParserMode insertionMode;
         Node document;
         Node fragmentContext;
 
@@ -488,7 +494,7 @@ namespace ParseFive
             this.stopped = false;
 
             this.insertionMode = INITIAL_MODE;
-            this.originalInsertionMode = "";
+            this.originalInsertionMode = NIL_MODE;
 
             this.document = document;
             this.fragmentContext = fragmentContext;
@@ -499,9 +505,9 @@ namespace ParseFive
             this.openElements = new OpenElementStack<Node, Element, TemplateElement>(this.document, this.treeAdapter.GetNamespaceUri, this.treeAdapter.GetTagName, this.treeAdapter.GetTemplateContent);
             this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeAdapter.GetNamespaceUri, this.treeAdapter.GetTagName, this.treeAdapter.GetAttrListCount, this.treeAdapter.GetAttrList, this.treeAdapter.GetAttrName, this.treeAdapter.GetAttrValue);
 
-            this.tmplInsertionModeStack = new List<string>();
+            this.tmplInsertionModeStack = new List<ParserMode>();
             this.tmplInsertionModeStackTop = -1;
-            this.currentTmplInsertionMode = null;
+            this.currentTmplInsertionMode = NIL_MODE;
 
             this.pendingCharacterTokens = new List<Token>();
             this.hasNonWhitespacePendingCharacterToken = false;
@@ -773,12 +779,12 @@ namespace ParseFive
 
         void ProcessToken(Token token)
         {
-            _[this.insertionMode][token.Type](this, token);
+            _[(int) this.insertionMode][(int) token.Type](this, token);
         }
 
         void ProcessTokenInBodyMode(Token token)
         {
-            _[IN_BODY_MODE][token.Type](this, token);
+            _[(int) IN_BODY_MODE][(int) token.Type](this, token);
         }
 
         void ProcessTokenInForeignContent(Token token)
@@ -928,7 +934,7 @@ namespace ParseFive
 
                 else if (tn == T.TEMPLATE)
                 {
-                    this.insertionMode = this.currentTmplInsertionMode;
+                    this.insertionMode = (ParserMode) this.currentTmplInsertionMode;
                     break;
                 }
 
@@ -969,7 +975,7 @@ namespace ParseFive
             this.insertionMode = IN_SELECT_MODE;
         }
 
-        void PushTmplInsertionMode(string mode)
+        void PushTmplInsertionMode(ParserMode mode)
         {
             this.tmplInsertionModeStack.Push(mode);
             this.tmplInsertionModeStackTop++;
@@ -982,7 +988,7 @@ namespace ParseFive
             this.tmplInsertionModeStackTop--;
             this.currentTmplInsertionMode = this.tmplInsertionModeStackTop >= 0 && this.tmplInsertionModeStackTop < tmplInsertionModeStack.Count
                                           ? this.tmplInsertionModeStack[this.tmplInsertionModeStackTop]
-                                          : null;
+                                          : NIL_MODE;
         }
 
         //Foster parenting
