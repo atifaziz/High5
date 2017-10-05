@@ -45,3 +45,4 @@ docs/
 
 *.lock.json
 tools/
+BenchmarkDotNet.Artifacts/

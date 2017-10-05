@@ -1,4 +1,4 @@
 @echo off
 pushd "%~dp0"
-dotnet test tests
+dotnet test tests\Fixtures
 popd
