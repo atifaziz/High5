@@ -62,15 +62,11 @@ namespace ParseFive
             newNode.ParentNode = parentNode;
         }
 
-        public void SetTemplateContent(TemplateElement templateElement, Node contentElement)
-        {
-            (templateElement).Content = contentElement;
-        }
+        public void SetTemplateContent(TemplateElement templateElement, Node contentElement) =>
+            templateElement.Content = contentElement;
 
-        public Node GetTemplateContent(TemplateElement templateElement)
-        {
-            return templateElement.Content;
-        }
+        public Node GetTemplateContent(TemplateElement templateElement) =>
+            templateElement.Content;
 
         public void SetDocumentType(Document document, string name, string publicId, string systemId)
         {
@@ -135,39 +131,36 @@ namespace ParseFive
             foreach (var attr in recipient.Attributes)
                 recipientAttrsMap.Add(attr.Name);
 
-            foreach (var attr in attrs) {
+            foreach (var attr in attrs)
+            {
                 var (_, _, name, _) = attr;
                 if (!recipientAttrsMap.Contains(name))
                     recipient.AttributesPush(attr);
             }
         }
 
-        //Tree traversing
-        public Node GetFirstChild(Node node)
-        {
-            return node.ChildNodes.Count() > 0 ? node.ChildNodes[0] : null;
-        }
+        // Tree traversing
 
-        public Node GetParentNode(Node node)
-        {
-            return node.ParentNode;
-        }
+        public Node GetFirstChild(Node node) =>
+            node.ChildNodes.Any() ? node.ChildNodes[0] : null;
+
+        public Node GetParentNode(Node node) =>
+            node.ParentNode;
 
         public int GetAttrListCount(Element element) =>
             element.Attributes.Count;
 
-
         public int GetAttrList(Element element, ArraySegment<Attribute> buffer)
         {
-            var cc = 0;
+            var lc = 0;
             var bi = 0;
             for (var i = buffer.Offset; bi < buffer.Count && i < Math.Min(element.Attributes.Count, buffer.Count); i++)
             {
                 var attr = element.Attributes[i];
                 buffer.Array[bi++] = (attr.Namespace, attr.Prefix, attr.Name, attr.Value);
-                cc++;
+                lc++;
             }
-            return cc;
+            return lc;
         }
 
         public string GetAttrName(Attribute attr)
@@ -182,15 +175,9 @@ namespace ParseFive
             return value;
         }
 
-        //Node data
-        public string GetTagName(Element element)
-        {
-            return element.TagName;
-        }
+        // Node data
 
-        public string GetNamespaceUri(Element element)
-        {
-            return element.NamespaceUri;
-        }
+        public string GetTagName(Element element) => element.TagName;
+        public string GetNamespaceUri(Element element) => element.NamespaceUri;
     }
 }
