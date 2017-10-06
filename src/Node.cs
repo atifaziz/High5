@@ -26,7 +26,7 @@ namespace ParseFive
 {
     using System;
     using System.Collections.Generic;
-    using ParseFive.Extensions;
+    using Extensions;
 
     public abstract class Node
     {
@@ -38,46 +38,8 @@ namespace ParseFive
     {
         public string Mode { get; internal set; }
     }
+
     public class DocumentFragment : Node {}
-    public class Element : Node
-    {
-        IList<(string Namespace, string Prefix, string Name, string Value)> attrs;
-
-        public string TagName { get; }
-        public string NamespaceUri { get; }
-
-        static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
-
-        public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
-        {
-            get { return attrs ?? ZeroAttrs; }
-            private set { attrs = value; }
-        }
-
-        public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
-        {
-            TagName = tagName;
-            NamespaceUri = namespaceUri;
-            Attributes = attributes;
-        }
-
-        internal void AttributesPush((string, string, string, string) attr)
-        {
-            if (attrs is null || (attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0))
-                attrs = new List<(string, string, string, string)>();
-            attrs.Push(attr);
-        }
-    }
-    public class Comment : Node
-    {
-        public string Data { get; }
-        public Comment(string data) => Data = data;
-    }
-    public class Text : Node
-    {
-        public string Value { get; internal set; }
-        public Text(string value) => Value = value;
-    }
 
     public class DocumentType : Node
     {
@@ -93,13 +55,54 @@ namespace ParseFive
         }
     }
 
+    public class Element : Node
+    {
+        IList<(string Namespace, string Prefix, string Name, string Value)> _attrs;
+
+        public string TagName { get; }
+        public string NamespaceUri { get; }
+
+        static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
+
+        public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
+        {
+            get => _attrs ?? ZeroAttrs;
+            private set => _attrs = value;
+        }
+
+        public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
+        {
+            TagName = tagName;
+            NamespaceUri = namespaceUri;
+            Attributes = attributes;
+        }
+
+        internal void AttributesPush((string, string, string, string) attr)
+        {
+            // TODO remove ugly hack
+            if (_attrs is null || _attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0)
+                _attrs = new List<(string, string, string, string)>();
+            _attrs.Push(attr);
+        }
+    }
+
     public class TemplateElement : Element
     {
         public Node Content { get; internal set; }
 
         public TemplateElement(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes) :
-            base(tagName, namespaceUri, attributes)
-        {
-        }
+            base(tagName, namespaceUri, attributes) {}
+    }
+
+    public class Comment : Node
+    {
+        public string Data { get; }
+        public Comment(string data) => Data = data;
+    }
+
+    public class Text : Node
+    {
+        public string Value { get; internal set; }
+        public Text(string value) => Value = value;
     }
 }
