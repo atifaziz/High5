@@ -55,8 +55,7 @@ namespace Demo
                 html = File.ReadAllText(source);
             }
 
-            var parser = DefaultTreeAdapter.Instance.CreateParser();
-            var doc = parser.Parse(html);
+            var doc = Parser.Parse(html);
             char[] indent = {};
             Dump(doc, Console.Out);
             Console.WriteLine();

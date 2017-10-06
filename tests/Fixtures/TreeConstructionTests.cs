@@ -34,7 +34,6 @@ namespace ParseFive.Tests
     using System.Text.RegularExpressions;
     using MoreLinq;
     using Xunit;
-    using Parser = Parser<Node, Document, DocumentFragment, Element, (string Namespace, string Prefix, string Name, string Value), TemplateElement, Comment, Text>;
 
     public class TreeConstructionTests
     {
@@ -264,7 +263,7 @@ namespace ParseFive.Tests
             const string nsMath = "http://www.w3.org/1998/Math/MathML";
             const string nsHtml = "http://www.w3.org/1999/xhtml";
 
-            var parse = new Func<Parser, string, Node>((p, s) => p.Parse(s));
+            var parse = new Func<string, Node>(Parser.Parse);
 
             if (documentFragment != null)
             {
@@ -281,11 +280,10 @@ namespace ParseFive.Tests
                                 : nsHtml,
                         new ArraySegment<(string Namespace, string Prefix, string Name, string Value)>());
 
-                parse = (p, s) => p.ParseFragment(s, context);
+                parse = s => Parser.ParseFragment(s, context);
             }
 
-            var parser = DefaultTreeAdapter.Instance.CreateParser();
-            var doc = parse(parser, html);
+            var doc = parse(html);
             char[] indent = {};
             var actuals = Dump(doc).Concat(string.Empty);
             foreach (var t in document.ZipLongest(actuals, (exp, act) => new { Expected = exp, Actual = act }))

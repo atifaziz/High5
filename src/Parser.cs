@@ -38,6 +38,38 @@ namespace ParseFive
     using MODE = Tokenizer.MODE;
     using T = HTML.TAG_NAMES;
 
+    public static class Parser
+    {
+        public static Document Parse(string html) =>
+            Create(DefaultTreeAdapter.Instance).Parse(html);
+
+        public static DocumentFragment ParseFragment(string html, Node context) =>
+            Create(DefaultTreeAdapter.Instance).ParseFragment(html, context);
+
+        public static Parser<TNode,
+                TDocument, TDocumentFragment,
+                TElement, TAttr, TTemplateElement,
+                TComment, TText>
+            Create<TNode,
+                TDocument, TDocumentFragment,
+                TElement, TAttr, TTemplateElement,
+                TComment, TText>(ITreeAdapter<TNode,
+                TDocument, TDocumentFragment,
+                TElement, TAttr, TTemplateElement,
+                TComment, TText> a)
+            where TNode             : class
+            where TDocument         : class, TNode
+            where TDocumentFragment : class, TNode
+            where TElement          : class, TNode
+            where TTemplateElement  : class, TElement
+            where TComment          : class, TNode
+            where TText             : class, TNode
+            => new Parser<TNode,
+                TDocument, TDocumentFragment,
+                TElement, TAttr, TTemplateElement,
+                TComment, TText>(a);
+    }
+
     // ReSharper disable ArrangeThisQualifier
 
     public sealed class Parser<Node,

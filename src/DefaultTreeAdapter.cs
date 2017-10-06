@@ -33,9 +33,6 @@ namespace ParseFive
     {
         public static DefaultTreeAdapter Instance = new DefaultTreeAdapter();
 
-        public Parser<Node, Document, DocumentFragment, Element, Attribute, TemplateElement, Comment, Text>
-            CreateParser() => new Parser<Node, Document, DocumentFragment, Element, Attribute, TemplateElement, Comment, Text>(this);
-
         public Document CreateDocument() => new Document();
 
         public DocumentFragment CreateDocumentFragment() => new DocumentFragment();
