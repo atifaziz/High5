@@ -127,7 +127,7 @@ namespace ParseFive
                 var neAttrsLength = this.treeAdapter.GetAttrListCount(newElement);
                 var neTagName = this.treeAdapter.GetTagName(newElement);
                 var neNamespaceUri = this.treeAdapter.GetNamespaceUri(newElement);
-                var elementAttrObjs = default(TAttr[]);
+                var elementAttrObjs = new Array<TAttr>();
 
                 for (var i = this.length - 1; i >= 0; i--)
                 {
@@ -138,8 +138,8 @@ namespace ParseFive
 
                     var element = ((ElementEntry<TElement>) entry).Element;
                     var attrsLength = this.treeAdapter.GetAttrListCount(element);
-                    PooledArray.Resize(ref elementAttrObjs, attrsLength);
-                    this.treeAdapter.GetAttrList(element, ArraySegment.Create(elementAttrObjs, 0, attrsLength));
+                    elementAttrObjs.Init(attrsLength);
+                    this.treeAdapter.GetAttrList(element, elementAttrObjs.ToArraySegment());
                     var elementAttrs = new (string, string)[attrsLength];
                     for (var ai = 0; ai < attrsLength; ai++)
                         elementAttrs[ai] = this.treeAdapter.GetAttr(elementAttrObjs[ai]);
@@ -159,17 +159,16 @@ namespace ParseFive
         {
             var candidates = this.GetNoahArkConditionCandidates(newElement);
             var cLength = candidates.Count;
-            var neAttrObjs = default(TAttr[]);
-            var neAttrs = default((string Name, string Value)[]);
 
             if (cLength > 0)
             {
                 var neAttrsLength = this.treeAdapter.GetAttrListCount(newElement);
-                PooledArray.Resize(ref neAttrObjs, neAttrsLength);
-                this.treeAdapter.GetAttrList(newElement, ArraySegment.Create(neAttrObjs, 0, neAttrsLength));
-                PooledArray.Resize(ref neAttrs, neAttrsLength);
+                var neAttrObjs = new Array<TAttr>();
+                neAttrObjs.Init(neAttrsLength);
+                this.treeAdapter.GetAttrList(newElement, neAttrObjs.ToArraySegment());
+                var neAttrs = new Array<(string Name, string Value)>(neAttrsLength);
                 for (var i = 0; i < neAttrsLength; i++)
-                    neAttrs[i] = this.treeAdapter.GetAttr(neAttrObjs[i]);
+                    neAttrs.Add(this.treeAdapter.GetAttr(neAttrObjs[i]));
 
                 var neAttrsMap = new Dictionary<string, string>();
 
