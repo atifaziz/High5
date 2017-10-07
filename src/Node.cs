@@ -27,6 +27,7 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using Extensions;
+    using Microsoft.Extensions.Internal;
 
     public abstract class Node
     {
@@ -55,33 +56,68 @@ namespace ParseFive
         }
     }
 
+    public struct Attribute : IEquatable<Attribute>
+    {
+        public string NamespaceUri { get; }
+        public string Prefix       { get; }
+        public string Name         { get; }
+        public string Value        { get; }
+
+        public Attribute(string namespaceUri, string prefix, string name, string value)
+        {
+            NamespaceUri = namespaceUri;
+            Prefix       = prefix;
+            Name         = name;
+            Value        = value;
+        }
+
+        public bool Equals(Attribute other) =>
+            string.Equals(NamespaceUri, other.NamespaceUri)
+            && string.Equals(Prefix, other.Prefix, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Value, other.Value);
+
+        public override bool Equals(object obj) =>
+            obj is Attribute attribute && Equals(attribute);
+
+        public override int GetHashCode()
+        {
+            var hashCode = HashCodeCombiner.Start();
+            hashCode.Add(NamespaceUri);
+            hashCode.Add(Prefix, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(Name, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(Value);
+            return hashCode;
+        }
+    }
+
     public class Element : Node
     {
-        IList<(string Namespace, string Prefix, string Name, string Value)> _attrs;
+        IList<Attribute> _attrs;
 
         public string TagName { get; }
         public string NamespaceUri { get; }
 
-        static readonly (string Namespace, string Prefix, string Name, string Value)[] ZeroAttrs = new (string Namespace, string Prefix, string Name, string Value)[0];
+        static readonly Attribute[] ZeroAttrs = new Attribute[0];
 
-        public IList<(string Namespace, string Prefix, string Name, string Value)> Attributes
+        public IList<Attribute> Attributes
         {
             get => _attrs ?? ZeroAttrs;
             private set => _attrs = value;
         }
 
-        public Element(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes)
+        public Element(string tagName, string namespaceUri, IList<Attribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
             Attributes = attributes;
         }
 
-        internal void AttributesPush((string, string, string, string) attr)
+        internal void AttributesPush(Attribute attr)
         {
             // TODO remove ugly hack
-            if (_attrs is null || _attrs is ValueTuple<string, string, string, string>[] a && a.Length == 0)
-                _attrs = new List<(string, string, string, string)>();
+            if (_attrs is null || _attrs is Attribute[] a && a.Length == 0)
+                _attrs = new List<Attribute>();
             _attrs.Push(attr);
         }
     }
@@ -90,7 +126,7 @@ namespace ParseFive
     {
         public Node Content { get; internal set; }
 
-        public TemplateElement(string tagName, string namespaceUri, IList<(string Namespace, string Prefix, string Name, string Value)> attributes) :
+        public TemplateElement(string tagName, string namespaceUri, IList<Attribute> attributes) :
             base(tagName, namespaceUri, attributes) {}
     }
 

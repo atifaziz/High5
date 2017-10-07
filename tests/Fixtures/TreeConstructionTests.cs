@@ -278,7 +278,7 @@ namespace ParseFive.Tests
                         tagName, ns == "svg" ? nsSvg
                             : ns == "math" ? nsMath
                                 : nsHtml,
-                        new ArraySegment<(string Namespace, string Prefix, string Name, string Value)>());
+                        new ArraySegment<ParseFive.Attribute>());
 
                 parse = s => Parser.ParseFragment(s, context);
             }

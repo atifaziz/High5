@@ -27,7 +27,6 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Attribute = System.ValueTuple<string, string, string, string>;
 
     public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, Attribute, TemplateElement, Comment, Text>
     {
@@ -43,7 +42,7 @@ namespace ParseFive
             : new Element(tagName, namespaceUri, attrs.ToList());
 
         public Attribute CreateAttribute(string ns, string prefix, string name, string value) =>
-            (ns, prefix, name, value);
+            new Attribute(ns, prefix, name, value);
 
         public Comment CreateCommentNode(string data) => new Comment(data);
 
@@ -133,8 +132,7 @@ namespace ParseFive
 
             foreach (var attr in attrs)
             {
-                var (_, _, name, _) = attr;
-                if (!recipientAttrsMap.Contains(name))
+                if (!recipientAttrsMap.Contains(attr.Name))
                     recipient.AttributesPush(attr);
             }
         }
@@ -156,24 +154,14 @@ namespace ParseFive
             var bi = 0;
             for (var i = buffer.Offset; bi < buffer.Count && i < Math.Min(element.Attributes.Count, buffer.Count); i++)
             {
-                var attr = element.Attributes[i];
-                buffer.Array[bi++] = (attr.Namespace, attr.Prefix, attr.Name, attr.Value);
+                buffer.Array[bi++] = element.Attributes[i];
                 lc++;
             }
             return lc;
         }
 
-        public string GetAttrName(Attribute attr)
-        {
-            var (_, _, name, _) = attr;
-            return name;
-        }
-
-        public string GetAttrValue(Attribute attr)
-        {
-            var (_, _, _, value) = attr;
-            return value;
-        }
+        public string GetAttrName(Attribute attr) => attr.Name;
+        public string GetAttrValue(Attribute attr) => attr.Value;
 
         // Node data
 
