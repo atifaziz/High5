@@ -109,35 +109,22 @@ namespace ParseFive
             { "zoomandpan"         , "zoomAndPan"          },
         };
 
-        sealed class XmlAdjustment
-        {
-            public readonly string Prefix;
-            public readonly string Name;
-            public readonly string Namespace;
-
-            public XmlAdjustment(string prefix, string name, string @namespace)
+        static readonly IDictionary<string, (string, Attr.PrefixNamespaceUriPair)> XmlAttrsAdjustmentMap =
+            new Dictionary<string, (string, Attr.PrefixNamespaceUriPair)>
             {
-                Prefix = prefix;
-                Name = name;
-                Namespace = @namespace;
-            }
-        }
-
-        static readonly IDictionary<string, XmlAdjustment> XmlAttrsAdjustmentMap = new Dictionary<string, XmlAdjustment>
-        {
-            ["xlink:actuate"] = new XmlAdjustment("xlink", "actuate", NS.XLINK),
-            ["xlink:arcrole"] = new XmlAdjustment("xlink", "arcrole", NS.XLINK),
-            ["xlink:href"   ] = new XmlAdjustment("xlink", "href"   , NS.XLINK),
-            ["xlink:role"   ] = new XmlAdjustment("xlink", "role"   , NS.XLINK),
-            ["xlink:show"   ] = new XmlAdjustment("xlink", "show"   , NS.XLINK),
-            ["xlink:title"  ] = new XmlAdjustment("xlink", "title"  , NS.XLINK),
-            ["xlink:type"   ] = new XmlAdjustment("xlink", "type"   , NS.XLINK),
-            ["xml:base"     ] = new XmlAdjustment("xml"  , "base"   , NS.XML),
-            ["xml:lang"     ] = new XmlAdjustment("xml"  , "lang"   , NS.XML),
-            ["xml:space"    ] = new XmlAdjustment("xml"  , "space"  , NS.XML),
-            ["xmlns"        ] = new XmlAdjustment(""     , "xmlns"  , NS.XMLNS),
-            ["xmlns:xlink"  ] = new XmlAdjustment("xmlns", "xlink"  , NS.XMLNS)
-        };
+                ["xlink:actuate"] = ("actuate", Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:arcrole"] = ("arcrole", Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:href"   ] = ("href"   , Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:role"   ] = ("role"   , Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:show"   ] = ("show"   , Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:title"  ] = ("title"  , Attr.PrefixNamespaceUriPair.XLink),
+                ["xlink:type"   ] = ("type"   , Attr.PrefixNamespaceUriPair.XLink),
+                ["xml:base"     ] = ("base"   , Attr.PrefixNamespaceUriPair.Xml),
+                ["xml:lang"     ] = ("lang"   , Attr.PrefixNamespaceUriPair.Xml),
+                ["xml:space"    ] = ("space"  , Attr.PrefixNamespaceUriPair.Xml),
+                ["xmlns"        ] = ("xmlns"  , Attr.PrefixNamespaceUriPair.EmptyXmlNs),
+                ["xmlns:xlink"  ] = ("xlink"  , Attr.PrefixNamespaceUriPair.XmlNs)
+            };
 
         // SVG tag names adjustment map
 
@@ -275,10 +262,8 @@ namespace ParseFive
                 var attr = token.Attrs[i];
                 if (XmlAttrsAdjustmentMap.TryGetValue(attr.Name, out var adjustedAttrEntry))
                 {
-                    token.Attrs[i] = new Attr(adjustedAttrEntry.Namespace,
-                                              adjustedAttrEntry.Prefix,
-                                              adjustedAttrEntry.Name,
-                                              attr.Value);
+                    var (name, pns) = adjustedAttrEntry;
+                    token.Attrs[i] = new Attr(pns, name, attr.Value);
                 }
             }
         }
