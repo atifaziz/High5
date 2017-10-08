@@ -33,7 +33,7 @@ namespace ParseFive.Extensions
         public static int CharCodeAt(this string str, int index) => (int)str[index];
     }
 
-    public static class ListExtensions
+    static class ListExtensions
     {
         public static void Push<T>(this List<T> list, T elem)
         {
