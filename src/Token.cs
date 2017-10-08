@@ -70,7 +70,7 @@ namespace ParseFive
             attrs.Capacity = Attrs.Count;
             var i = 0;
             foreach (var attr in Attrs)
-                attrs[i++] = attrFactory(attr.Namespace, attr.Prefix, attr.Name, attr.Value);
+                attrs[i++] = attrFactory(attr.NamespaceUri, attr.Prefix, attr.Name, attr.Value);
             return attrs.ToArraySegment();
         }
     }

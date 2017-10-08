@@ -24,25 +24,50 @@
 
 namespace ParseFive
 {
-    sealed class Attr
+    using System;
+    using Microsoft.Extensions.Internal;
+
+    struct Attr : IEquatable<Attr>
     {
-        public string Prefix { get; }
-        public string Name { get; }
-        public string Namespace { get; }
-        public string Value { get; }
+        public string NamespaceUri { get; }
+        public string Prefix       { get; }
+        public string Name         { get; }
+        public string Value        { get; }
 
         public Attr(string name, string value) :
-            this(string.Empty, string.Empty, name, value) {}
+            this(null, null, name, value) {}
 
-        public Attr(string ns, string prefix, string name, string value)
+        public Attr(string namespaceUri, string prefix, string name, string value)
         {
-            Namespace = ns;
-            Prefix = prefix;
-            Name = name;
-            Value = value;
+            NamespaceUri = namespaceUri;
+            Prefix       = prefix;
+            Name         = name;
+            Value        = value;
         }
 
-        public Attr WithName(string name) => new Attr(Namespace, Prefix, name, Value);
-        public Attr WithValue(string value) => new Attr(Namespace, Prefix, Name, value);
+        public Attr WithName(string name) =>
+            new Attr(NamespaceUri, Prefix, name, Value);
+
+        public Attr WithValue(string value) =>
+            new Attr(NamespaceUri, Prefix, Name, value);
+
+        public bool Equals(Attr other) =>
+            string.Equals(NamespaceUri, other.NamespaceUri)
+            && string.Equals(Prefix, other.Prefix, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Value, other.Value);
+
+        public override bool Equals(object obj) =>
+            obj is Attr attribute && Equals(attribute);
+
+        public override int GetHashCode()
+        {
+            var hashCode = HashCodeCombiner.Start();
+            hashCode.Add(NamespaceUri);
+            hashCode.Add(Prefix, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(Name, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(Value);
+            return hashCode;
+        }
     }
 }

@@ -63,6 +63,9 @@ namespace ParseFive
         public string Name         { get; }
         public string Value        { get; }
 
+        public Attribute(string name, string value) :
+            this(null, null, name, value) {}
+
         public Attribute(string namespaceUri, string prefix, string name, string value)
         {
             NamespaceUri = namespaceUri;
