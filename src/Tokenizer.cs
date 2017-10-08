@@ -27,6 +27,7 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
+    using System.Text;
     using Extensions;
     using static NamedEntityData;
     using static NamedEntityTreeFlags;
@@ -225,7 +226,8 @@ namespace ParseFive
         EndTagToken currentEndTagToken  ;
         CharacterToken currentCharacterToken;
         Token currentToken;
-        Attr currentAttr;
+        readonly StringBuilder currentAttrName;
+        readonly StringBuilder currentAttrValue;
 
         DoctypeToken CurrentDoctypeToken
         {
@@ -284,7 +286,8 @@ namespace ParseFive
 
             this.currentCharacterToken = null;
             this.currentToken = null;
-            this.currentAttr = null;
+            this.currentAttrName = new StringBuilder();
+            this.currentAttrValue = new StringBuilder();
         }
 
         static Dictionary<string, Action<Tokenizer, int>> _actionByState;
@@ -490,24 +493,29 @@ namespace ParseFive
 
         void CreateAttr(string attrNameFirstCh) // TODO Check if string or char
         {
-            this.currentAttr = new Attr(attrNameFirstCh, "");
+            this.currentAttrName.Clear().Append(attrNameFirstCh);
+            this.currentAttrValue.Clear();
         }
 
-        bool IsDuplicateAttr()
+        bool IsDuplicateAttr(string name)
         {
-            return GetTokenAttr(this.CurrentTagToken, this.currentAttr.Name) != null;
+            return GetTokenAttr(this.CurrentTagToken, name) != null;
         }
 
         void LeaveAttrName(string toState)
         {
             this.State = toState;
 
-            if (!this.IsDuplicateAttr())
-                this.CurrentTagToken.Attrs.Push(this.currentAttr);
+            var name = this.currentAttrName.ToString();
+            if (!this.IsDuplicateAttr(name))
+                this.CurrentTagToken.Attrs.Push(new Attr(name, this.currentAttrValue.ToString()));
         }
 
         void LeaveAttrValue(string toState)
         {
+            var attrs = this.CurrentTagToken.Attrs;
+            var index = attrs.Count - 1;
+            attrs[index] = attrs[index].WithValue(currentAttrValue.ToString());
             this.State = toState;
         }
 
@@ -1620,16 +1628,16 @@ namespace ParseFive
                     @this.LeaveAttrName(BEFORE_ATTRIBUTE_VALUE_STATE);
 
                 else if (IsAsciiUpper(cp))
-                    @this.currentAttr.Name += ToAsciiLowerChar(cp);
+                    @this.currentAttrName.Append(ToAsciiLowerChar(cp));
 
                 else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN)
-                    @this.currentAttr.Name += ToChar(cp);
+                    @this.currentAttrName.Append(ToChar(cp));
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.Name += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttrName.Append(CP.REPLACEMENT_CHARACTER);
 
                 else
-                    @this.currentAttr.Name += ToChar(cp);
+                    @this.currentAttrName.Append(ToChar(cp));
             }
 
             // 12.2.4.36 After attribute name state
@@ -1693,13 +1701,13 @@ namespace ParseFive
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttrValue.Append((char) CP.REPLACEMENT_CHARACTER);
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.Value += ToChar(cp);
+                    @this.currentAttrValue.Append(ToChar(cp));
             }
 
             // 12.2.4.39 Attribute value (single-quoted) state
@@ -1717,13 +1725,13 @@ namespace ParseFive
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttrValue.Append((char) CP.REPLACEMENT_CHARACTER);
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.Value += ToChar(cp);
+                    @this.currentAttrValue.Append(ToChar(cp));
             }
 
             // 12.2.4.40 Attribute value (unquoted) state
@@ -1747,17 +1755,17 @@ namespace ParseFive
                 }
 
                 else if (cp == CP.NULL)
-                    @this.currentAttr.Value += CP.REPLACEMENT_CHARACTER;
+                    @this.currentAttrValue.Append((char) CP.REPLACEMENT_CHARACTER);
 
                 else if (cp == CP.QUOTATION_MARK || cp == CP.APOSTROPHE || cp == CP.LESS_THAN_SIGN ||
                          cp == CP.EQUALS_SIGN || cp == CP.GRAVE_ACCENT)
-                    @this.currentAttr.Value += ToChar(cp);
+                    @this.currentAttrValue.Append(ToChar(cp));
 
                 else if (cp == CP.EOF)
                     @this.ReconsumeInState(DATA_STATE);
 
                 else
-                    @this.currentAttr.Value += ToChar(cp);
+                    @this.currentAttrValue.Append(ToChar(cp));
             }
 
             // 12.2.4.41 Character reference in attribute value state
@@ -1771,10 +1779,10 @@ namespace ParseFive
                     if (referencedCodePoints != null)
                     {
                         foreach (var rcp in referencedCodePoints)
-                            @this.currentAttr.Value += ToChar(rcp);
+                            @this.currentAttrValue.Append(ToChar(rcp));
                     }
                     else
-                        @this.currentAttr.Value += '&';
+                        @this.currentAttrValue.Append('&');
 
                     @this.State = @this.returnState;
                 }

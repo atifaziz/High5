@@ -247,11 +247,12 @@ namespace ParseFive
 
         public static void AdjustTokenMathMlAttrs(StartTagToken token)
         {
-            foreach (var attr in token.Attrs)
+            for (var i = 0; i < token.Attrs.Count; i++)
             {
+                var attr = token.Attrs[i];
                 if (attr.Name == DefinitionUrlAttr)
                 {
-                    attr.Name = AdjustedDefinitionUrlAttr;
+                    token.Attrs[i] = attr.WithName(AdjustedDefinitionUrlAttr);
                     break;
                 }
             }
@@ -259,22 +260,25 @@ namespace ParseFive
 
         public static void AdjustTokenSvgAttrs(StartTagToken token)
         {
-            foreach (var attr in token.Attrs)
+            for (var i = 0; i < token.Attrs.Count; i++)
             {
+                var attr = token.Attrs[i];
                 if (SvgAttrsAdjustmentMap.TryGetValue(attr.Name, out var adjustedAttrName))
-                    attr.Name = adjustedAttrName;
+                    token.Attrs[i] = attr.WithName(adjustedAttrName);
             }
         }
 
         public static void AdjustTokenXmlAttrs(StartTagToken token)
         {
-            foreach (var attr in token.Attrs)
+            for (var i = 0; i < token.Attrs.Count; i++)
             {
+                var attr = token.Attrs[i];
                 if (XmlAttrsAdjustmentMap.TryGetValue(attr.Name, out var adjustedAttrEntry))
                 {
-                    attr.Prefix = adjustedAttrEntry.Prefix;
-                    attr.Name = adjustedAttrEntry.Name;
-                    attr.Namespace = adjustedAttrEntry.Namespace;
+                    token.Attrs[i] = new Attr(adjustedAttrEntry.Namespace,
+                                              adjustedAttrEntry.Prefix,
+                                              adjustedAttrEntry.Name,
+                                              attr.Value);
                 }
             }
         }

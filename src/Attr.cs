@@ -26,17 +26,23 @@ namespace ParseFive
 {
     sealed class Attr
     {
-        public string Prefix { get; internal set; }
-        public string Name { get; internal set; }
-        public string Namespace { get; internal set; }
-        public string Value { get; internal set; }
+        public string Prefix { get; }
+        public string Name { get; }
+        public string Namespace { get; }
+        public string Value { get; }
 
-        public Attr(string name, string value)
+        public Attr(string name, string value) :
+            this(string.Empty, string.Empty, name, value) {}
+
+        public Attr(string ns, string prefix, string name, string value)
         {
-            this.Prefix = "";
-            this.Name = name;
-            this.Namespace = "";
-            this.Value = value;
+            Namespace = ns;
+            Prefix = prefix;
+            Name = name;
+            Value = value;
         }
+
+        public Attr WithName(string name) => new Attr(Namespace, Prefix, name, Value);
+        public Attr WithValue(string value) => new Attr(Namespace, Prefix, Name, value);
     }
 }
