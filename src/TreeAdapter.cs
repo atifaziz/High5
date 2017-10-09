@@ -65,7 +65,7 @@ namespace ParseFive
         TNode GetFirstChild(TNode node);
         TNode GetParentNode(TNode node);
         int GetAttrListCount(TElement element);
-        int GetAttrList(TElement element, ArraySegment<TAttr> buffer);
+        int ListAttr(TElement element, ArraySegment<TAttr> buffer);
         string GetAttrName(TAttr attr);
         string GetAttrValue(TAttr attr);
 

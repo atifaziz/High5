@@ -148,7 +148,7 @@ namespace ParseFive
         public int GetAttrListCount(Element element) =>
             element.Attributes.Count;
 
-        public int GetAttrList(Element element, ArraySegment<Attribute> buffer)
+        public int ListAttr(Element element, ArraySegment<Attribute> buffer)
         {
             var lc = 0;
             var bi = 0;

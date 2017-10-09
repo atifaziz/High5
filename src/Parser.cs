@@ -529,7 +529,7 @@ namespace ParseFive
             this.formElement = null;
 
             this.openElements = new OpenElementStack<Node, Element, TemplateElement>(this.document, this.treeAdapter.GetNamespaceUri, this.treeAdapter.GetTagName, this.treeAdapter.GetTemplateContent);
-            this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeAdapter.GetNamespaceUri, this.treeAdapter.GetTagName, this.treeAdapter.GetAttrListCount, this.treeAdapter.GetAttrList, this.treeAdapter.GetAttrName, this.treeAdapter.GetAttrValue);
+            this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeAdapter.GetNamespaceUri, this.treeAdapter.GetTagName, this.treeAdapter.GetAttrListCount, this.treeAdapter.ListAttr, this.treeAdapter.GetAttrName, this.treeAdapter.GetAttrValue);
 
             this.tmplInsertionModeStack = new List<string>();
             this.tmplInsertionModeStackTop = -1;
@@ -855,7 +855,7 @@ namespace ParseFive
             using (var attrs = attrsPool.Allocate())
             {
                 attrs.Array.Init(attrsLength);
-                this.treeAdapter.GetAttrList(element, attrs.Array.ToArraySegment());
+                this.treeAdapter.ListAttr(element, attrs.Array.ToArraySegment());
                 using (var nvattrs = nvattrsPool.Allocate())
                 {
                     nvattrs.Array.Capacity = attrsLength;
