@@ -50,18 +50,12 @@ namespace ParseFive
 
         public Preprocessor()
         {
-            this.html = null;
-
             this.pos = -1;
             this.lastGapPos = -1;
             this.lastCharPos = -1;
 
             this.gapStack = new Stack<int>();
 
-            this.skipNextNewLine = false;
-
-            this.lastChunkWritten = false;
-            this.EndOfChunkHit = false;
             this.bufferWaterline = DefaultBufferWaterline;
         }
 
