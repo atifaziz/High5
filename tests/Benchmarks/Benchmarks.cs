@@ -44,10 +44,10 @@ namespace ParseFive.Benchmarks
             _hugePage  = LoadTextFile("huge-page.html");
         }
 
-        [Benchmark] public Document Lhc()       => Parser.Parse(_lhc);
-        [Benchmark] public Document NodeJsOrg() => Parser.Parse(_nodeJsOrg);
-        [Benchmark] public Document NpmOrg()    => Parser.Parse(_npmOrg);
-        [Benchmark] public Document HugePage()  => Parser.Parse(_hugePage);
+        [Benchmark] public HtmlDocument Lhc()       => Parser.Parse(_lhc);
+        [Benchmark] public HtmlDocument NodeJsOrg() => Parser.Parse(_nodeJsOrg);
+        [Benchmark] public HtmlDocument NpmOrg()    => Parser.Parse(_npmOrg);
+        [Benchmark] public HtmlDocument HugePage()  => Parser.Parse(_hugePage);
 
         static string LoadTextFile(string name)
         {

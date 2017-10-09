@@ -29,26 +29,26 @@ namespace ParseFive
     using Extensions;
     using Microsoft.Extensions.Internal;
 
-    public abstract class Node
+    public abstract class HtmlNode
     {
-        public Node ParentNode { get; internal set; }
-        public List<Node> ChildNodes { get; } = new List<Node>();
+        public HtmlNode ParentNode { get; internal set; }
+        public List<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
     }
 
-    public class Document : Node
+    public class HtmlDocument : HtmlNode
     {
         public string Mode { get; internal set; }
     }
 
-    public class DocumentFragment : Node {}
+    public class HtmlDocumentFragment : HtmlNode {}
 
-    public class DocumentType : Node
+    public class HtmlDocumentType : HtmlNode
     {
         public string Name     { get; internal set; }
         public string PublicId { get; internal set; }
         public string SystemId { get; internal set; }
 
-        public DocumentType(string name, string publicId, string systemId)
+        public HtmlDocumentType(string name, string publicId, string systemId)
         {
             Name = name;
             PublicId = publicId;
@@ -56,17 +56,17 @@ namespace ParseFive
         }
     }
 
-    public struct Attribute : IEquatable<Attribute>
+    public struct HtmlAttribute : IEquatable<HtmlAttribute>
     {
         public string NamespaceUri { get; }
         public string Prefix       { get; }
         public string Name         { get; }
         public string Value        { get; }
 
-        public Attribute(string name, string value) :
+        public HtmlAttribute(string name, string value) :
             this(null, null, name, value) {}
 
-        public Attribute(string namespaceUri, string prefix, string name, string value)
+        public HtmlAttribute(string namespaceUri, string prefix, string name, string value)
         {
             NamespaceUri = namespaceUri;
             Prefix       = prefix;
@@ -74,14 +74,14 @@ namespace ParseFive
             Value        = value;
         }
 
-        public bool Equals(Attribute other) =>
+        public bool Equals(HtmlAttribute other) =>
             string.Equals(NamespaceUri, other.NamespaceUri)
             && string.Equals(Prefix, other.Prefix, StringComparison.OrdinalIgnoreCase)
             && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
             && string.Equals(Value, other.Value);
 
         public override bool Equals(object obj) =>
-            obj is Attribute attribute && Equals(attribute);
+            obj is HtmlAttribute attribute && Equals(attribute);
 
         public override int GetHashCode()
         {
@@ -94,54 +94,54 @@ namespace ParseFive
         }
     }
 
-    public class Element : Node
+    public class HtmlElement : HtmlNode
     {
-        IList<Attribute> _attrs;
+        IList<HtmlAttribute> _attrs;
 
         public string TagName { get; }
         public string NamespaceUri { get; }
 
-        static readonly Attribute[] ZeroAttrs = new Attribute[0];
+        static readonly HtmlAttribute[] ZeroAttrs = new HtmlAttribute[0];
 
-        public IList<Attribute> Attributes
+        public IList<HtmlAttribute> Attributes
         {
             get => _attrs ?? ZeroAttrs;
             private set => _attrs = value;
         }
 
-        public Element(string tagName, string namespaceUri, IList<Attribute> attributes)
+        public HtmlElement(string tagName, string namespaceUri, IList<HtmlAttribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
             Attributes = attributes;
         }
 
-        internal void AttributesPush(Attribute attr)
+        internal void AttributesPush(HtmlAttribute attr)
         {
             // TODO remove ugly hack
-            if (_attrs is null || _attrs is Attribute[] a && a.Length == 0)
-                _attrs = new List<Attribute>();
+            if (_attrs is null || _attrs is HtmlAttribute[] a && a.Length == 0)
+                _attrs = new List<HtmlAttribute>();
             _attrs.Push(attr);
         }
     }
 
-    public class TemplateElement : Element
+    public class HtmlTemplateElement : HtmlElement
     {
-        public Node Content { get; internal set; }
+        public HtmlNode Content { get; internal set; }
 
-        public TemplateElement(string tagName, string namespaceUri, IList<Attribute> attributes) :
+        public HtmlTemplateElement(string tagName, string namespaceUri, IList<HtmlAttribute> attributes) :
             base(tagName, namespaceUri, attributes) {}
     }
 
-    public class Comment : Node
+    public class HtmlComment : HtmlNode
     {
         public string Data { get; }
-        public Comment(string data) => Data = data;
+        public HtmlComment(string data) => Data = data;
     }
 
-    public class Text : Node
+    public class HtmlText : HtmlNode
     {
         public string Value { get; internal set; }
-        public Text(string value) => Value = value;
+        public HtmlText(string value) => Value = value;
     }
 }

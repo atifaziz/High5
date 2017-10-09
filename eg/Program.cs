@@ -74,11 +74,11 @@ namespace Demo
                 output.WriteLine();
             }
 
-            void Dump(Node node, TextWriter output, int level = 0)
+            void Dump(HtmlNode node, TextWriter output, int level = 0)
             {
                 switch (node)
                 {
-                    case DocumentType dt:
+                    case HtmlDocumentType dt:
                         Print(output, level,
                             "<!DOCTYPE ",
                             new StringBuilder()
@@ -87,7 +87,7 @@ namespace Demo
                                 .ToString(),
                             ">");
                         break;
-                    case Element e:
+                    case HtmlElement e:
                         var ns = e.NamespaceUri == "http://www.w3.org/2000/svg" ? "svg "
                                : e.NamespaceUri == "http://www.w3.org/1998/Math/MathML" ? "math "
                                : null;
@@ -95,10 +95,10 @@ namespace Demo
                         foreach (var a in e.Attributes)
                             Print(output, level + 1, a.Name, "=", Jsonify(a.Value));
                         break;
-                    case Text t:
+                    case HtmlText t:
                         Print(output, level, "\"" + t.Value + "\"");
                         return;
-                    case Comment c:
+                    case HtmlComment c:
                         Print(output, level, $"<!-- {c.Data} -->");
                         return;
                 }

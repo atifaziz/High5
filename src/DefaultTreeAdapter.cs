@@ -28,48 +28,48 @@ namespace ParseFive
     using System.Collections.Generic;
     using System.Linq;
 
-    public sealed class DefaultTreeAdapter : ITreeAdapter<Node, Document, DocumentFragment, Element, Attribute, TemplateElement, Comment, Text>
+    public sealed class DefaultTreeAdapter : ITreeAdapter<HtmlNode, HtmlDocument, HtmlDocumentFragment, HtmlElement, HtmlAttribute, HtmlTemplateElement, HtmlComment, HtmlText>
     {
         public static DefaultTreeAdapter Instance = new DefaultTreeAdapter();
 
-        public Document CreateDocument() => new Document();
+        public HtmlDocument CreateDocument() => new HtmlDocument();
 
-        public DocumentFragment CreateDocumentFragment() => new DocumentFragment();
+        public HtmlDocumentFragment CreateDocumentFragment() => new HtmlDocumentFragment();
 
-        public Element CreateElement(string tagName, string namespaceUri, ArraySegment<Attribute> attrs) =>
+        public HtmlElement CreateElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attrs) =>
             tagName == "template"
-            ? new TemplateElement(tagName, namespaceUri, attrs.ToList())
-            : new Element(tagName, namespaceUri, attrs.ToList());
+            ? new HtmlTemplateElement(tagName, namespaceUri, attrs.ToList())
+            : new HtmlElement(tagName, namespaceUri, attrs.ToList());
 
-        public Attribute CreateAttribute(string ns, string prefix, string name, string value) =>
-            new Attribute(ns, prefix, name, value);
+        public HtmlAttribute CreateAttribute(string ns, string prefix, string name, string value) =>
+            new HtmlAttribute(ns, prefix, name, value);
 
-        public Comment CreateCommentNode(string data) => new Comment(data);
+        public HtmlComment CreateCommentNode(string data) => new HtmlComment(data);
 
-        public Text CreateTextNode(string value) => new Text(value);
+        public HtmlText CreateTextNode(string value) => new HtmlText(value);
 
-        public void AppendChild(Node parentNode, Node newNode)
+        public void AppendChild(HtmlNode parentNode, HtmlNode newNode)
         {
             parentNode.ChildNodes.Add(newNode);
             newNode.ParentNode = parentNode;
         }
 
-        public void InsertBefore(Node parentNode, Node newNode, Node referenceNode)
+        public void InsertBefore(HtmlNode parentNode, HtmlNode newNode, HtmlNode referenceNode)
         {
             var i = parentNode.ChildNodes.IndexOf(referenceNode);
             parentNode.ChildNodes.Insert(i, newNode);
             newNode.ParentNode = parentNode;
         }
 
-        public void SetTemplateContent(TemplateElement templateElement, Node contentElement) =>
+        public void SetTemplateContent(HtmlTemplateElement templateElement, HtmlNode contentElement) =>
             templateElement.Content = contentElement;
 
-        public Node GetTemplateContent(TemplateElement templateElement) =>
+        public HtmlNode GetTemplateContent(HtmlTemplateElement templateElement) =>
             templateElement.Content;
 
-        public void SetDocumentType(Document document, string name, string publicId, string systemId)
+        public void SetDocumentType(HtmlDocument document, string name, string publicId, string systemId)
         {
-            var doctypeNode = document.ChildNodes.OfType<DocumentType>().FirstOrDefault();
+            var doctypeNode = document.ChildNodes.OfType<HtmlDocumentType>().FirstOrDefault();
 
             if (doctypeNode != null)
             {
@@ -79,17 +79,17 @@ namespace ParseFive
             }
             else
             {
-                AppendChild(document, new DocumentType(name, publicId, systemId));
+                AppendChild(document, new HtmlDocumentType(name, publicId, systemId));
             }
         }
 
-        public void SetDocumentMode(Document document, string mode) =>
+        public void SetDocumentMode(HtmlDocument document, string mode) =>
             document.Mode = mode;
 
-        public string GetDocumentMode(Document document) =>
+        public string GetDocumentMode(HtmlDocument document) =>
             document.Mode;
 
-        public void DetachNode(Node node)
+        public void DetachNode(HtmlNode node)
         {
             if (node.ParentNode == null)
                 return;
@@ -98,11 +98,11 @@ namespace ParseFive
             node.ParentNode = null;
         }
 
-        public void InsertText(Node parentNode, string text)
+        public void InsertText(HtmlNode parentNode, string text)
         {
             if (parentNode.ChildNodes.Count > 0)
             {
-                if (parentNode.ChildNodes[parentNode.ChildNodes.Count - 1] is Text tn)
+                if (parentNode.ChildNodes[parentNode.ChildNodes.Count - 1] is HtmlText tn)
                 {
                     tn.Value += text;
                     return;
@@ -112,18 +112,18 @@ namespace ParseFive
             AppendChild(parentNode, CreateTextNode(text));
         }
 
-        public void InsertTextBefore(Node parentNode, string text, Node referenceNode)
+        public void InsertTextBefore(HtmlNode parentNode, string text, HtmlNode referenceNode)
         {
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
-            if (prevNode is Text textNode)
+            if (prevNode is HtmlText textNode)
                 textNode.Value += text;
             else
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void AdoptAttributes(Element recipient, ArraySegment<Attribute> attrs)
+        public void AdoptAttributes(HtmlElement recipient, ArraySegment<HtmlAttribute> attrs)
         {
             var recipientAttrsMap = new HashSet<string>();
 
@@ -139,16 +139,16 @@ namespace ParseFive
 
         // Tree traversing
 
-        public Node GetFirstChild(Node node) =>
+        public HtmlNode GetFirstChild(HtmlNode node) =>
             node.ChildNodes.Any() ? node.ChildNodes[0] : null;
 
-        public Node GetParentNode(Node node) =>
+        public HtmlNode GetParentNode(HtmlNode node) =>
             node.ParentNode;
 
-        public int GetAttrListCount(Element element) =>
+        public int GetAttrListCount(HtmlElement element) =>
             element.Attributes.Count;
 
-        public int ListAttr(Element element, ArraySegment<Attribute> buffer)
+        public int ListAttr(HtmlElement element, ArraySegment<HtmlAttribute> buffer)
         {
             var lc = 0;
             var bi = 0;
@@ -160,12 +160,12 @@ namespace ParseFive
             return lc;
         }
 
-        public string GetAttrName(Attribute attr) => attr.Name;
-        public string GetAttrValue(Attribute attr) => attr.Value;
+        public string GetAttrName(HtmlAttribute attr) => attr.Name;
+        public string GetAttrValue(HtmlAttribute attr) => attr.Value;
 
         // Node data
 
-        public string GetTagName(Element element) => element.TagName;
-        public string GetNamespaceUri(Element element) => element.NamespaceUri;
+        public string GetTagName(HtmlElement element) => element.TagName;
+        public string GetNamespaceUri(HtmlElement element) => element.NamespaceUri;
     }
 }

@@ -263,7 +263,7 @@ namespace ParseFive.Tests
             const string nsMath = "http://www.w3.org/1998/Math/MathML";
             const string nsHtml = "http://www.w3.org/1999/xhtml";
 
-            var parse = new Func<string, Node>(Parser.Parse);
+            var parse = new Func<string, HtmlNode>(Parser.Parse);
 
             if (documentFragment != null)
             {
@@ -278,7 +278,7 @@ namespace ParseFive.Tests
                         tagName, ns == "svg" ? nsSvg
                             : ns == "math" ? nsMath
                                 : nsHtml,
-                        new ArraySegment<ParseFive.Attribute>());
+                        new ArraySegment<HtmlAttribute>());
 
                 parse = s => Parser.ParseFragment(s, context);
             }
@@ -304,11 +304,11 @@ namespace ParseFive.Tests
                 return sb.ToString();
             }
 
-            IEnumerable<string> Dump(Node node, int level = 0)
+            IEnumerable<string> Dump(HtmlNode node, int level = 0)
             {
                 switch (node)
                 {
-                    case DocumentType dt:
+                    case HtmlDocumentType dt:
                         yield return Print(
                             level,
                             "<!DOCTYPE ",
@@ -318,7 +318,7 @@ namespace ParseFive.Tests
                                 .ToString(),
                             ">");
                         break;
-                    case Element e:
+                    case HtmlElement e:
                         var ns = e.NamespaceUri == nsSvg ? "svg "
                                : e.NamespaceUri == nsMath ? "math "
                                : null;
@@ -330,7 +330,7 @@ namespace ParseFive.Tests
                         {
                             yield return Print(level + 1, a.Name, "=", "\"", a.Value, "\"");
                         }
-                        if (e is TemplateElement te && te.Content != null)
+                        if (e is HtmlTemplateElement te && te.Content != null)
                         {
                             yield return Print(level + 1, "content");
                             foreach (var dump in from child in te.Content.ChildNodes
@@ -341,7 +341,7 @@ namespace ParseFive.Tests
                             }
                         }
                         break;
-                    case Text t:
+                    case HtmlText t:
                         var lines = t.Value.Split('\n');
                         if (lines.Length == 1)
                         {
@@ -355,7 +355,7 @@ namespace ParseFive.Tests
                                            : lines[i] + "\"";
                         }
                         break;
-                    case Comment c:
+                    case HtmlComment c:
                         yield return Print(level, $"<!-- {c.Data} -->");
                         break;
                 }
