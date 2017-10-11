@@ -27,8 +27,17 @@ namespace ParseFive
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using IDefaultTreeBuilder = ITreeBuilder<HtmlNode,
+                                             HtmlDocument, HtmlDocumentFragment,
+                                             HtmlElement, HtmlAttribute, HtmlTemplateElement,
+                                             HtmlComment, HtmlText>;
 
-    public sealed class DefaultTreeBuilder : ITreeBuilder<HtmlNode, HtmlDocument, HtmlDocumentFragment, HtmlElement, HtmlAttribute, HtmlTemplateElement, HtmlComment, HtmlText>
+    public static class TreeBuilder
+    {
+        public static readonly IDefaultTreeBuilder Default = DefaultTreeBuilder.Instance;
+    }
+
+    sealed class DefaultTreeBuilder : IDefaultTreeBuilder
     {
         public static DefaultTreeBuilder Instance = new DefaultTreeBuilder();
 

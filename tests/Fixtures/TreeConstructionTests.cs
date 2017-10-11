@@ -274,7 +274,7 @@ namespace ParseFive.Tests
                     : (null, documentFragment);
 
                 var context =
-                    DefaultTreeBuilder.Instance.CreateElement(
+                    TreeBuilder.Default.CreateElement(
                         tagName, ns == "svg"  ? nsSvg
                                : ns == "math" ? nsMath
                                : nsHtml,

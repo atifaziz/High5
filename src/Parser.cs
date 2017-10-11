@@ -41,10 +41,10 @@ namespace ParseFive
     public static class Parser
     {
         public static HtmlDocument Parse(string html) =>
-            Create(DefaultTreeBuilder.Instance).Parse(html);
+            Create(TreeBuilder.Default).Parse(html);
 
         public static HtmlDocumentFragment ParseFragment(string html, HtmlNode context) =>
-            Create(DefaultTreeBuilder.Instance).ParseFragment(html, context);
+            Create(TreeBuilder.Default).ParseFragment(html, context);
 
         public static Parser<TNode,
                 TDocument, TDocumentFragment,
