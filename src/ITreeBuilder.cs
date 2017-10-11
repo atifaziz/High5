@@ -26,7 +26,7 @@ namespace ParseFive
 {
     using System;
 
-    public interface ITreeAdapter<TNode,
+    public interface ITreeBuilder<TNode,
                                   TDocument, TDocumentFragment,
                                   TElement, TAttr, TTemplateElement,
                                   TComment, TText>
