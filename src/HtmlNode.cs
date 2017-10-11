@@ -32,7 +32,7 @@ namespace ParseFive
     public abstract class HtmlNode
     {
         public HtmlNode ParentNode { get; internal set; }
-        public List<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
+        public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
     }
 
     public class HtmlDocument : HtmlNode
