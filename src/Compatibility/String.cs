@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Compatibility
+namespace High5.Compatibility
 {
     static class String
     {

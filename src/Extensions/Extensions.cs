@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Extensions
+namespace High5.Extensions
 {
     using System;
     using System.Collections.Generic;

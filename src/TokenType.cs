@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive
+namespace High5
 {
     enum TokenType
     {

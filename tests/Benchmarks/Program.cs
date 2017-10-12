@@ -1,4 +1,4 @@
-namespace ParseFive.Benchmarks
+namespace High5.Benchmarks
 {
     using System.Reflection;
     using BenchmarkDotNet.Running;

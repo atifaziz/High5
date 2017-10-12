@@ -20,7 +20,7 @@
 //
 #endregion
 
-namespace ParseFive.Benchmarks
+namespace High5.Benchmarks
 {
     using System;
     using System.IO;

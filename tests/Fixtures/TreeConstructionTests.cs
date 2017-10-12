@@ -22,7 +22,7 @@
 //
 #endregion
 
-namespace ParseFive.Tests
+namespace High5.Tests
 {
     using System;
     using System.Collections.Generic;

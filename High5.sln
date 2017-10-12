@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParseFive", "src\ParseFive.csproj", "{EE76E3CA-53A8-40E8-A3C5-B93818696C43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "High5", "src\High5.csproj", "{EE76E3CA-53A8-40E8-A3C5-B93818696C43}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AE5E52B4-BB2D-48F8-8560-07A888E3D090}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo", "eg\Demo.csproj", "{CF21DBD7-828A-4BF9-9561-0E03FD9BB9AF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParseFive.Tests", "tests\Fixtures\ParseFive.Tests.csproj", "{63AA59DE-192A-4001-BDAB-17F15884FB3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "High5.Tests", "tests\Fixtures\High5.Tests.csproj", "{63AA59DE-192A-4001-BDAB-17F15884FB3A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParseFive.Benchmarks", "tests\Benchmarks\ParseFive.Benchmarks.csproj", "{5824C1C5-D5DC-4D4D-BDBA-09C5D87CACCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "High5.Benchmarks", "tests\Benchmarks\High5.Benchmarks.csproj", "{5824C1C5-D5DC-4D4D-BDBA-09C5D87CACCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

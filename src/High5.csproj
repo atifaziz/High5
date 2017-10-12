@@ -5,11 +5,11 @@
     <Copyright>Copyright © 2017 Atif Aziz, Adrian Guerra. Portions Copyright © 2013 Ivan Nikulin</Copyright>
     <Description>HTML parsing/serialization toolset for .NET</Description>
     <Company></Company>
-    <PackageProjectUrl>https://github.com/atifaziz/ParseFive</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/atifaziz/ParseFive</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/atifaziz/High5</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/atifaziz/High5</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>html5 html</PackageTags>
-    <PackageLicenseUrl>https://github.com/atifaziz/ParseFive/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/atifaziz/High5/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

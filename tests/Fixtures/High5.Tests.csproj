@@ -128,7 +128,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ParseFive.csproj" />
+    <ProjectReference Include="..\..\src\High5.csproj" />
   </ItemGroup>
 
 </Project>
