@@ -1,0 +1,20 @@
+language: csharp
+os:
+  - linux
+solution: High5.sln
+dist: trusty
+sudo: required
+dotnet: 2.0.0
+env:
+  - CONFIGURATION=Debug
+  - CONFIGURATION=Release
+
+before_install:
+  - dotnet --info
+
+install:
+  - dotnet restore
+
+script:
+  - dotnet build --no-restore -c $CONFIGURATION
+  - dotnet test --no-restore --no-build -c $CONFIGURATION tests/Fixtures
