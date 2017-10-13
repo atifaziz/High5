@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		pack.cmd = pack.cmd
 		pack.sh = pack.sh
+		README.md = README.md
 		test.cmd = test.cmd
 		test.sh = test.sh
 		THIRD-PARTY-NOTICES = THIRD-PARTY-NOTICES
