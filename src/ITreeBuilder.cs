@@ -29,13 +29,12 @@ namespace High5
     public interface ITreeBuilder<TNode,
                                   TDocument, TDocumentFragment,
                                   TElement, TAttribute, TTemplateElement,
-                                  TComment, TText>
+                                  TComment>
         where TDocument         : TNode
         where TDocumentFragment : TNode
         where TElement          : TNode
         where TTemplateElement  : TElement
         where TComment          : TNode
-        where TText             : TNode
     {
         // Node construction
 
@@ -44,7 +43,6 @@ namespace High5
         TElement CreateElement(string tagName, string namespaceUri, ArraySegment<TAttribute> attributes);
         TAttribute CreateAttribute(string ns, string prefix, string name, string value);
         TComment CreateCommentNode(string data);
-        TText CreateTextNode(string value);
 
         // Tree mutation
 

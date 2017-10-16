@@ -30,7 +30,7 @@ namespace High5
     using IDefaultTreeBuilder = ITreeBuilder<HtmlNode,
                                              HtmlDocument, HtmlDocumentFragment,
                                              HtmlElement, HtmlAttribute, HtmlTemplateElement,
-                                             HtmlComment, HtmlText>;
+                                             HtmlComment>;
 
     public static class TreeBuilder
     {
@@ -54,8 +54,6 @@ namespace High5
             new HtmlAttribute(ns, prefix, name, value);
 
         public HtmlComment CreateCommentNode(string data) => new HtmlComment(data);
-
-        public HtmlText CreateTextNode(string value) => new HtmlText(value);
 
         public void AppendChild(HtmlNode parentNode, HtmlNode newNode)
         {
@@ -106,6 +104,8 @@ namespace High5
             node.ParentNode.ChildNodes.RemoveAt(i);
             node.ParentNode = null;
         }
+
+        static HtmlText CreateTextNode(string value) => new HtmlText(value);
 
         public void InsertText(HtmlNode parentNode, string text)
         {
