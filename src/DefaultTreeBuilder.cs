@@ -39,7 +39,7 @@ namespace High5
 
     sealed class DefaultTreeBuilder : IDefaultTreeBuilder
     {
-        public static DefaultTreeBuilder Instance = new DefaultTreeBuilder();
+        public static readonly DefaultTreeBuilder Instance = new DefaultTreeBuilder();
 
         public HtmlDocument CreateDocument() => new HtmlDocument();
 
