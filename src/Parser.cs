@@ -529,7 +529,7 @@ namespace High5
             this.formElement = null;
 
             this.openElements = new OpenElementStack<Node, Element, TemplateElement>(this.document, this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetTemplateContent);
-            this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetAttrListCount, this.treeBuilder.ListAttr, this.treeBuilder.GetAttrName, this.treeBuilder.GetAttrValue);
+            this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetAttributeCount, this.treeBuilder.ListAttributes, this.treeBuilder.GetAttributeName, this.treeBuilder.GetAttributeValue);
 
             this.tmplInsertionModeStack = new List<string>();
             this.tmplInsertionModeStackTop = -1;
@@ -851,16 +851,16 @@ namespace High5
         {
             var tn = this.treeBuilder.GetTagName(element);
             var ns = this.treeBuilder.GetNamespaceUri(element);
-            var attrsLength = this.treeBuilder.GetAttrListCount(element);
+            var attrsLength = this.treeBuilder.GetAttributeCount(element);
             using (var attrs = attrsPool.Allocate())
             {
                 attrs.Array.Init(attrsLength);
-                this.treeBuilder.ListAttr(element, attrs.Array.ToArraySegment());
+                this.treeBuilder.ListAttributes(element, attrs.Array.ToArraySegment());
                 using (var nvattrs = nvattrsPool.Allocate())
                 {
                     nvattrs.Array.Capacity = attrsLength;
                     for (var i = 0; i < attrs.Length; i++)
-                        nvattrs.Array[i] = (this.treeBuilder.GetAttrName(attrs.Array[i]), this.treeBuilder.GetAttrValue(attrs.Array[i]));
+                        nvattrs.Array[i] = (this.treeBuilder.GetAttributeName(attrs.Array[i]), this.treeBuilder.GetAttributeValue(attrs.Array[i]));
                     return ForeignContent.IsIntegrationPoint(tn, ns, nvattrs.Array.ToArraySegment(), foreignNS);
                 }
             }

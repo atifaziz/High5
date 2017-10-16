@@ -45,10 +45,10 @@ namespace High5
 
         public HtmlDocumentFragment CreateDocumentFragment() => new HtmlDocumentFragment();
 
-        public HtmlElement CreateElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attrs) =>
+        public HtmlElement CreateElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes) =>
             tagName == "template"
-            ? new HtmlTemplateElement(tagName, namespaceUri, attrs.ToList())
-            : new HtmlElement(tagName, namespaceUri, attrs.ToList());
+            ? new HtmlTemplateElement(tagName, namespaceUri, attributes.ToList())
+            : new HtmlElement(tagName, namespaceUri, attributes.ToList());
 
         public HtmlAttribute CreateAttribute(string ns, string prefix, string name, string value) =>
             new HtmlAttribute(ns, prefix, name, value);
@@ -132,14 +132,14 @@ namespace High5
                 InsertBefore(parentNode, CreateTextNode(text), referenceNode);
         }
 
-        public void AdoptAttributes(HtmlElement recipient, ArraySegment<HtmlAttribute> attrs)
+        public void AdoptAttributes(HtmlElement recipient, ArraySegment<HtmlAttribute> attributes)
         {
             var recipientAttrsMap = new HashSet<string>();
 
             foreach (var attr in recipient.Attributes)
                 recipientAttrsMap.Add(attr.Name);
 
-            foreach (var attr in attrs)
+            foreach (var attr in attributes)
             {
                 if (!recipientAttrsMap.Contains(attr.Name))
                     recipient.AttributesPush(attr);
@@ -154,23 +154,23 @@ namespace High5
         public HtmlNode GetParentNode(HtmlNode node) =>
             node.ParentNode;
 
-        public int GetAttrListCount(HtmlElement element) =>
+        public int GetAttributeCount(HtmlElement element) =>
             element.Attributes.Count;
 
-        public int ListAttr(HtmlElement element, ArraySegment<HtmlAttribute> buffer)
+        public int ListAttributes(HtmlElement element, ArraySegment<HtmlAttribute> attributes)
         {
             var lc = 0;
             var bi = 0;
-            for (var i = buffer.Offset; bi < buffer.Count && i < Math.Min(element.Attributes.Count, buffer.Count); i++)
+            for (var i = attributes.Offset; bi < attributes.Count && i < Math.Min(element.Attributes.Count, attributes.Count); i++)
             {
-                buffer.Array[bi++] = element.Attributes[i];
+                attributes.Array[bi++] = element.Attributes[i];
                 lc++;
             }
             return lc;
         }
 
-        public string GetAttrName(HtmlAttribute attr) => attr.Name;
-        public string GetAttrValue(HtmlAttribute attr) => attr.Value;
+        public string GetAttributeName(HtmlAttribute attribute) => attribute.Name;
+        public string GetAttributeValue(HtmlAttribute attribute) => attribute.Value;
 
         // Node data
 

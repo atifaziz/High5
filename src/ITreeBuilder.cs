@@ -28,7 +28,7 @@ namespace High5
 
     public interface ITreeBuilder<TNode,
                                   TDocument, TDocumentFragment,
-                                  TElement, TAttr, TTemplateElement,
+                                  TElement, TAttribute, TTemplateElement,
                                   TComment, TText>
         where TDocument         : TNode
         where TDocumentFragment : TNode
@@ -41,8 +41,8 @@ namespace High5
 
         TDocument CreateDocument();
         TDocumentFragment CreateDocumentFragment();
-        TElement CreateElement(string tagName, string namespaceUri, ArraySegment<TAttr> attrs);
-        TAttr CreateAttribute(string ns, string prefix, string name, string value);
+        TElement CreateElement(string tagName, string namespaceUri, ArraySegment<TAttribute> attributes);
+        TAttribute CreateAttribute(string ns, string prefix, string name, string value);
         TComment CreateCommentNode(string data);
         TText CreateTextNode(string value);
 
@@ -58,16 +58,16 @@ namespace High5
         void DetachNode(TNode node);
         void InsertText(TNode parentNode, string text);
         void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
-        void AdoptAttributes(TElement recipient, ArraySegment<TAttr> attrs);
+        void AdoptAttributes(TElement recipient, ArraySegment<TAttribute> attributes);
 
         // Tree traversing
 
         TNode GetFirstChild(TNode node);
         TNode GetParentNode(TNode node);
-        int GetAttrListCount(TElement element);
-        int ListAttr(TElement element, ArraySegment<TAttr> buffer);
-        string GetAttrName(TAttr attr);
-        string GetAttrValue(TAttr attr);
+        int GetAttributeCount(TElement element);
+        int ListAttributes(TElement element, ArraySegment<TAttribute> attributes);
+        string GetAttributeName(TAttribute attribute);
+        string GetAttributeValue(TAttribute attribute);
 
         // Node data
 
