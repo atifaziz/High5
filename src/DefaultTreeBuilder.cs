@@ -27,10 +27,10 @@ namespace High5
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using IDefaultTreeBuilder = ITreeBuilder<HtmlNode,
-                                             HtmlDocument, HtmlDocumentFragment,
-                                             HtmlElement, HtmlAttribute, HtmlTemplateElement,
-                                             HtmlComment>;
+    using IDefaultTreeBuilder = IDocumentTreeBuilder<HtmlNode,
+                                                     HtmlDocument, HtmlDocumentFragment,
+                                                     HtmlElement, HtmlAttribute, HtmlTemplateElement,
+                                                     HtmlComment>;
 
     public static class TreeBuilder
     {

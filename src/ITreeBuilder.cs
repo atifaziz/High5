@@ -27,10 +27,9 @@ namespace High5
     using System;
 
     public interface ITreeBuilder<TNode,
-                                  TDocument, TDocumentFragment,
+                                  TDocumentFragment,
                                   TElement, TAttribute, TTemplateElement,
                                   TComment>
-        where TDocument         : TNode
         where TDocumentFragment : TNode
         where TElement          : TNode
         where TTemplateElement  : TElement
@@ -38,7 +37,6 @@ namespace High5
     {
         // Node construction
 
-        TDocument CreateDocument();
         TDocumentFragment CreateDocumentFragment();
         TElement CreateElement(string tagName, string namespaceUri, ArraySegment<TAttribute> attributes);
         TAttribute CreateAttribute(string ns, string prefix, string name, string value);
@@ -50,9 +48,6 @@ namespace High5
         void InsertBefore(TNode parentNode, TNode newNode, TNode referenceNode);
         void SetTemplateContent(TTemplateElement templateElement, TNode contentElement);
         TNode GetTemplateContent(TTemplateElement templateElement);
-        void SetDocumentType(TDocument document, string name, string publicId, string systemId);
-        void SetDocumentMode(TDocument document, string mode);
-        string GetDocumentMode(TDocument document);
         void DetachNode(TNode node);
         void InsertText(TNode parentNode, string text);
         void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
@@ -71,5 +66,23 @@ namespace High5
 
         string GetTagName(TElement element);
         string GetNamespaceUri(TElement element);
+    }
+
+    public interface IDocumentTreeBuilder<TNode,
+                                          TDocument, TDocumentFragment,
+                                          TElement, TAttribute, TTemplateElement,
+                                          TComment> :
+        ITreeBuilder<TNode, TDocumentFragment,
+                     TElement, TAttribute, TTemplateElement,
+                     TComment>
+        where TDocumentFragment : TNode
+        where TElement          : TNode
+        where TTemplateElement  : TElement
+        where TComment          : TNode
+    {
+        TDocument CreateDocument();
+        void SetDocumentType(TDocument document, string name, string publicId, string systemId);
+        void SetDocumentMode(TDocument document, string mode);
+        string GetDocumentMode(TDocument document);
     }
 }
