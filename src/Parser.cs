@@ -484,7 +484,7 @@ namespace High5
         string originalInsertionMode;
         Element headElement;
         Element formElement;
-        OpenElementStack<Node, Element, TemplateElement> openElements;
+        OpenElementStack<Node, DocumentFragment, Element, TemplateElement> openElements;
         FormattingElementList<Element, Attr> activeFormattingElements;
         List<string> tmplInsertionModeStack;
         int tmplInsertionModeStackTop;
@@ -588,7 +588,7 @@ namespace High5
             this.headElement = null;
             this.formElement = null;
 
-            this.openElements = new OpenElementStack<Node, Element, TemplateElement>(this.document, this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetTemplateContent);
+            this.openElements = new OpenElementStack<Node, DocumentFragment, Element, TemplateElement>(this.document, this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetTemplateContent);
             this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetAttributeCount, this.treeBuilder.ListAttributes, this.treeBuilder.GetAttributeName, this.treeBuilder.GetAttributeValue);
 
             this.tmplInsertionModeStack = new List<string>();

@@ -46,8 +46,8 @@ namespace High5
 
         void AppendChild(TNode parentNode, TNode newNode);
         void InsertBefore(TNode parentNode, TNode newNode, TNode referenceNode);
-        void SetTemplateContent(TTemplateElement templateElement, TNode contentElement);
-        TNode GetTemplateContent(TTemplateElement templateElement);
+        void SetTemplateContent(TTemplateElement templateElement, TDocumentFragment content);
+        TDocumentFragment GetTemplateContent(TTemplateElement templateElement);
         void DetachNode(TNode node);
         void InsertText(TNode parentNode, string text);
         void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);

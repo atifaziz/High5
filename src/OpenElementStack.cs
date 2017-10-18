@@ -30,20 +30,21 @@ namespace High5
     using T = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
 
-    sealed class OpenElementStack<Node, Element, TemplateElement>
-        where Node            : class
-        where Element         : class, Node
-        where TemplateElement : Node
+    sealed class OpenElementStack<Node, DocumentFragment, Element, TemplateElement>
+        where Node             : class
+        where DocumentFragment : class, Node
+        where Element          : class, Node
+        where TemplateElement  : Node
     {
         sealed class TreeAdapter
         {
             public readonly Func<Element, string> GetNamespaceUri;
             public readonly Func<Element, string> GetTagName;
-            public readonly Func<TemplateElement, Node> GetTemplateContent;
+            public readonly Func<TemplateElement, DocumentFragment> GetTemplateContent;
 
             public TreeAdapter(Func<Element, string> getNamespaceUri,
                                Func<Element, string> getTagName,
-                               Func<TemplateElement, Node> getTemplateContent)
+                               Func<TemplateElement, DocumentFragment> getTemplateContent)
             {
                 GetNamespaceUri = getNamespaceUri;
                 GetTagName = getTagName;
@@ -64,7 +65,7 @@ namespace High5
         public OpenElementStack(Node document,
                                 Func<Element, string> getNamespaceUri,
                                 Func<Element, string> getTagName,
-                                Func<TemplateElement, Node> getTemplateContent)
+                                Func<TemplateElement, DocumentFragment> getTemplateContent)
         {
             this.StackTop = -1;
             this.items = new List<Element>();

@@ -68,10 +68,10 @@ namespace High5
             newNode.ParentNode = parentNode;
         }
 
-        public void SetTemplateContent(HtmlTemplateElement templateElement, HtmlNode contentElement) =>
-            templateElement.Content = contentElement;
+        public void SetTemplateContent(HtmlTemplateElement templateElement, HtmlDocumentFragment content) =>
+            templateElement.Content = content;
 
-        public HtmlNode GetTemplateContent(HtmlTemplateElement templateElement) =>
+        public HtmlDocumentFragment GetTemplateContent(HtmlTemplateElement templateElement) =>
             templateElement.Content;
 
         public void SetDocumentType(HtmlDocument document, string name, string publicId, string systemId)
