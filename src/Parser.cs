@@ -44,11 +44,11 @@ namespace High5
 
         public static TDocument Parse<TNode,
                                       TDocument, TDocumentFragment,
-                                      TElement, TAttr, TTemplateElement,
+                                      TElement, TAttribute, TTemplateElement,
                                       TComment>(
             IDocumentTreeBuilder<TNode,
                                  TDocument, TDocumentFragment,
-                                 TElement, TAttr, TTemplateElement,
+                                 TElement, TAttribute, TTemplateElement,
                                  TComment> builder, string html)
             where TNode             : class
             where TDocument         : TNode
@@ -59,7 +59,7 @@ namespace High5
         {
             var parser = new Parser<TNode,
                                     TDocumentFragment,
-                                    TElement, TAttr, TTemplateElement,
+                                    TElement, TAttribute, TTemplateElement,
                                     TComment>(builder);
 
             var document = new Document<TNode, TDocument>(builder.CreateDocument(),
@@ -76,11 +76,11 @@ namespace High5
 
         public static TDocumentFragment ParseFragment<TNode,
                                                       TDocumentFragment,
-                                                      TElement, TAttr, TTemplateElement,
+                                                      TElement, TAttribute, TTemplateElement,
                                                       TComment>(
             ITreeBuilder<TNode,
                          TDocumentFragment,
-                         TElement, TAttr, TTemplateElement,
+                         TElement, TAttribute, TTemplateElement,
                          TComment> builder, string html, TNode context)
             where TNode             : class
             where TDocumentFragment : class, TNode
@@ -90,7 +90,7 @@ namespace High5
         {
             var parser = new Parser<TNode,
                                     TDocumentFragment,
-                                    TElement, TAttr, TTemplateElement,
+                                    TElement, TAttribute, TTemplateElement,
                                     TComment>(builder);
             return parser.ParseFragment(html, context);
         }
