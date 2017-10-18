@@ -9,6 +9,8 @@ env:
   - CONFIGURATION=Debug
   - CONFIGURATION=Release
 
+if: tag IS blank
+
 before_install:
   - dotnet --info
 

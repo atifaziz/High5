@@ -4,6 +4,7 @@ skip_commits:
   files:
     - '*.md'
     - '*.txt'
+skip_tags: true
 build_script:
 - ps: >-
     $id = $env:APPVEYOR_REPO_COMMIT_TIMESTAMP -replace '([-:]|\.0+Z)', ''
