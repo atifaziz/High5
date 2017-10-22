@@ -612,12 +612,12 @@ namespace High5
                 {
                     this.skipNextNewLine = false;
 
-                    if (token is CharacterToken ctoken && token.Type == WHITESPACE_CHARACTER_TOKEN && ctoken.Chars[0] == '\n')
+                    if (token is CharacterToken ctoken && token.Type == WHITESPACE_CHARACTER_TOKEN && ctoken[0] == '\n')
                     {
-                        if (ctoken.Chars.Length == 1)
+                        if (ctoken.Length == 1)
                             continue;
 
-                        ctoken.Chars = ctoken.Chars.Substring(1);
+                        ctoken.Remove(0, 1);
                     }
                 }
 
@@ -3336,7 +3336,7 @@ namespace High5
         //------------------------------------------------------------------
         static void NullCharacterInForeignContent(Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment> p, CharacterToken token)
         {
-            token.Chars = Unicode.ReplacementCharacter.ToString();
+            token.Clear(); token.Append(Unicode.ReplacementCharacter);
             p.InsertCharacters(token);
         }
 

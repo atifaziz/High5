@@ -573,7 +573,7 @@ namespace High5
                 this.EmitCurrentCharacterToken();
 
             if (this.currentCharacterToken != null)
-                this.currentCharacterToken.Chars += ch;
+                this.currentCharacterToken.Append(ch);
 
             else
                 this.CreateCharacterToken(type, ch);

@@ -27,6 +27,7 @@ namespace High5
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Text;
     using static TokenType;
 
     abstract class Token
@@ -125,7 +126,12 @@ namespace High5
 
     sealed class CharacterToken : Token
     {
-        public string Chars { get; set; }
+        readonly StringBuilder _chars;
+        string _cachedString;
+
+        public char this[int index] => _chars[index];
+        public int Length => _chars.Length;
+        public string Chars => _cachedString ?? (_cachedString = _chars.ToString());
 
         public CharacterToken(TokenType type, char ch) :
             base(type)
@@ -133,7 +139,44 @@ namespace High5
             Debug.Assert(type == CHARACTER_TOKEN
                       || type == WHITESPACE_CHARACTER_TOKEN
                       || type == NULL_CHARACTER_TOKEN);
-            this.Chars = ch.ToString();
+            _chars = new StringBuilder().Append(ch);
         }
+
+        void InvalidateCache()
+        {
+            if (_cachedString == null)
+                return;
+            _cachedString = null;
+        }
+
+        public void Append(string s)
+        {
+            InvalidateCache();
+            _chars.Append(s);
+        }
+
+        public void Append(char ch)
+        {
+            InvalidateCache();
+            _chars.Append(ch);
+        }
+
+        public void Remove(int index, int length)
+        {
+            if (length == 0)
+                return;
+            InvalidateCache();
+            _chars.Remove(index, length);
+        }
+
+        public void Clear()
+        {
+            if (_chars.Length == 0)
+                return;
+            InvalidateCache();
+            _chars.Length = 0;
+        }
+
+        public override string ToString() => Chars;
     }
 }
