@@ -127,6 +127,7 @@ namespace High5
         }
 
         public void Add(T value) => this[Length] = value;
+        public void Push(T value) => Add(value);
 
         public void Resize(int desiredSize)
         {
@@ -182,24 +183,17 @@ namespace High5
                 _item = default(T);
             }
 
-            Enumerator This =>
-                _array == null
-                    ? throw new ObjectDisposedException(nameof(Enumerator))
-                    : this;
-
-            public bool MoveNext() => MoveNext(This);
-
-            static bool MoveNext(Enumerator that)
+            public bool MoveNext()
             {
-                if (that._version != that._array._version)
+                if (_version != _array._version)
                     throw new InvalidOperationException("Array was modified during its enumeration.");
-                var length = that._array.Length;
-                for (var i = that._index + 1; i < length; i++)
+                var length = _array.Length;
+                for (var i = _index + 1; i < length; i++)
                 {
-                    if (!that._array.TryIndex(i, out var value))
+                    if (!_array.TryIndex(i, out var value))
                         continue;
-                    that._index = i;
-                    that._item = value;
+                    _index = i;
+                    _item = value;
                     return true;
                 }
                 return false;
@@ -207,10 +201,15 @@ namespace High5
 
             public void Reset() => throw new NotImplementedException();
 
-            public KeyValuePair<int, T> Current => GetCurrent(This);
-
-            static KeyValuePair<int, T> GetCurrent(Enumerator that) =>
-                new KeyValuePair<int, T>(that._index, that._item);
+            public KeyValuePair<int, T> Current
+            {
+                get
+                {
+                    if (_array == null)
+                        throw new ObjectDisposedException(nameof(Enumerator));
+                    return new KeyValuePair<int, T>(_index, _item);
+                }
+            }
 
             object IEnumerator.Current => Current;
 
