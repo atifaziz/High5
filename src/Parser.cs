@@ -33,6 +33,7 @@ namespace High5
     using static Tokenizer.MODE;
     using static ForeignContent;
     using static Truthiness;
+    using static InsertionMode;
     using ATTRS = HTML.ATTRS;
     using NS = HTML.NAMESPACES;
     using MODE = Tokenizer.MODE;
@@ -135,6 +136,33 @@ namespace High5
         string Mode { get; set; }
     }
 
+    enum InsertionMode
+    {
+        UNDEFINED_MODE,
+        INITIAL_MODE,
+        BEFORE_HTML_MODE,
+        BEFORE_HEAD_MODE,
+        IN_HEAD_MODE,
+        AFTER_HEAD_MODE,
+        IN_BODY_MODE,
+        TEXT_MODE,
+        IN_TABLE_MODE,
+        IN_TABLE_TEXT_MODE,
+        IN_CAPTION_MODE,
+        IN_COLUMN_GROUP_MODE,
+        IN_TABLE_BODY_MODE,
+        IN_ROW_MODE,
+        IN_CELL_MODE,
+        IN_SELECT_MODE,
+        IN_SELECT_IN_TABLE_MODE,
+        IN_TEMPLATE_MODE,
+        AFTER_BODY_MODE,
+        IN_FRAMESET_MODE,
+        AFTER_FRAMESET_MODE,
+        AFTER_AFTER_BODY_MODE,
+        AFTER_AFTER_FRAMESET_MODE,
+    }
+
     // ReSharper disable ArrangeThisQualifier
 
     sealed class Parser<Node,
@@ -154,32 +182,8 @@ namespace High5
         const int AA_OUTER_LOOP_ITER = 8;
         const int AA_INNER_LOOP_ITER = 3;
 
-        //Insertion modes
-        const string INITIAL_MODE = "INITIAL_MODE";
-        const string BEFORE_HTML_MODE = "BEFORE_HTML_MODE";
-        const string BEFORE_HEAD_MODE = "BEFORE_HEAD_MODE";
-        const string IN_HEAD_MODE = "IN_HEAD_MODE";
-        const string AFTER_HEAD_MODE = "AFTER_HEAD_MODE";
-        const string IN_BODY_MODE = "IN_BODY_MODE";
-        const string TEXT_MODE = "TEXT_MODE";
-        const string IN_TABLE_MODE = "IN_TABLE_MODE";
-        const string IN_TABLE_TEXT_MODE = "IN_TABLE_TEXT_MODE";
-        const string IN_CAPTION_MODE = "IN_CAPTION_MODE";
-        const string IN_COLUMN_GROUP_MODE = "IN_COLUMN_GROUP_MODE";
-        const string IN_TABLE_BODY_MODE = "IN_TABLE_BODY_MODE";
-        const string IN_ROW_MODE = "IN_ROW_MODE";
-        const string IN_CELL_MODE = "IN_CELL_MODE";
-        const string IN_SELECT_MODE = "IN_SELECT_MODE";
-        const string IN_SELECT_IN_TABLE_MODE = "IN_SELECT_IN_TABLE_MODE";
-        const string IN_TEMPLATE_MODE = "IN_TEMPLATE_MODE";
-        const string AFTER_BODY_MODE = "AFTER_BODY_MODE";
-        const string IN_FRAMESET_MODE = "IN_FRAMESET_MODE";
-        const string AFTER_FRAMESET_MODE = "AFTER_FRAMESET_MODE";
-        const string AFTER_AFTER_BODY_MODE = "AFTER_AFTER_BODY_MODE";
-        const string AFTER_AFTER_FRAMESET_MODE = "AFTER_AFTER_FRAMESET_MODE";
-
         //Insertion mode reset map
-        static readonly IDictionary<string, string> INSERTION_MODE_RESET_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, InsertionMode> INSERTION_MODE_RESET_MAP = new Dictionary<string, InsertionMode>
         {
             [T.TR] = IN_ROW_MODE,
             [T.TBODY] = IN_TABLE_BODY_MODE,
@@ -195,7 +199,7 @@ namespace High5
 
 
         //Template insertion mode switch map
-        static readonly IDictionary<string, string> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, string>
+        static readonly IDictionary<string, InsertionMode> TEMPLATE_INSERTION_MODE_SWITCH_MAP = new Dictionary<string, InsertionMode>
         {
             [T.CAPTION] = IN_TABLE_MODE,
             [T.COLGROUP] = IN_TABLE_MODE,
@@ -220,10 +224,10 @@ namespace High5
         }
 
         //Token handlers map for insertion modes
-        static readonly IDictionary<string, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>[]> _ =
-            new Dictionary<string, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>[]>
-            {
-                [INITIAL_MODE] = ArrayMap<TokenType, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>>(
+        static readonly Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>[][] _ =
+            ArrayMap(
+                m => (int) m,
+                (INITIAL_MODE, ArrayMap<TokenType, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>>(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenInInitialMode  ),
                     (NULL_CHARACTER_TOKEN      , TokenInInitialMode  ),
@@ -232,9 +236,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , DoctypeInInitialMode),
                     (START_TAG_TOKEN           , TokenInInitialMode  ),
                     (END_TAG_TOKEN             , TokenInInitialMode  ),
-                    (EOF_TOKEN                 , TokenInInitialMode  )),
+                    (EOF_TOKEN                 , TokenInInitialMode  ))),
 
-                [BEFORE_HTML_MODE] = ArrayMap(
+                (BEFORE_HTML_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenBeforeHtml                     ),
                     (NULL_CHARACTER_TOKEN      , TokenBeforeHtml                     ),
@@ -243,9 +247,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                         ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagBeforeHtml)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagBeforeHtml)    ),
-                    (EOF_TOKEN                 , TokenBeforeHtml                     )),
+                    (EOF_TOKEN                 , TokenBeforeHtml                     ))),
 
-                [BEFORE_HEAD_MODE] = ArrayMap(
+                (BEFORE_HEAD_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenBeforeHead                     ),
                     (NULL_CHARACTER_TOKEN      , TokenBeforeHead                     ),
@@ -254,9 +258,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                         ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagBeforeHead)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagBeforeHead)    ),
-                    (EOF_TOKEN                 , TokenBeforeHead                     )),
+                    (EOF_TOKEN                 , TokenBeforeHead                     ))),
 
-                [IN_HEAD_MODE] = ArrayMap(
+                (IN_HEAD_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenInHead                     ),
                     (NULL_CHARACTER_TOKEN      , TokenInHead                     ),
@@ -265,9 +269,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                     ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInHead)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInHead)    ),
-                    (EOF_TOKEN                 , TokenInHead                     )),
+                    (EOF_TOKEN                 , TokenInHead                     ))),
 
-                [AFTER_HEAD_MODE] = ArrayMap(
+                (AFTER_HEAD_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenAfterHead                     ),
                     (NULL_CHARACTER_TOKEN      , TokenAfterHead                     ),
@@ -276,9 +280,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                        ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagAfterHead)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagAfterHead)    ),
-                    (EOF_TOKEN                 , TokenAfterHead                     )),
+                    (EOF_TOKEN                 , TokenAfterHead                     ))),
 
-                [IN_BODY_MODE] = ArrayMap(
+                (IN_BODY_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInBody                 ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                     ),
@@ -287,9 +291,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                     ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInBody)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInBody)    ),
-                    (EOF_TOKEN                 , EofInBody                       )),
+                    (EOF_TOKEN                 , EofInBody                       ))),
 
-                [TEXT_MODE] = ArrayMap(
+                (TEXT_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , InsertCharacters            ),
                     (NULL_CHARACTER_TOKEN      , InsertCharacters            ),
@@ -298,9 +302,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                 ),
                     (START_TAG_TOKEN           , IgnoreToken                 ),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInText)),
-                    (EOF_TOKEN                 , EofInText                   )),
+                    (EOF_TOKEN                 , EofInText                   ))),
 
-                [IN_TABLE_MODE] = ArrayMap(
+                (IN_TABLE_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInTable                 ),
                     (NULL_CHARACTER_TOKEN      , CharacterInTable                 ),
@@ -309,9 +313,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                      ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInTable)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInTable)    ),
-                    (EOF_TOKEN                 , EofInBody                        )),
+                    (EOF_TOKEN                 , EofInBody                        ))),
 
-                [IN_TABLE_TEXT_MODE] = ArrayMap<TokenType, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>>(
+                (IN_TABLE_TEXT_MODE, ArrayMap<TokenType, Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token>>(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInTableText          ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                   ),
@@ -320,9 +324,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , TokenInTableText              ),
                     (START_TAG_TOKEN           , TokenInTableText              ),
                     (END_TAG_TOKEN             , TokenInTableText              ),
-                    (EOF_TOKEN                 , TokenInTableText              )),
+                    (EOF_TOKEN                 , TokenInTableText              ))),
 
-                [IN_CAPTION_MODE] = ArrayMap(
+                (IN_CAPTION_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInBody                    ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                        ),
@@ -331,9 +335,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                        ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInCaption)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInCaption)    ),
-                    (EOF_TOKEN                 , EofInBody                          )),
+                    (EOF_TOKEN                 , EofInBody                          ))),
 
-                [IN_COLUMN_GROUP_MODE] = ArrayMap(
+                (IN_COLUMN_GROUP_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenInColumnGroup                     ),
                     (NULL_CHARACTER_TOKEN      , TokenInColumnGroup                     ),
@@ -342,9 +346,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                            ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInColumnGroup)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInColumnGroup)    ),
-                    (EOF_TOKEN                 , EofInBody                              )),
+                    (EOF_TOKEN                 , EofInBody                              ))),
 
-                [IN_TABLE_BODY_MODE] = ArrayMap(
+                (IN_TABLE_BODY_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInTable                     ),
                     (NULL_CHARACTER_TOKEN      , CharacterInTable                     ),
@@ -353,9 +357,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                          ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInTableBody)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInTableBody)    ),
-                    (EOF_TOKEN                 , EofInBody                            )),
+                    (EOF_TOKEN                 , EofInBody                            ))),
 
-                [IN_ROW_MODE] = ArrayMap(
+                (IN_ROW_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInTable               ),
                     (NULL_CHARACTER_TOKEN      , CharacterInTable               ),
@@ -364,9 +368,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                    ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInRow)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInRow)    ),
-                    (EOF_TOKEN                 , EofInBody                      )),
+                    (EOF_TOKEN                 , EofInBody                      ))),
 
-                [IN_CELL_MODE] = ArrayMap(
+                (IN_CELL_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInBody                 ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                     ),
@@ -375,9 +379,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                     ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInCell)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInCell)    ),
-                    (EOF_TOKEN                 , EofInBody                       )),
+                    (EOF_TOKEN                 , EofInBody                       ))),
 
-                [IN_SELECT_MODE] = ArrayMap(
+                (IN_SELECT_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , InsertCharacters                  ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                       ),
@@ -386,9 +390,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                       ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInSelect)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInSelect)    ),
-                    (EOF_TOKEN                 , EofInBody                         )),
+                    (EOF_TOKEN                 , EofInBody                         ))),
 
-                [IN_SELECT_IN_TABLE_MODE] = ArrayMap(
+                (IN_SELECT_IN_TABLE_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , InsertCharacters                         ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                              ),
@@ -397,9 +401,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                              ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInSelectInTable)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInSelectInTable)    ),
-                    (EOF_TOKEN                 , EofInBody                                )),
+                    (EOF_TOKEN                 , EofInBody                                ))),
 
-                [IN_TEMPLATE_MODE] = ArrayMap(
+                (IN_TEMPLATE_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , CharacterInBody                     ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                         ),
@@ -408,9 +412,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                         ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInTemplate)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInTemplate)    ),
-                    (EOF_TOKEN                 , EofInTemplate                       )),
+                    (EOF_TOKEN                 , EofInTemplate                       ))),
 
-                [AFTER_BODY_MODE] = ArrayMap(
+                (AFTER_BODY_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenAfterBody                     ),
                     (NULL_CHARACTER_TOKEN      , TokenAfterBody                     ),
@@ -419,9 +423,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                        ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagAfterBody)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagAfterBody)    ),
-                    (EOF_TOKEN                 , StopParsing                        )),
+                    (EOF_TOKEN                 , StopParsing                        ))),
 
-                [IN_FRAMESET_MODE] = ArrayMap(
+                (IN_FRAMESET_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , IgnoreToken                         ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                         ),
@@ -430,9 +434,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                         ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagInFrameset)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagInFrameset)    ),
-                    (EOF_TOKEN                 , StopParsing                         )),
+                    (EOF_TOKEN                 , StopParsing                         ))),
 
-                [AFTER_FRAMESET_MODE] = ArrayMap(
+                (AFTER_FRAMESET_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , IgnoreToken                            ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                            ),
@@ -441,9 +445,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                            ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagAfterFrameset)),
                     (END_TAG_TOKEN             , F<EndTagToken>(EndTagAfterFrameset)    ),
-                    (EOF_TOKEN                 , StopParsing                            )),
+                    (EOF_TOKEN                 , StopParsing                            ))),
 
-                [AFTER_AFTER_BODY_MODE] = ArrayMap(
+                (AFTER_AFTER_BODY_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , TokenAfterAfterBody                     ),
                     (NULL_CHARACTER_TOKEN      , TokenAfterAfterBody                     ),
@@ -452,9 +456,9 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                             ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagAfterAfterBody)),
                     (END_TAG_TOKEN             , TokenAfterAfterBody                     ),
-                    (EOF_TOKEN                 , StopParsing                             )),
+                    (EOF_TOKEN                 , StopParsing                             ))),
 
-                [AFTER_AFTER_FRAMESET_MODE] = ArrayMap(
+                (AFTER_AFTER_FRAMESET_MODE, ArrayMap(
                     tt => (int) tt,
                     (CHARACTER_TOKEN           , IgnoreToken                                 ),
                     (NULL_CHARACTER_TOKEN      , IgnoreToken                                 ),
@@ -463,22 +467,21 @@ namespace High5
                     (DOCTYPE_TOKEN             , IgnoreToken                                 ),
                     (START_TAG_TOKEN           , F<StartTagToken>(StartTagAfterAfterFrameset)),
                     (END_TAG_TOKEN             , IgnoreToken                                 ),
-                    (EOF_TOKEN                 , StopParsing                                 )),
-            };
+                    (EOF_TOKEN                 , StopParsing                                 ))));
 
         static Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token> F<T>(Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, T> action)
             where T : Token => (p, token) => action(p, (T) token);
 
         readonly ITreeBuilder<Node, DocumentFragment, Element, Attr, TemplateElement, Comment> treeBuilder;
         Element pendingScript;
-        string originalInsertionMode;
+        InsertionMode originalInsertionMode;
         Element headElement;
         Element formElement;
         OpenElementStack<Node, DocumentFragment, Element, TemplateElement> openElements;
         FormattingElementList<Element, Attr> activeFormattingElements;
-        List<string> tmplInsertionModeStack;
+        List<InsertionMode> tmplInsertionModeStack;
         int tmplInsertionModeStackTop;
-        string currentTmplInsertionMode;
+        InsertionMode currentTmplInsertionMode;
         List<Token> pendingCharacterTokens;
         bool hasNonWhitespacePendingCharacterToken;
         bool framesetOk;
@@ -487,7 +490,7 @@ namespace High5
 
         Tokenizer tokenizer;
         bool stopped;
-        string insertionMode;
+        InsertionMode insertionMode;
         IDocument<Node> doc;
         Node document;
         Node fragmentContext;
@@ -570,7 +573,7 @@ namespace High5
             this.stopped = false;
 
             this.insertionMode = INITIAL_MODE;
-            this.originalInsertionMode = "";
+            this.originalInsertionMode = UNDEFINED_MODE;
 
             this.document = document;
             this.fragmentContext = fragmentContext;
@@ -581,9 +584,9 @@ namespace High5
             this.openElements = new OpenElementStack<Node, DocumentFragment, Element, TemplateElement>(this.document, this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetTemplateContent);
             this.activeFormattingElements = new FormattingElementList<Element, Attr>(this.treeBuilder.GetNamespaceUri, this.treeBuilder.GetTagName, this.treeBuilder.GetAttributeCount, this.treeBuilder.ListAttributes, this.treeBuilder.GetAttributeName, this.treeBuilder.GetAttributeValue);
 
-            this.tmplInsertionModeStack = new List<string>();
+            this.tmplInsertionModeStack = new List<InsertionMode>();
             this.tmplInsertionModeStackTop = -1;
-            this.currentTmplInsertionMode = null;
+            this.currentTmplInsertionMode = UNDEFINED_MODE;
 
             this.pendingCharacterTokens = new List<Token>();
             this.hasNonWhitespacePendingCharacterToken = false;
@@ -855,12 +858,12 @@ namespace High5
 
         void ProcessToken(Token token)
         {
-            _[this.insertionMode][(int) token.Type](this, token);
+            _[(int) this.insertionMode][(int) token.Type](this, token);
         }
 
         void ProcessTokenInBodyMode(Token token)
         {
-            _[IN_BODY_MODE][(int) token.Type](this, token);
+            _[(int) IN_BODY_MODE][(int) token.Type](this, token);
         }
 
         void ProcessTokenInForeignContent(Token token)
@@ -1051,7 +1054,7 @@ namespace High5
             this.insertionMode = IN_SELECT_MODE;
         }
 
-        void PushTmplInsertionMode(string mode)
+        void PushTmplInsertionMode(InsertionMode mode)
         {
             this.tmplInsertionModeStack.Push(mode);
             this.tmplInsertionModeStackTop++;
@@ -1064,7 +1067,7 @@ namespace High5
             this.tmplInsertionModeStackTop--;
             this.currentTmplInsertionMode = this.tmplInsertionModeStackTop >= 0 && this.tmplInsertionModeStackTop < tmplInsertionModeStack.Count
                                           ? this.tmplInsertionModeStack[this.tmplInsertionModeStackTop]
-                                          : null;
+                                          : UNDEFINED_MODE;
         }
 
         //Foster parenting
