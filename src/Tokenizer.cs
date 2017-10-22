@@ -215,7 +215,7 @@ namespace High5
         public bool AllowCData { get; set; }
         public string State { get; set; }
         string returnState;
-        List<int> tempBuff;
+        Array<int> tempBuff;
         int additionalAllowedCp;
         string lastStartTagName;
         int consumedAfterSnapshot;
@@ -277,7 +277,7 @@ namespace High5
             this.State = DATA_STATE;
             this.returnState = "";
 
-            this.tempBuff = new List<int>();
+            this.tempBuff = new Array<int>();
             this.additionalAllowedCp = 0; // void 0
             this.lastStartTagName = "";
 
@@ -450,10 +450,10 @@ namespace High5
 
         bool IsTempBufferEqualToScriptString()
         {
-            if (this.tempBuff.Count != CPS.SCRIPT_STRING.Length)
+            if (this.tempBuff.Length != CPS.SCRIPT_STRING.Length)
                 return false;
 
-            for (var i = 0; i < this.tempBuff.Count; i++)
+            for (var i = 0; i < this.tempBuff.Length; i++)
             {
                 if (this.tempBuff[i] != CPS.SCRIPT_STRING[i])
                     return false;
@@ -590,6 +590,12 @@ namespace High5
                 type = TokenType.NULL_CHARACTER_TOKEN;
 
             this.AppendCharToCurrentCharacterToken(type, ToChar(cp));
+        }
+
+        void EmitSeveralCodePoints(Array<int> codePoints)
+        {
+            foreach (var cp in codePoints)
+                this.EmitCodePoint(cp.Value);
         }
 
         void EmitSeveralCodePoints(IEnumerable<int> codePoints)
@@ -982,7 +988,7 @@ namespace High5
             {
                 if (cp == CP.SOLIDUS)
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.State = RCDATA_END_TAG_OPEN_STATE;
                 }
 
@@ -1064,7 +1070,7 @@ namespace High5
             {
                 if (cp == CP.SOLIDUS)
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.State = RAWTEXT_END_TAG_OPEN_STATE;
                 }
 
@@ -1146,7 +1152,7 @@ namespace High5
             {
                 if (cp == CP.SOLIDUS)
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.State = SCRIPT_DATA_END_TAG_OPEN_STATE;
                 }
 
@@ -1347,13 +1353,13 @@ namespace High5
             {
                 if (cp == CP.SOLIDUS)
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.State = SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
                 }
 
                 else if (IsAsciiLetter(cp))
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.EmitChar('<');
                     @this.ReconsumeInState(SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE);
                 }
@@ -1555,7 +1561,7 @@ namespace High5
             {
                 if (cp == CP.SOLIDUS)
                 {
-                    @this.tempBuff = new List<int>();
+                    @this.tempBuff.Clear();
                     @this.State = SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
                     @this.EmitChar('/');
                 }
