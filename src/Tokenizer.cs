@@ -588,15 +588,9 @@ namespace High5
                 this.EmitCodePoint(cp.Value);
         }
 
-        void EmitSeveralCodePoints(IEnumerable<CodePoint> codePoints)
+        void EmitSeveralCodePoints(CodePoint[] codePoints)
         {
             foreach (var cp in codePoints)
-                this.EmitCodePoint(cp);
-        }
-
-        void EmitSeveralCodePoints(IEnumerable<int> codePoints)
-        {
-            foreach (CodePoint cp in codePoints)
                 this.EmitCodePoint(cp);
         }
 
@@ -1785,8 +1779,8 @@ namespace High5
                 {
                     if (referencedCodePoints != null)
                     {
-                        foreach (CodePoint rcp in referencedCodePoints)
-                            rcp.AppendTo(@this.currentAttrValue);
+                        for (var i = 0; i < referencedCodePoints.Length; i++)
+                            referencedCodePoints[i].AppendTo(@this.currentAttrValue);
                     }
                     else
                         @this.currentAttrValue.Append('&');

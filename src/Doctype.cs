@@ -170,7 +170,7 @@ namespace High5
 
             return DOCUMENT_MODE.NO_QUIRKS;
 
-            bool HasPrefix(string str, IEnumerable<string> prefixes)
+            bool HasPrefix(string str, string[] prefixes)
             {
                 foreach (var prefix in prefixes)
                 {
