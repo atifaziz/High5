@@ -77,10 +77,9 @@ namespace High5
         public ArraySegment<T> CopyAttrsTo<T>(Array<T> attrs, Func<string, string, string, string, T> attrFactory)
         {
             attrs.Capacity = Attrs.Count;
-            var i = 0;
             foreach (var attr in Attrs)
-                attrs[i++] = attrFactory(attr.NamespaceUri, attr.Prefix, attr.Name, attr.Value);
-            return attrs.ToArraySegment();
+                attrs.Add(attrFactory(attr.NamespaceUri, attr.Prefix, attr.Name, attr.Value));
+            return attrs.AsArraySegment();
         }
 
         void InvalidateCache()

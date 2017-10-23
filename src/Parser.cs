@@ -908,13 +908,13 @@ namespace High5
             using (var attrs = attrsPool.Allocate())
             {
                 attrs.Array.Init(attrsLength);
-                this.treeBuilder.ListAttributes(element, attrs.Array.ToArraySegment());
+                this.treeBuilder.ListAttributes(element, attrs.Array.AsArraySegment());
                 using (var nvattrs = nvattrsPool.Allocate())
                 {
                     nvattrs.Array.Capacity = attrsLength;
                     for (var i = 0; i < attrs.Length; i++)
-                        nvattrs.Array[i] = (this.treeBuilder.GetAttributeName(attrs.Array[i]), this.treeBuilder.GetAttributeValue(attrs.Array[i]));
-                    return ForeignContent.IsIntegrationPoint(tn, ns, nvattrs.Array.ToArraySegment(), foreignNS);
+                        nvattrs.Array.Push((this.treeBuilder.GetAttributeName(attrs.Array[i]), this.treeBuilder.GetAttributeValue(attrs.Array[i])));
+                    return ForeignContent.IsIntegrationPoint(tn, ns, nvattrs.Array.AsArraySegment(), foreignNS);
                 }
             }
         }

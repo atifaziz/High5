@@ -139,7 +139,7 @@ namespace High5
                     var element = ((ElementEntry<TElement>) entry).Element;
                     var attrsLength = this.treeAdapter.GetAttrListCount(element);
                     elementAttrObjs.Init(attrsLength);
-                    this.treeAdapter.GetAttrList(element, elementAttrObjs.ToArraySegment());
+                    this.treeAdapter.GetAttrList(element, elementAttrObjs.AsArraySegment());
                     var elementAttrs = new (string, string)[attrsLength];
                     for (var ai = 0; ai < attrsLength; ai++)
                         elementAttrs[ai] = this.treeAdapter.GetAttr(elementAttrObjs[ai]);
@@ -165,7 +165,7 @@ namespace High5
                 var neAttrsLength = this.treeAdapter.GetAttrListCount(newElement);
                 var neAttrObjs = new Array<TAttr>();
                 neAttrObjs.Init(neAttrsLength);
-                this.treeAdapter.GetAttrList(newElement, neAttrObjs.ToArraySegment());
+                this.treeAdapter.GetAttrList(newElement, neAttrObjs.AsArraySegment());
                 var neAttrs = new Array<(string Name, string Value)>(neAttrsLength);
                 for (var i = 0; i < neAttrsLength; i++)
                     neAttrs.Add(this.treeAdapter.GetAttr(neAttrObjs[i]));

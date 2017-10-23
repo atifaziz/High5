@@ -582,10 +582,14 @@ namespace High5
             this.AppendCharToCurrentCharacterToken(type, cp);
         }
 
-        void EmitSeveralCodePoints(Array<CodePoint> codePoints)
+        void EmitSeveralCodePoints(Array<CodePoint> codePoints) =>
+            this.EmitSeveralCodePoints(codePoints.AsArraySegment());
+
+        void EmitSeveralCodePoints(ArraySegment<CodePoint> codePoints)
         {
-            foreach (var cp in codePoints)
-                this.EmitCodePoint(cp.Value);
+            var array = codePoints.Array;
+            for (var i = codePoints.Offset; i < codePoints.Count; i++)
+                this.EmitCodePoint(array[i]);
         }
 
         void EmitSeveralCodePoints(CodePoint[] codePoints)

@@ -27,22 +27,12 @@ namespace High5
     using System.Collections.Generic;
 
     /// <summary>
-    /// Implementation of a dynamic array that can grow like a list and
-    /// supports sparse population.
+    /// Implementation of a dynamic array that can grow like a list.
     /// </summary>
-    /// <remarks>
-    /// The array does not allocate sparsely when being populated sparsely.
-    /// Sparse population here means that any index can be assigned to and
-    /// the array grows automatically in length to accommodate the index.
-    /// Unassigned indexes will throw if accessed unless
-    /// <see cref="TryIndex"/> is used. During enumeration, unassigned
-    /// indexes are skipped.
-    /// </remarks>
 
-    sealed class Array<T> : IEnumerable<KeyValuePair<int, T>>
+    sealed class Array<T> : IEnumerable<T>
     {
         T[] _array;
-        BitArray _bitmap;
         int _version;
 
         public Array() : this(0) {}
@@ -66,33 +56,15 @@ namespace High5
             set => Resize(value);
         }
 
-        /// <summary>
-        /// The count of items held by the array.
-        /// </summary>
-
-        public int Cardinality
-        {
-            get
-            {
-                // very poor man's slow implementation for now.
-
-                var count = 0;
-                for (var i = 0; i < Length; i++)
-                    count += _bitmap[i] ? 1 : 0;
-                return count;
-            }
-        }
-
         void OnChanging() => _version++;
 
         public T this[int index]
         {
             get => index < 0 || index >= Length
                 ? throw new ArgumentOutOfRangeException(nameof(index))
-                : !_bitmap[index]
-                    ? throw new InvalidOperationException()
-                    : _array[index];
-            set
+                : _array[index];
+
+            private set
             {
                 if (index < 0)
                     throw new ArgumentOutOfRangeException(nameof(index));
@@ -101,29 +73,8 @@ namespace High5
                 if (index >= Capacity)
                     Resize(Math.Max(Math.Max(4, Capacity * 2), index + 1));
                 _array[index] = value;
-                _bitmap[index] = true;
                 Length = Math.Max(index + 1, Length);
             }
-        }
-
-        public void Delete(int index)
-        {
-            if (index >= Length)
-                return;
-            OnChanging();
-            _bitmap[index] = false;
-            _array[index] = default(T);
-        }
-
-        public bool TryIndex(int index, out T value)
-        {
-            if (index >= Length || !_bitmap[index])
-            {
-                value = default(T);
-                return false;
-            }
-            value = _array[index];
-            return true;
         }
 
         public void Add(T value) => this[Length] = value;
@@ -135,7 +86,6 @@ namespace High5
                 return;
             var capacity = Math.Max(desiredSize, Capacity);
             Array.Resize(ref _array, capacity);
-            (_bitmap ?? (_bitmap = new BitArray(capacity))).Length = capacity;
         }
 
         public void Clear()
@@ -145,13 +95,11 @@ namespace High5
             OnChanging();
             Length = 0;
             Array.Clear(_array, 0, _array.Length);
-            _bitmap.SetAll(false);
         }
 
         Enumerator GetEnumerator() => new Enumerator(this);
 
-        IEnumerator<KeyValuePair<int, T>> IEnumerable<KeyValuePair<int, T>>.GetEnumerator() =>
-                GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -160,15 +108,13 @@ namespace High5
             OnChanging();
             Capacity = length;
             Array.Clear(_array, 0, _array.Length);
-            for (var i = 0; i < length; i++)
-                _bitmap.Set(i, true);
             Length = length;
         }
 
-        public ArraySegment<T> ToArraySegment() =>
+        public ArraySegment<T> AsArraySegment() =>
             new ArraySegment<T>(_array, 0, Length);
 
-        public struct Enumerator : IEnumerator<KeyValuePair<int, T>>
+        public struct Enumerator : IEnumerator<T>
         {
             Array<T> _array;
             readonly int _version;
@@ -187,29 +133,20 @@ namespace High5
             {
                 if (_version != _array._version)
                     throw new InvalidOperationException("Array was modified during its enumeration.");
-                var length = _array.Length;
-                for (var i = _index + 1; i < length; i++)
-                {
-                    if (!_array.TryIndex(i, out var value))
-                        continue;
-                    _index = i;
-                    _item = value;
-                    return true;
-                }
-                return false;
+                var i = _index + 1;
+                if (i >= _array.Length)
+                    return false;
+                _item = _array[i];
+                _index = i;
+                return true;
             }
 
             public void Reset() => throw new NotImplementedException();
 
-            public KeyValuePair<int, T> Current
-            {
-                get
-                {
-                    if (_array == null)
-                        throw new ObjectDisposedException(nameof(Enumerator));
-                    return new KeyValuePair<int, T>(_index, _item);
-                }
-            }
+            public T Current =>
+                _array == null
+                ? throw new ObjectDisposedException(nameof(Enumerator))
+                : _item;
 
             object IEnumerator.Current => Current;
 
