@@ -132,7 +132,7 @@ namespace High5
             this.EndOfChunkHit = false;
         }
 
-        public int Advance()
+        public CodePoint Advance()
         {
             this.pos++;
 

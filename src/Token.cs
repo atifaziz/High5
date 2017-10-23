@@ -56,13 +56,21 @@ namespace High5
 
     abstract class TagToken : Token
     {
-        public string TagName { get; set; }
+        readonly StringBuilder _tagName;
+        string _cachedString;
+
+        public string TagName
+        {
+            get => _cachedString ?? (_cachedString = _tagName.ToString());
+            set { _cachedString = value; _tagName.Length = 0; _tagName.Append(value); }
+        }
+
         public List<Attr> Attrs { get; set; }
 
         protected TagToken(TokenType type, string tagName, List<Attr> attrs) :
             base(type)
         {
-            this.TagName = tagName;
+            _tagName = new StringBuilder(tagName);
             this.Attrs = attrs;
         }
 
@@ -74,6 +82,27 @@ namespace High5
                 attrs[i++] = attrFactory(attr.NamespaceUri, attr.Prefix, attr.Name, attr.Value);
             return attrs.ToArraySegment();
         }
+
+        void InvalidateCache()
+        {
+            if (_cachedString == null)
+                return;
+            _cachedString = null;
+        }
+
+        public void Append(string str)
+        {
+            InvalidateCache();
+            _tagName.Append(str);
+        }
+
+        public void Append(CodePoint cp)
+        {
+            InvalidateCache();
+            cp.AppendTo(_tagName);
+        }
+
+        public override string ToString() => TagName;
     }
 
     sealed class StartTagToken : TagToken
@@ -95,10 +124,14 @@ namespace High5
 
     sealed class DoctypeToken : Token
     {
-        public string Name { get; set; }
+        public string Name => _nameBuilder.ToString();
         public bool ForceQuirks { get; set; }
-        public string PublicId { get; set; }
-        public string SystemId { get; set; }
+        public string PublicId => _publicIdBuilder?.ToString();
+        public string SystemId => _systemIdBuilder?.ToString();
+
+        readonly StringBuilder _nameBuilder;
+        StringBuilder _publicIdBuilder;
+        StringBuilder _systemIdBuilder;
 
         public DoctypeToken(string name,
                             bool forceQuirks = false,
@@ -106,22 +139,58 @@ namespace High5
                             string systemId = null) :
             base(DOCTYPE_TOKEN)
         {
-            this.Name = name;
+            this._nameBuilder = new StringBuilder(name);
             this.ForceQuirks = forceQuirks;
-            this.PublicId = publicId;
-            this.SystemId = systemId;
+            this._publicIdBuilder = publicId != null ? new StringBuilder(publicId) : null;
+            this._systemIdBuilder = systemId != null ? new StringBuilder(systemId) : null;
         }
+
+        StringBuilder PublicIdBuilder => _publicIdBuilder ?? (_publicIdBuilder = new StringBuilder());
+        StringBuilder SystemIdBuilder => _systemIdBuilder ?? (_systemIdBuilder = new StringBuilder());
+
+        public void AppendToName(CodePoint cp) => cp.AppendTo(_nameBuilder);
+        public void ClearPublicId() => PublicIdBuilder.Length = 0;
+        public void AppendToPublicId(CodePoint cp) => cp.AppendTo(PublicIdBuilder);
+        public void ClearSystemId() => SystemIdBuilder.Length = 0;
+        public void AppendToSystemId(CodePoint cp) => cp.AppendTo(SystemIdBuilder);
     }
 
     sealed class CommentToken : Token
     {
-        public string Data { get; set; }
+        readonly StringBuilder _data;
+        string _cachedString;
+
+        public string Data => _cachedString ?? (_cachedString = _data.ToString());
 
         public CommentToken(string data) :
-            base(COMMENT_TOKEN)
+            base(COMMENT_TOKEN) => _data = new StringBuilder(data);
+
+        void InvalidateCache()
         {
-            this.Data = data;
+            if (_cachedString == null)
+                return;
+            _cachedString = null;
         }
+
+        public void Append(string str)
+        {
+            InvalidateCache();
+            _data.Append(str);
+        }
+
+        public void Append(char ch)
+        {
+            InvalidateCache();
+            _data.Append(ch);
+        }
+
+        public void Append(CodePoint cp)
+        {
+            InvalidateCache();
+            cp.AppendTo(_data);
+        }
+
+        public override string ToString() => Data;
     }
 
     sealed class CharacterToken : Token
@@ -133,13 +202,14 @@ namespace High5
         public int Length => _chars.Length;
         public string Chars => _cachedString ?? (_cachedString = _chars.ToString());
 
-        public CharacterToken(TokenType type, char ch) :
+        public CharacterToken(TokenType type, CodePoint cp) :
             base(type)
         {
             Debug.Assert(type == CHARACTER_TOKEN
                       || type == WHITESPACE_CHARACTER_TOKEN
                       || type == NULL_CHARACTER_TOKEN);
-            _chars = new StringBuilder().Append(ch);
+            _chars = new StringBuilder();
+            Append(cp);
         }
 
         void InvalidateCache()
@@ -149,16 +219,16 @@ namespace High5
             _cachedString = null;
         }
 
-        public void Append(string s)
-        {
-            InvalidateCache();
-            _chars.Append(s);
-        }
-
         public void Append(char ch)
         {
             InvalidateCache();
             _chars.Append(ch);
+        }
+
+        public void Append(CodePoint cp)
+        {
+            InvalidateCache();
+            cp.AppendTo(_chars);
         }
 
         public void Remove(int index, int length)
