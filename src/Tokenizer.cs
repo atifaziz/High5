@@ -286,11 +286,6 @@ namespace High5
             this.currentAttrValue = new StringBuilder();
         }
 
-        static Dictionary<TokenizerState, Action<Tokenizer, CodePoint>> _actionByState;
-
-        Action<Tokenizer, CodePoint> this[TokenizerState state] =>
-            (_actionByState ?? (_actionByState = CreateStateActionMap()))[state];
-
         // Tokenizer initial states for different modes
 
         public static class MODE
@@ -326,7 +321,7 @@ namespace High5
                 var cp = this.Consume();
 
                 if (!this.EnsureHibernation())
-                    this[this.State](this, cp);
+                    Go(this.State, this, cp);
             }
 
             return tokenQueue.Shift();
@@ -762,13 +757,13 @@ namespace High5
             return this.ConsumeNamedEntity(inAttr);
         }
 
-        static Dictionary<TokenizerState, Action<Tokenizer, CodePoint>> CreateStateActionMap()
+        static void Go(TokenizerState state, Tokenizer @this, CodePoint cp)
         {
-            var _ = new Dictionary<TokenizerState, Action<Tokenizer, CodePoint>>();
-
+            switch (state)
+            {
             // 12.2.4.1 Data state
             // ------------------------------------------------------------------
-            _[DATA_STATE] = DataState; void DataState(Tokenizer @this, CodePoint cp)
+            case DATA_STATE:
             {
                 @this.preprocessor.DropParsedChunk();
 
@@ -790,7 +785,7 @@ namespace High5
 
             // 12.2.4.2 Character reference in data state
             // ------------------------------------------------------------------
-            _[CHARACTER_REFERENCE_IN_DATA_STATE] = CharacterReferenceInDataState; void CharacterReferenceInDataState(Tokenizer @this, CodePoint cp)
+            break; case CHARACTER_REFERENCE_IN_DATA_STATE:
             {
                 @this.additionalAllowedCp = 0; // void 0;
 
@@ -810,7 +805,7 @@ namespace High5
 
             // 12.2.4.3 RCDATA state
             // ------------------------------------------------------------------
-            _[RCDATA_STATE] = RcdataState; void RcdataState(Tokenizer @this, CodePoint cp)
+            break; case RCDATA_STATE:
             {
                 @this.preprocessor.DropParsedChunk();
 
@@ -832,7 +827,7 @@ namespace High5
 
             // 12.2.4.4 Character reference in RCDATA state
             // ------------------------------------------------------------------
-            _[CHARACTER_REFERENCE_IN_RCDATA_STATE] = CharacterReferenceInRcdataState; void CharacterReferenceInRcdataState(Tokenizer @this, CodePoint cp)
+            break; case CHARACTER_REFERENCE_IN_RCDATA_STATE:
             {
                 @this.additionalAllowedCp = 0; // void 0;
 
@@ -852,7 +847,7 @@ namespace High5
 
             // 12.2.4.5 RAWTEXT state
             // ------------------------------------------------------------------
-            _[RAWTEXT_STATE] = RawtextState; void RawtextState(Tokenizer @this, CodePoint cp)
+            break; case RAWTEXT_STATE:
             {
                 @this.preprocessor.DropParsedChunk();
 
@@ -871,7 +866,7 @@ namespace High5
 
             // 12.2.4.6 Script data state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_STATE] = ScriptDataState; void ScriptDataState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_STATE:
             {
                 @this.preprocessor.DropParsedChunk();
 
@@ -890,7 +885,7 @@ namespace High5
 
             // 12.2.4.7 PLAINTEXT state
             // ------------------------------------------------------------------
-            _[PLAINTEXT_STATE] = PlaintextState; void PlaintextState(Tokenizer @this, CodePoint cp)
+            break; case PLAINTEXT_STATE:
             {
                 @this.preprocessor.DropParsedChunk();
 
@@ -906,7 +901,7 @@ namespace High5
 
             // 12.2.4.8 Tag open state
             // ------------------------------------------------------------------
-            _[TAG_OPEN_STATE] = TagOpenState; void TagOpenState(Tokenizer @this, CodePoint cp)
+            break; case TAG_OPEN_STATE:
             {
                 if (cp == CP.EXCLAMATION_MARK)
                     @this.State = MARKUP_DECLARATION_OPEN_STATE;
@@ -932,7 +927,7 @@ namespace High5
 
             // 12.2.4.9 End tag open state
             // ------------------------------------------------------------------
-            _[END_TAG_OPEN_STATE] = EndTagOpenState; void EndTagOpenState(Tokenizer @this, CodePoint cp)
+            break; case END_TAG_OPEN_STATE:
             {
                 if (IsAsciiLetter(cp))
                 {
@@ -956,7 +951,7 @@ namespace High5
 
             // 12.2.4.10 Tag name state
             // ------------------------------------------------------------------
-            _[TAG_NAME_STATE] = TagNameState; void TagNameState(Tokenizer @this, CodePoint cp)
+            break; case TAG_NAME_STATE:
             {
                 if (IsWhitespace(cp))
                     @this.State = BEFORE_ATTRIBUTE_NAME_STATE;
@@ -985,7 +980,7 @@ namespace High5
 
             // 12.2.4.11 RCDATA less-than sign state
             // ------------------------------------------------------------------
-            _[RCDATA_LESS_THAN_SIGN_STATE] = RcdataLessThanSignState; void RcdataLessThanSignState(Tokenizer @this, CodePoint cp)
+            break; case RCDATA_LESS_THAN_SIGN_STATE:
             {
                 if (cp == CP.SOLIDUS)
                 {
@@ -1002,7 +997,7 @@ namespace High5
 
             // 12.2.4.12 RCDATA end tag open state
             // ------------------------------------------------------------------
-            _[RCDATA_END_TAG_OPEN_STATE] = RcdataEndTagOpenState; void RcdataEndTagOpenState(Tokenizer @this, CodePoint cp)
+            break; case RCDATA_END_TAG_OPEN_STATE:
             {
                 if (IsAsciiLetter(cp))
                 {
@@ -1020,7 +1015,7 @@ namespace High5
 
             // 12.2.4.13 RCDATA end tag name state
             // ------------------------------------------------------------------
-            _[RCDATA_END_TAG_NAME_STATE] = RcdataEndTagNameState; void RcdataEndTagNameState(Tokenizer @this, CodePoint cp)
+            break; case RCDATA_END_TAG_NAME_STATE:
             {
                 if (IsAsciiUpper(cp))
                 {
@@ -1067,7 +1062,7 @@ namespace High5
 
             // 12.2.4.14 RAWTEXT less-than sign state
             // ------------------------------------------------------------------
-            _[RAWTEXT_LESS_THAN_SIGN_STATE] = RawtextLessThanSignState; void RawtextLessThanSignState(Tokenizer @this, CodePoint cp)
+            break; case RAWTEXT_LESS_THAN_SIGN_STATE:
             {
                 if (cp == CP.SOLIDUS)
                 {
@@ -1084,7 +1079,7 @@ namespace High5
 
             // 12.2.4.15 RAWTEXT end tag open state
             // ------------------------------------------------------------------
-            _[RAWTEXT_END_TAG_OPEN_STATE] = RawtextEndTagOpenState; void RawtextEndTagOpenState(Tokenizer @this, CodePoint cp)
+            break; case RAWTEXT_END_TAG_OPEN_STATE:
             {
                 if (IsAsciiLetter(cp))
                 {
@@ -1102,7 +1097,7 @@ namespace High5
 
             // 12.2.4.16 RAWTEXT end tag name state
             // ------------------------------------------------------------------
-            _[RAWTEXT_END_TAG_NAME_STATE] = RawtextEndTagNameState; void RawtextEndTagNameState(Tokenizer @this, CodePoint cp)
+            break; case RAWTEXT_END_TAG_NAME_STATE:
             {
                 if (IsAsciiUpper(cp))
                 {
@@ -1149,7 +1144,7 @@ namespace High5
 
             // 12.2.4.17 Script data less-than sign state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_LESS_THAN_SIGN_STATE] = ScriptDataLessThanSignState; void ScriptDataLessThanSignState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_LESS_THAN_SIGN_STATE:
             {
                 if (cp == CP.SOLIDUS)
                 {
@@ -1173,7 +1168,7 @@ namespace High5
 
             // 12.2.4.18 Script data end tag open state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_END_TAG_OPEN_STATE] = ScriptDataEndTagOpenState; void ScriptDataEndTagOpenState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_END_TAG_OPEN_STATE:
             {
                 if (IsAsciiLetter(cp))
                 {
@@ -1191,7 +1186,7 @@ namespace High5
 
             // 12.2.4.19 Script data end tag name state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_END_TAG_NAME_STATE] = ScriptDataEndTagNameState; void ScriptDataEndTagNameState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_END_TAG_NAME_STATE:
             {
                 if (IsAsciiUpper(cp))
                 {
@@ -1238,7 +1233,7 @@ namespace High5
 
             // 12.2.4.20 Script data escape start state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPE_START_STATE] = ScriptDataEscapeStartState; void ScriptDataEscapeStartState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPE_START_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1252,7 +1247,7 @@ namespace High5
 
             // 12.2.4.21 Script data escape start dash state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPE_START_DASH_STATE] = ScriptDataEscapeStartDashState; void ScriptDataEscapeStartDashState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPE_START_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1266,7 +1261,7 @@ namespace High5
 
             // 12.2.4.22 Script data escaped state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_STATE] = ScriptDataEscapedState; void ScriptDataEscapedState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1289,7 +1284,7 @@ namespace High5
 
             // 12.2.4.23 Script data escaped dash state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_DASH_STATE] = ScriptDataEscapedDashState; void ScriptDataEscapedDashState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1318,7 +1313,7 @@ namespace High5
 
             // 12.2.4.24 Script data escaped dash dash state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_DASH_DASH_STATE] = ScriptDataEscapedDashDashState; void ScriptDataEscapedDashDashState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_DASH_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.EmitChar('-');
@@ -1350,7 +1345,7 @@ namespace High5
 
             // 12.2.4.25 Script data escaped less-than sign state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE] = ScriptDataEscapedLessThanSignState; void ScriptDataEscapedLessThanSignState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE:
             {
                 if (cp == CP.SOLIDUS)
                 {
@@ -1374,7 +1369,7 @@ namespace High5
 
             // 12.2.4.26 Script data escaped end tag open state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE] = ScriptDataEscapedEndTagOpenState; void ScriptDataEscapedEndTagOpenState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE:
             {
                 if (IsAsciiLetter(cp))
                 {
@@ -1392,7 +1387,7 @@ namespace High5
 
             // 12.2.4.27 Script data escaped end tag name state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE] = ScriptDataEscapedEndTagNameState; void ScriptDataEscapedEndTagNameState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE:
             {
                 if (IsAsciiUpper(cp))
                 {
@@ -1439,7 +1434,7 @@ namespace High5
 
             // 12.2.4.28 Script data double escape start state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE] = ScriptDataDoubleEscapeStartState; void ScriptDataDoubleEscapeStartState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE:
             {
                 if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
                 {
@@ -1465,7 +1460,7 @@ namespace High5
 
             // 12.2.4.29 Script data double escaped state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPED_STATE] = ScriptDataDoubleEscapedState; void ScriptDataDoubleEscapedState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPED_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1491,7 +1486,7 @@ namespace High5
 
             // 12.2.4.30 Script data double escaped dash state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE] = ScriptDataDoubleEscapedDashState; void ScriptDataDoubleEscapedDashState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -1523,7 +1518,7 @@ namespace High5
 
             // 12.2.4.31 Script data double escaped dash dash state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE] = ScriptDataDoubleEscapedDashDashState; void ScriptDataDoubleEscapedDashDashState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.EmitChar('-');
@@ -1558,7 +1553,7 @@ namespace High5
 
             // 12.2.4.32 Script data double escaped less-than sign state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE] = ScriptDataDoubleEscapedLessThanSignState; void ScriptDataDoubleEscapedLessThanSignState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE:
             {
                 if (cp == CP.SOLIDUS)
                 {
@@ -1573,7 +1568,7 @@ namespace High5
 
             // 12.2.4.33 Script data double escape end state
             // ------------------------------------------------------------------
-            _[SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE] = ScriptDataDoubleEscapeEndState; void ScriptDataDoubleEscapeEndState(Tokenizer @this, CodePoint cp)
+            break; case SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE:
             {
                 if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN)
                 {
@@ -1600,7 +1595,7 @@ namespace High5
 
             // 12.2.4.34 Before attribute name state
             // ------------------------------------------------------------------
-            _[BEFORE_ATTRIBUTE_NAME_STATE] = BeforeAttributeNameState; void BeforeAttributeNameState(Tokenizer @this, CodePoint cp)
+            break; case BEFORE_ATTRIBUTE_NAME_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -1623,7 +1618,7 @@ namespace High5
 
             // 12.2.4.35 Attribute name state
             // ------------------------------------------------------------------
-            _[ATTRIBUTE_NAME_STATE] = AttributeNameState; void AttributeNameState(Tokenizer @this, CodePoint cp)
+            break; case ATTRIBUTE_NAME_STATE:
             {
                 if (IsWhitespace(cp) || cp == CP.SOLIDUS || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
                 {
@@ -1649,7 +1644,7 @@ namespace High5
 
             // 12.2.4.36 After attribute name state
             // ------------------------------------------------------------------
-            _[AFTER_ATTRIBUTE_NAME_STATE] = AfterAttributeNameState; void AfterAttributeNameState(Tokenizer @this, CodePoint cp)
+            break; case AFTER_ATTRIBUTE_NAME_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -1678,7 +1673,7 @@ namespace High5
 
             // 12.2.4.37 Before attribute value state
             // ------------------------------------------------------------------
-            _[BEFORE_ATTRIBUTE_VALUE_STATE] = BeforeAttributeValueState; void BeforeAttributeValueState(Tokenizer @this, CodePoint cp)
+            break; case BEFORE_ATTRIBUTE_VALUE_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -1695,7 +1690,7 @@ namespace High5
 
             // 12.2.4.38 Attribute value (double-quoted) state
             // ------------------------------------------------------------------
-            _[ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE] = AttributeValueDoubleQuotedState; void AttributeValueDoubleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE:
             {
                 if (cp == CP.QUOTATION_MARK)
                     @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
@@ -1719,7 +1714,7 @@ namespace High5
 
             // 12.2.4.39 Attribute value (single-quoted) state
             // ------------------------------------------------------------------
-            _[ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE] = AttributeValueSingleQuotedState; void AttributeValueSingleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE:
             {
                 if (cp == CP.APOSTROPHE)
                     @this.State = AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
@@ -1743,7 +1738,7 @@ namespace High5
 
             // 12.2.4.40 Attribute value (unquoted) state
             // ------------------------------------------------------------------
-            _[ATTRIBUTE_VALUE_UNQUOTED_STATE] = AttributeValueUnquotedState; void AttributeValueUnquotedState(Tokenizer @this, CodePoint cp)
+            break; case ATTRIBUTE_VALUE_UNQUOTED_STATE:
             {
                 if (IsWhitespace(cp))
                     @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
@@ -1777,7 +1772,7 @@ namespace High5
 
             // 12.2.4.41 Character reference in attribute value state
             // ------------------------------------------------------------------
-            _[CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE] = CharacterReferenceInAttributeValueState; void CharacterReferenceInAttributeValueState(Tokenizer @this, CodePoint cp)
+            break; case CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE:
             {
                 var referencedCodePoints = @this.ConsumeCharacterReference(cp, true);
 
@@ -1797,7 +1792,7 @@ namespace High5
 
             // 12.2.4.42 After attribute value (quoted) state
             // ------------------------------------------------------------------
-            _[AFTER_ATTRIBUTE_VALUE_QUOTED_STATE] = AfterAttributeValueQuotedState; void AfterAttributeValueQuotedState(Tokenizer @this, CodePoint cp)
+            break; case AFTER_ATTRIBUTE_VALUE_QUOTED_STATE:
             {
                 if (IsWhitespace(cp))
                     @this.LeaveAttrValue(BEFORE_ATTRIBUTE_NAME_STATE);
@@ -1820,7 +1815,7 @@ namespace High5
 
             // 12.2.4.43 Self-closing start tag state
             // ------------------------------------------------------------------
-            _[SELF_CLOSING_START_TAG_STATE] = SelfClosingStartTagState; void SelfClosingStartTagState(Tokenizer @this, CodePoint cp)
+            break; case SELF_CLOSING_START_TAG_STATE:
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
@@ -1839,7 +1834,7 @@ namespace High5
 
             // 12.2.4.44 Bogus comment state
             // ------------------------------------------------------------------
-            _[BOGUS_COMMENT_STATE] = BogusCommentState; void BogusCommentState(Tokenizer @this, CodePoint cp)
+            break; case BOGUS_COMMENT_STATE:
             {
                 @this.CreateCommentToken();
                 @this.ReconsumeInState(BOGUS_COMMENT_STATE_CONTINUATION);
@@ -1848,7 +1843,7 @@ namespace High5
             // HACK: to support streaming and make BOGUS_COMMENT_STATE reentrant we've
             // introduced BOGUS_COMMENT_STATE_CONTINUATION state which will not produce
             // comment token on each call.
-            _[BOGUS_COMMENT_STATE_CONTINUATION] = BogusCommentStateContinuation; void BogusCommentStateContinuation(Tokenizer @this, CodePoint cp)
+            break; case BOGUS_COMMENT_STATE_CONTINUATION:
             {
                 while (true)
                 {
@@ -1881,7 +1876,7 @@ namespace High5
 
             // 12.2.4.45 Markup declaration open state
             // ------------------------------------------------------------------
-            _[MARKUP_DECLARATION_OPEN_STATE] = MarkupDeclarationOpenState; void MarkupDeclarationOpenState(Tokenizer @this, CodePoint cp)
+            break; case MARKUP_DECLARATION_OPEN_STATE:
             {
                 var dashDashMatch = @this.ConsumeSubsequentIfMatch(CPS.DASH_DASH_STRING, cp, true);
                 var doctypeMatch = !dashDashMatch && @this.ConsumeSubsequentIfMatch(CPS.DOCTYPE_STRING, cp, false);
@@ -1910,7 +1905,7 @@ namespace High5
 
             // 12.2.4.46 Comment start state
             // ------------------------------------------------------------------
-            _[COMMENT_START_STATE] = CommentStartState; void CommentStartState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_START_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.State = COMMENT_START_DASH_STATE;
@@ -1942,7 +1937,7 @@ namespace High5
 
             // 12.2.4.47 Comment start dash state
             // ------------------------------------------------------------------
-            _[COMMENT_START_DASH_STATE] = CommentStartDashState; void CommentStartDashState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_START_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.State = COMMENT_END_STATE;
@@ -1976,7 +1971,7 @@ namespace High5
 
             // 12.2.4.48 Comment state
             // ------------------------------------------------------------------
-            _[COMMENT_STATE] = CommentState; void CommentState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.State = COMMENT_END_DASH_STATE;
@@ -1996,7 +1991,7 @@ namespace High5
 
             // 12.2.4.49 Comment end dash state
             // ------------------------------------------------------------------
-            _[COMMENT_END_DASH_STATE] = CommentEndDashState; void CommentEndDashState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_END_DASH_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                     @this.State = COMMENT_END_STATE;
@@ -2024,7 +2019,7 @@ namespace High5
 
             // 12.2.4.50 Comment end state
             // ------------------------------------------------------------------
-            _[COMMENT_END_STATE] = CommentEndState; void CommentEndState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_END_STATE:
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
@@ -2061,7 +2056,7 @@ namespace High5
 
             // 12.2.4.51 Comment end bang state
             // ------------------------------------------------------------------
-            _[COMMENT_END_BANG_STATE] = CommentEndBangState; void CommentEndBangState(Tokenizer @this, CodePoint cp)
+            break; case COMMENT_END_BANG_STATE:
             {
                 if (cp == CP.HYPHEN_MINUS)
                 {
@@ -2098,7 +2093,7 @@ namespace High5
 
             // 12.2.4.52 DOCTYPE state
             // ------------------------------------------------------------------
-            _[DOCTYPE_STATE] = DoctypeState; void DoctypeState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2127,7 +2122,7 @@ namespace High5
 
             // 12.2.4.54 DOCTYPE name state
             // ------------------------------------------------------------------
-            _[DOCTYPE_NAME_STATE] = DoctypeNameState; void DoctypeNameState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_NAME_STATE:
             {
                 if (IsWhitespace(cp) || cp == CP.GREATER_THAN_SIGN || cp == CP.EOF)
                     @this.ReconsumeInState(AFTER_DOCTYPE_NAME_STATE);
@@ -2144,7 +2139,7 @@ namespace High5
 
             // 12.2.4.55 After DOCTYPE name state
             // ------------------------------------------------------------------
-            _[AFTER_DOCTYPE_NAME_STATE] = AfterDoctypeNameState; void AfterDoctypeNameState(Tokenizer @this, CodePoint cp)
+            break; case AFTER_DOCTYPE_NAME_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2179,7 +2174,7 @@ namespace High5
 
             // 12.2.4.57 Before DOCTYPE public identifier state
             // ------------------------------------------------------------------
-            _[BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE] = BeforeDoctypePublicIdentifierState; void BeforeDoctypePublicIdentifierState(Tokenizer @this, CodePoint cp)
+            break; case BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2205,7 +2200,7 @@ namespace High5
 
             // 12.2.4.58 DOCTYPE public identifier (double-quoted) state
             // ------------------------------------------------------------------
-            _[DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE] = DoctypePublicIdentifierDoubleQuotedState; void DoctypePublicIdentifierDoubleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE:
             {
                 if (cp == CP.QUOTATION_MARK)
                     @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
@@ -2233,7 +2228,7 @@ namespace High5
 
             // 12.2.4.59 DOCTYPE public identifier (single-quoted) state
             // ------------------------------------------------------------------
-            _[DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE] = DoctypePublicIdentifierSingleQuotedState; void DoctypePublicIdentifierSingleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE:
             {
                 if (cp == CP.APOSTROPHE)
                     @this.State = BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
@@ -2261,7 +2256,7 @@ namespace High5
 
             // 12.2.4.61 Between DOCTYPE public and system identifiers state
             // ------------------------------------------------------------------
-            _[BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE] = BetweenDoctypePublicAndSystemIdentifiersState; void BetweenDoctypePublicAndSystemIdentifiersState(Tokenizer @this, CodePoint cp)
+            break; case BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2293,7 +2288,7 @@ namespace High5
 
             // 12.2.4.63 Before DOCTYPE system identifier state
             // ------------------------------------------------------------------
-            _[BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE] = BeforeDoctypeSystemIdentifierState; void BeforeDoctypeSystemIdentifierState(Tokenizer @this, CodePoint cp)
+            break; case BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2319,7 +2314,7 @@ namespace High5
 
             // 12.2.4.64 DOCTYPE system identifier (double-quoted) state
             // ------------------------------------------------------------------
-            _[DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE] = DoctypeSystemIdentifierDoubleQuotedState; void DoctypeSystemIdentifierDoubleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE:
             {
                 if (cp == CP.QUOTATION_MARK)
                     @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
@@ -2347,7 +2342,7 @@ namespace High5
 
             // 12.2.4.65 DOCTYPE system identifier (single-quoted) state
             // ------------------------------------------------------------------
-            _[DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE] = DoctypeSystemIdentifierSingleQuotedState; void DoctypeSystemIdentifierSingleQuotedState(Tokenizer @this, CodePoint cp)
+            break; case DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE:
             {
                 if (cp == CP.APOSTROPHE)
                     @this.State = AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
@@ -2375,7 +2370,7 @@ namespace High5
 
             // 12.2.4.66 After DOCTYPE system identifier state
             // ------------------------------------------------------------------
-            _[AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE] = AfterDoctypeSystemIdentifierState; void AfterDoctypeSystemIdentifierState(Tokenizer @this, CodePoint cp)
+            break; case AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE:
             {
                 if (IsWhitespace(cp))
                     return;
@@ -2399,7 +2394,7 @@ namespace High5
 
             // 12.2.4.67 Bogus DOCTYPE state
             // ------------------------------------------------------------------
-            _[BOGUS_DOCTYPE_STATE] = BogusDoctypeState; void BogusDoctypeState(Tokenizer @this, CodePoint cp)
+            break; case BOGUS_DOCTYPE_STATE:
             {
                 if (cp == CP.GREATER_THAN_SIGN)
                 {
@@ -2416,7 +2411,7 @@ namespace High5
 
             // 12.2.4.68 CDATA section state
             // ------------------------------------------------------------------
-            _[CDATA_SECTION_STATE] = CDataSectionState; void CDataSectionState(Tokenizer @this, CodePoint cp)
+            break; case CDATA_SECTION_STATE:
             {
                 while (true)
                 {
@@ -2450,7 +2445,8 @@ namespace High5
                 }
             }
 
-            return _;
+            break; default: throw new Exception("Internal implementation error due to unknown state: " + state);
+            }
         }
     }
 }
