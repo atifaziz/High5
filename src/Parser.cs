@@ -656,7 +656,7 @@ namespace High5
                                         this.treeBuilder.GetNamespaceUri((Element)current) != NS.HTML && !this.IsIntegrationPoint((Element)current);
         }
 
-        void SwitchToTextParsing(StartTagToken currentToken, string nextTokenizerState)
+        void SwitchToTextParsing(StartTagToken currentToken, TokenizerState nextTokenizerState)
         {
             this.InsertElement(currentToken, NS.HTML);
             this.tokenizer.State = nextTokenizerState;

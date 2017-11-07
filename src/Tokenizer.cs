@@ -31,6 +31,7 @@ namespace High5
     using Extensions;
     using static NamedEntityData;
     using static NamedEntityTreeFlags;
+    using static TokenizerState;
     using CP = Unicode.CodePoints;
     using CPS = Unicode.CodePointSequences;
 
@@ -40,6 +41,76 @@ namespace High5
         public const int DataDupletFlag = 1 << 1;
         public const int HasBranchesFlag = 1 << 2;
         public const int MaxBranchMarkerValue = HasDataFlag | DataDupletFlag | HasBranchesFlag;
+    }
+
+    enum TokenizerState
+    {
+        NIL_STATE,
+        DATA_STATE,
+        CHARACTER_REFERENCE_IN_DATA_STATE,
+        RCDATA_STATE,
+        CHARACTER_REFERENCE_IN_RCDATA_STATE,
+        RAWTEXT_STATE,
+        SCRIPT_DATA_STATE,
+        PLAINTEXT_STATE,
+        TAG_OPEN_STATE,
+        END_TAG_OPEN_STATE,
+        TAG_NAME_STATE,
+        RCDATA_LESS_THAN_SIGN_STATE,
+        RCDATA_END_TAG_OPEN_STATE,
+        RCDATA_END_TAG_NAME_STATE,
+        RAWTEXT_LESS_THAN_SIGN_STATE,
+        RAWTEXT_END_TAG_OPEN_STATE,
+        RAWTEXT_END_TAG_NAME_STATE,
+        SCRIPT_DATA_LESS_THAN_SIGN_STATE,
+        SCRIPT_DATA_END_TAG_OPEN_STATE,
+        SCRIPT_DATA_END_TAG_NAME_STATE,
+        SCRIPT_DATA_ESCAPE_START_STATE,
+        SCRIPT_DATA_ESCAPE_START_DASH_STATE,
+        SCRIPT_DATA_ESCAPED_STATE,
+        SCRIPT_DATA_ESCAPED_DASH_STATE,
+        SCRIPT_DATA_ESCAPED_DASH_DASH_STATE,
+        SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE,
+        SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE,
+        SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPED_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE,
+        SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE,
+        BEFORE_ATTRIBUTE_NAME_STATE,
+        ATTRIBUTE_NAME_STATE,
+        AFTER_ATTRIBUTE_NAME_STATE,
+        BEFORE_ATTRIBUTE_VALUE_STATE,
+        ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE,
+        ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE,
+        ATTRIBUTE_VALUE_UNQUOTED_STATE,
+        CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE,
+        AFTER_ATTRIBUTE_VALUE_QUOTED_STATE,
+        SELF_CLOSING_START_TAG_STATE,
+        BOGUS_COMMENT_STATE,
+        BOGUS_COMMENT_STATE_CONTINUATION,
+        MARKUP_DECLARATION_OPEN_STATE,
+        COMMENT_START_STATE,
+        COMMENT_START_DASH_STATE,
+        COMMENT_STATE,
+        COMMENT_END_DASH_STATE,
+        COMMENT_END_STATE,
+        COMMENT_END_BANG_STATE,
+        DOCTYPE_STATE,
+        DOCTYPE_NAME_STATE,
+        AFTER_DOCTYPE_NAME_STATE,
+        BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE,
+        DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE,
+        DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE,
+        BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE,
+        BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE,
+        DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE,
+        DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE,
+        AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE,
+        BOGUS_DOCTYPE_STATE,
+        CDATA_SECTION_STATE,
     }
 
     sealed class Tokenizer
@@ -57,71 +128,6 @@ namespace High5
 
         // States
 
-        const string DATA_STATE = "DATA_STATE";
-        const string CHARACTER_REFERENCE_IN_DATA_STATE = "CHARACTER_REFERENCE_IN_DATA_STATE";
-        const string RCDATA_STATE = "RCDATA_STATE";
-        const string CHARACTER_REFERENCE_IN_RCDATA_STATE = "CHARACTER_REFERENCE_IN_RCDATA_STATE";
-        const string RAWTEXT_STATE = "RAWTEXT_STATE";
-        const string SCRIPT_DATA_STATE = "SCRIPT_DATA_STATE";
-        const string PLAINTEXT_STATE = "PLAINTEXT_STATE";
-        const string TAG_OPEN_STATE = "TAG_OPEN_STATE";
-        const string END_TAG_OPEN_STATE = "END_TAG_OPEN_STATE";
-        const string TAG_NAME_STATE = "TAG_NAME_STATE";
-        const string RCDATA_LESS_THAN_SIGN_STATE = "RCDATA_LESS_THAN_SIGN_STATE";
-        const string RCDATA_END_TAG_OPEN_STATE = "RCDATA_END_TAG_OPEN_STATE";
-        const string RCDATA_END_TAG_NAME_STATE = "RCDATA_END_TAG_NAME_STATE";
-        const string RAWTEXT_LESS_THAN_SIGN_STATE = "RAWTEXT_LESS_THAN_SIGN_STATE";
-        const string RAWTEXT_END_TAG_OPEN_STATE = "RAWTEXT_END_TAG_OPEN_STATE";
-        const string RAWTEXT_END_TAG_NAME_STATE = "RAWTEXT_END_TAG_NAME_STATE";
-        const string SCRIPT_DATA_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_LESS_THAN_SIGN_STATE";
-        const string SCRIPT_DATA_END_TAG_OPEN_STATE = "SCRIPT_DATA_END_TAG_OPEN_STATE";
-        const string SCRIPT_DATA_END_TAG_NAME_STATE = "SCRIPT_DATA_END_TAG_NAME_STATE";
-        const string SCRIPT_DATA_ESCAPE_START_STATE = "SCRIPT_DATA_ESCAPE_START_STATE";
-        const string SCRIPT_DATA_ESCAPE_START_DASH_STATE = "SCRIPT_DATA_ESCAPE_START_DASH_STATE";
-        const string SCRIPT_DATA_ESCAPED_STATE = "SCRIPT_DATA_ESCAPED_STATE";
-        const string SCRIPT_DATA_ESCAPED_DASH_STATE = "SCRIPT_DATA_ESCAPED_DASH_STATE";
-        const string SCRIPT_DATA_ESCAPED_DASH_DASH_STATE = "SCRIPT_DATA_ESCAPED_DASH_DASH_STATE";
-        const string SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_ESCAPED_LESS_THAN_SIGN_STATE";
-        const string SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE = "SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE";
-        const string SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE = "SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE = "SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPED_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE = "SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_SIGN_STATE";
-        const string SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE = "SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE";
-        const string BEFORE_ATTRIBUTE_NAME_STATE = "BEFORE_ATTRIBUTE_NAME_STATE";
-        const string ATTRIBUTE_NAME_STATE = "ATTRIBUTE_NAME_STATE";
-        const string AFTER_ATTRIBUTE_NAME_STATE = "AFTER_ATTRIBUTE_NAME_STATE";
-        const string BEFORE_ATTRIBUTE_VALUE_STATE = "BEFORE_ATTRIBUTE_VALUE_STATE";
-        const string ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE = "ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE";
-        const string ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE = "ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE";
-        const string ATTRIBUTE_VALUE_UNQUOTED_STATE = "ATTRIBUTE_VALUE_UNQUOTED_STATE";
-        const string CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE = "CHARACTER_REFERENCE_IN_ATTRIBUTE_VALUE_STATE";
-        const string AFTER_ATTRIBUTE_VALUE_QUOTED_STATE = "AFTER_ATTRIBUTE_VALUE_QUOTED_STATE";
-        const string SELF_CLOSING_START_TAG_STATE = "SELF_CLOSING_START_TAG_STATE";
-        const string BOGUS_COMMENT_STATE = "BOGUS_COMMENT_STATE";
-        const string BOGUS_COMMENT_STATE_CONTINUATION = "BOGUS_COMMENT_STATE_CONTINUATION";
-        const string MARKUP_DECLARATION_OPEN_STATE = "MARKUP_DECLARATION_OPEN_STATE";
-        const string COMMENT_START_STATE = "COMMENT_START_STATE";
-        const string COMMENT_START_DASH_STATE = "COMMENT_START_DASH_STATE";
-        const string COMMENT_STATE = "COMMENT_STATE";
-        const string COMMENT_END_DASH_STATE = "COMMENT_END_DASH_STATE";
-        const string COMMENT_END_STATE = "COMMENT_END_STATE";
-        const string COMMENT_END_BANG_STATE = "COMMENT_END_BANG_STATE";
-        const string DOCTYPE_STATE = "DOCTYPE_STATE";
-        const string DOCTYPE_NAME_STATE = "DOCTYPE_NAME_STATE";
-        const string AFTER_DOCTYPE_NAME_STATE = "AFTER_DOCTYPE_NAME_STATE";
-        const string BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE = "BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE";
-        const string DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE = "DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE";
-        const string DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE = "DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE";
-        const string BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE = "BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE";
-        const string BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE = "BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE";
-        const string DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE = "DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE";
-        const string DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE = "DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE";
-        const string AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE = "AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE";
-        const string BOGUS_DOCTYPE_STATE = "BOGUS_DOCTYPE_STATE";
-        const string CDATA_SECTION_STATE = "CDATA_SECTION_STATE";
 
         // Utils
 
@@ -203,8 +209,8 @@ namespace High5
 
         readonly List<Token> tokenQueue;
         public bool AllowCData { get; set; }
-        public string State { get; set; }
-        string returnState;
+        public TokenizerState State { get; set; }
+        TokenizerState returnState;
         Array<CodePoint> tempBuff;
         int additionalAllowedCp;
         string lastStartTagName;
@@ -265,7 +271,7 @@ namespace High5
             this.AllowCData = false;
 
             this.State = DATA_STATE;
-            this.returnState = "";
+            this.returnState = NIL_STATE;
 
             this.tempBuff = new Array<CodePoint>();
             this.additionalAllowedCp = 0; // void 0
@@ -280,20 +286,20 @@ namespace High5
             this.currentAttrValue = new StringBuilder();
         }
 
-        static Dictionary<string, Action<Tokenizer, CodePoint>> _actionByState;
+        static Dictionary<TokenizerState, Action<Tokenizer, CodePoint>> _actionByState;
 
-        Action<Tokenizer, CodePoint> this[string state] =>
+        Action<Tokenizer, CodePoint> this[TokenizerState state] =>
             (_actionByState ?? (_actionByState = CreateStateActionMap()))[state];
 
         // Tokenizer initial states for different modes
 
         public static class MODE
         {
-            public static string DATA = DATA_STATE;
-            public static string RCDATA = RCDATA_STATE;
-            public static string RAWTEXT = RAWTEXT_STATE;
-            public static string SCRIPT_DATA = SCRIPT_DATA_STATE;
-            public static string PLAINTEXT = PLAINTEXT_STATE;
+            public static TokenizerState DATA = DATA_STATE;
+            public static TokenizerState RCDATA = RCDATA_STATE;
+            public static TokenizerState RAWTEXT = RAWTEXT_STATE;
+            public static TokenizerState SCRIPT_DATA = SCRIPT_DATA_STATE;
+            public static TokenizerState PLAINTEXT = PLAINTEXT_STATE;
         }
 
         // Static
@@ -381,7 +387,7 @@ namespace High5
                 this.Unconsume();
         }
 
-        void ReconsumeInState(string state)
+        void ReconsumeInState(TokenizerState state)
         {
             this.State = state;
             this.Unconsume();
@@ -492,7 +498,7 @@ namespace High5
             return GetTokenAttr(this.CurrentTagToken, name) != null;
         }
 
-        void LeaveAttrName(string toState)
+        void LeaveAttrName(TokenizerState toState)
         {
             this.State = toState;
 
@@ -501,7 +507,7 @@ namespace High5
                 this.CurrentTagToken.Attrs.Push(new Attr(name, this.currentAttrValue.ToString()));
         }
 
-        void LeaveAttrValue(string toState)
+        void LeaveAttrValue(TokenizerState toState)
         {
             var attrs = this.CurrentTagToken.Attrs;
             var index = attrs.Count - 1;
@@ -756,9 +762,9 @@ namespace High5
             return this.ConsumeNamedEntity(inAttr);
         }
 
-        static Dictionary<string, Action<Tokenizer, CodePoint>> CreateStateActionMap()
+        static Dictionary<TokenizerState, Action<Tokenizer, CodePoint>> CreateStateActionMap()
         {
-            var _ = new Dictionary<string, Action<Tokenizer, CodePoint>>();
+            var _ = new Dictionary<TokenizerState, Action<Tokenizer, CodePoint>>();
 
             // 12.2.4.1 Data state
             // ------------------------------------------------------------------
