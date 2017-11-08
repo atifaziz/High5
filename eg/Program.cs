@@ -34,9 +34,6 @@ namespace Demo
     {
         static void Wain(string[] args)
         {
-            Console.OutputEncoding = new UTF8Encoding(false);
-            Console.Error.WriteLine(Console.InputEncoding.ToString());
-            Console.Error.WriteLine(Console.OutputEncoding.ToString());
             string html;
 
             var source = args.FirstOrDefault() ?? "-";
