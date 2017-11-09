@@ -129,8 +129,8 @@ namespace High5
     {
         public HtmlDocumentFragment Content { get; internal set; }
 
-        public HtmlTemplateElement(string tagName, string namespaceUri, IList<HtmlAttribute> attributes) :
-            base(tagName, namespaceUri, attributes) {}
+        public HtmlTemplateElement(string namespaceUri, IList<HtmlAttribute> attributes) :
+            base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
     }
 
     public class HtmlComment : HtmlNode
