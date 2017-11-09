@@ -35,6 +35,7 @@ namespace High5
         public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
 
         public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
+        public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
     }
 
     public class HtmlDocument : HtmlNode
