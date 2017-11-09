@@ -48,6 +48,16 @@ namespace High5
                  ? siblings[i + offset]
                  : null;
         }
+
+        public IEnumerable<HtmlNode> NodesBeforeSelf()
+        {
+            return _(); IEnumerable<HtmlNode> _()
+            {
+                var node = this;
+                while ((node = node.PreviousSibling) != null)
+                    yield return node;
+            }
+        }
     }
 
     public class HtmlDocument : HtmlNode
