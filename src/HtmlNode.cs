@@ -37,28 +37,16 @@ namespace High5
         public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
         public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
 
-        public HtmlNode PreviousSibling
-        {
-            get
-            {
-                var siblings = ParentNode?.ChildNodes;
-                var index = siblings?.IndexOf(this);
-                return index is int i && i > 0
-                     ? siblings[i - 1]
-                     : null;
-            }
-        }
+        public HtmlNode PreviousSibling => GetSibling(-1, (i, _    ) => i >= 0   );
+        public HtmlNode NextSibling     => GetSibling(+1, (i, count) => i < count);
 
-        public HtmlNode NextSibling
+        HtmlNode GetSibling(int offset, Func<int, int, bool> predicate)
         {
-            get
-            {
-                var siblings = ParentNode?.ChildNodes;
-                var index = siblings?.IndexOf(this);
-                return index is int i && i + 1 < siblings.Count
-                     ? siblings[i + 1]
-                     : null;
-            }
+            var siblings = ParentNode?.ChildNodes;
+            var index = siblings?.IndexOf(this);
+            return index is int i && predicate(i + offset, siblings.Count)
+                 ? siblings[i + offset]
+                 : null;
         }
     }
 
