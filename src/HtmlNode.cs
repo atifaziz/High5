@@ -48,6 +48,18 @@ namespace High5
                      : null;
             }
         }
+
+        public HtmlNode NextSibling
+        {
+            get
+            {
+                var siblings = ParentNode?.ChildNodes;
+                var index = siblings?.IndexOf(this);
+                return index is int i && i + 1 < siblings.Count
+                     ? siblings[i + 1]
+                     : null;
+            }
+        }
     }
 
     public class HtmlDocument : HtmlNode
