@@ -33,6 +33,8 @@ namespace High5
     {
         public HtmlNode ParentNode { get; internal set; }
         public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
+
+        public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
     }
 
     public class HtmlDocument : HtmlNode
