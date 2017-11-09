@@ -29,8 +29,14 @@ namespace High5
     using _ = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
 
-    static class Serializer
+    public static class Serializer
     {
+        public static string Serialize(this HtmlNode node) =>
+            Serialize(Tree.Default, node);
+
+        public static void SerializeTo(this HtmlNode node, StringBuilder output) =>
+            SerializeTo(Tree.Default, node, output);
+
         public static string Serialize<TNode, TElement, TText>(
             ITree<TNode, TElement, TText> tree, TNode node)
             where TElement : TNode
