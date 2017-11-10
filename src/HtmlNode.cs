@@ -52,34 +52,25 @@ namespace High5
 
         public IEnumerable<HtmlNode> NodesBeforeSelf()
         {
-            return _(); IEnumerable<HtmlNode> _()
-            {
-                var node = this;
-                while ((node = node.PreviousSibling) != null)
-                    yield return node;
-            }
+            var node = this;
+            while ((node = node.PreviousSibling) != null)
+                yield return node;
         }
 
         public IEnumerable<HtmlNode> NodesAfterSelf()
         {
-            return _(); IEnumerable<HtmlNode> _()
-            {
-                var node = this;
-                while ((node = node.NextSibling) != null)
-                    yield return node;
-            }
+            var node = this;
+            while ((node = node.NextSibling) != null)
+                yield return node;
         }
 
         public IEnumerable<HtmlNode> Descendants()
         {
-            return _(); IEnumerable<HtmlNode> _()
+            foreach (var child in ChildNodes)
             {
-                foreach (var child in ChildNodes)
-                {
-                    yield return child;
-                    foreach (var descendant in child.Descendants())
-                        yield return descendant;
-                }
+                yield return child;
+                foreach (var descendant in child.Descendants())
+                    yield return descendant;
             }
         }
 
@@ -88,11 +79,8 @@ namespace High5
 
         public IEnumerable<HtmlNode> Ancestors()
         {
-            return _(); IEnumerable<HtmlNode> _()
-            {
-                for (var node = ParentNode; node != null; node = node.ParentNode)
-                    yield return node;
-            }
+            for (var node = ParentNode; node != null; node = node.ParentNode)
+                yield return node;
         }
 
         public IEnumerable<HtmlNode> AncestorsAndSelf() =>
