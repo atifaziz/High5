@@ -85,6 +85,15 @@ namespace High5
 
         public IEnumerable<HtmlNode> DescendantsAndSelf() =>
             Enumerable.Repeat(this, 1).Concat(Descendants());
+
+        public IEnumerable<HtmlNode> Ancestors()
+        {
+            return _(); IEnumerable<HtmlNode> _()
+            {
+                for (var node = ParentNode; node != null; node = node.ParentNode)
+                    yield return node;
+            }
+        }
     }
 
     public class HtmlDocument : HtmlNode
