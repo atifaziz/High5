@@ -48,15 +48,14 @@ namespace High5
         void InsertBefore(TNode parentNode, TNode newNode, TNode referenceNode);
         void SetTemplateContent(TTemplateElement templateElement, TDocumentFragment content);
         TDocumentFragment GetTemplateContent(TTemplateElement templateElement);
-        void DetachNode(TNode node);
-        void InsertText(TNode parentNode, string text);
-        void InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
+        void DetachNode(TNode parentNode, TNode node);
+        TNode InsertText(TNode parentNode, string text);
+        TNode InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
         void AdoptAttributes(TElement recipient, ArraySegment<TAttribute> attributes);
 
         // Tree traversing
 
         TNode GetFirstChild(TNode node);
-        TNode GetParentNode(TNode node);
         int GetAttributeCount(TElement element);
         int ListAttributes(TElement element, ArraySegment<TAttribute> attributes);
         string GetAttributeName(TAttribute attribute);
@@ -81,7 +80,7 @@ namespace High5
         where TComment          : TNode
     {
         TDocument CreateDocument();
-        void SetDocumentType(TDocument document, string name, string publicId, string systemId);
+        TNode SetDocumentType(TDocument document, string name, string publicId, string systemId);
         void SetDocumentMode(TDocument document, string mode);
         string GetDocumentMode(TDocument document);
     }

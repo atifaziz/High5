@@ -58,14 +58,12 @@ namespace High5
         public void AppendChild(HtmlNode parentNode, HtmlNode newNode)
         {
             parentNode.ChildNodes.Add(newNode);
-            newNode.ParentNode = parentNode;
         }
 
         public void InsertBefore(HtmlNode parentNode, HtmlNode newNode, HtmlNode referenceNode)
         {
             var i = parentNode.ChildNodes.IndexOf(referenceNode);
             parentNode.ChildNodes.Insert(i, newNode);
-            newNode.ParentNode = parentNode;
         }
 
         public void SetTemplateContent(HtmlTemplateElement templateElement, HtmlDocumentFragment content) =>
@@ -74,7 +72,7 @@ namespace High5
         public HtmlDocumentFragment GetTemplateContent(HtmlTemplateElement templateElement) =>
             templateElement.Content;
 
-        public void SetDocumentType(HtmlDocument document, string name, string publicId, string systemId)
+        public HtmlNode SetDocumentType(HtmlDocument document, string name, string publicId, string systemId)
         {
             var doctypeNode = document.ChildNodes.OfType<HtmlDocumentType>().FirstOrDefault();
 
@@ -83,10 +81,13 @@ namespace High5
                 doctypeNode.Name = name;
                 doctypeNode.PublicId = publicId;
                 doctypeNode.SystemId = systemId;
+                return null;
             }
             else
             {
-                AppendChild(document, new HtmlDocumentType(name, publicId, systemId));
+                var documentType = new HtmlDocumentType(name, publicId, systemId);
+                AppendChild(document, documentType);
+                return documentType;
             }
         }
 
@@ -96,40 +97,48 @@ namespace High5
         public string GetDocumentMode(HtmlDocument document) =>
             document.Mode;
 
-        public void DetachNode(HtmlNode node)
+        public void DetachNode(HtmlNode parentNode, HtmlNode node)
         {
-            if (node.ParentNode == null)
+            if (parentNode == null)
                 return;
-            var i = node.ParentNode.ChildNodes.IndexOf(node);
-            node.ParentNode.ChildNodes.RemoveAt(i);
-            node.ParentNode = null;
+            var i = parentNode.ChildNodes.IndexOf(node);
+            parentNode.ChildNodes.RemoveAt(i);
         }
 
         static HtmlText CreateTextNode(string value) => new HtmlText(value);
 
-        public void InsertText(HtmlNode parentNode, string text)
+        public HtmlNode InsertText(HtmlNode parentNode, string text)
         {
             if (parentNode.ChildNodes.Count > 0)
             {
                 if (parentNode.ChildNodes[parentNode.ChildNodes.Count - 1] is HtmlText tn)
                 {
                     tn.Value += text;
-                    return;
+                    return null;
                 }
             }
 
-            AppendChild(parentNode, CreateTextNode(text));
+            var textNode = CreateTextNode(text);
+            AppendChild(parentNode, textNode);
+            return textNode;
         }
 
-        public void InsertTextBefore(HtmlNode parentNode, string text, HtmlNode referenceNode)
+        public HtmlNode InsertTextBefore(HtmlNode parentNode, string text, HtmlNode referenceNode)
         {
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
             if (prevNode is HtmlText textNode)
+            {
                 textNode.Value += text;
+                return null;
+            }
             else
-                InsertBefore(parentNode, CreateTextNode(text), referenceNode);
+            {
+                textNode = CreateTextNode(text);
+                InsertBefore(parentNode, textNode, referenceNode);
+                return textNode;
+            }
         }
 
         public void AdoptAttributes(HtmlElement recipient, ArraySegment<HtmlAttribute> attributes)
@@ -150,9 +159,6 @@ namespace High5
 
         public HtmlNode GetFirstChild(HtmlNode node) =>
             node.ChildNodes.Any() ? node.ChildNodes[0] : null;
-
-        public HtmlNode GetParentNode(HtmlNode node) =>
-            node.ParentNode;
 
         public int GetAttributeCount(HtmlElement element) =>
             element.Attributes.Count;

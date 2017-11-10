@@ -31,7 +31,6 @@ namespace High5
 
     public abstract class HtmlNode
     {
-        public HtmlNode ParentNode { get; internal set; }
         public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
     }
 

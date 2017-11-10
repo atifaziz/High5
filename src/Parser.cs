@@ -100,12 +100,12 @@ namespace High5
         sealed class Document<TNode, TDocument> : IDocument<TNode>
             where TDocument : TNode
         {
-            readonly Action<TDocument, string, string, string> _documentTypeSetter;
+            readonly Func<TDocument, string, string, string, TNode> _documentTypeSetter;
             readonly Action<TDocument, string> _documentModeSetter;
             readonly Func<TDocument, string> _documentModeGetter;
 
             public Document(TDocument node,
-                            Action<TDocument, string, string, string> documentTypeSetter,
+                            Func<TDocument, string, string, string, TNode> documentTypeSetter,
                             Action<TDocument, string> documentModeSetter,
                             Func<TDocument, string> documentModeGetter)
             {
@@ -118,7 +118,7 @@ namespace High5
             public TDocument Node { get; }
             TNode IDocument<TNode>.Node => Node;
 
-            public void SetDocumentType(string name, string publicId, string systemId) =>
+            public TNode SetDocumentType(string name, string publicId, string systemId) =>
                 _documentTypeSetter(Node, name, publicId, systemId);
 
             public string Mode
@@ -132,7 +132,7 @@ namespace High5
     interface IDocument<T>
     {
         T Node { get; }
-        void SetDocumentType(string name, string publicId, string systemId);
+        T SetDocumentType(string name, string publicId, string systemId);
         string Mode { get; set; }
     }
 
@@ -472,6 +472,8 @@ namespace High5
         static Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, Token> F<T>(Action<Parser<Node, DocumentFragment, Element, Attr, TemplateElement, Comment>, T> action)
             where T : Token => (p, token) => action(p, (T) token);
 
+        readonly Dictionary<Node, Node> parentByNode = new Dictionary<Node, Node>();
+
         readonly ITreeBuilder<Node, DocumentFragment, Element, Attr, TemplateElement, Comment> treeBuilder;
         Element pendingScript;
         InsertionMode originalInsertionMode;
@@ -691,7 +693,7 @@ namespace High5
                     break;
                 }
 
-                node = (Element) this.treeBuilder.GetParentNode(node);
+                node = (Element) this.GetParentNode(node);
             } while (node != null);
         }
 
@@ -719,7 +721,9 @@ namespace High5
         //Tree mutation
         void SetDocumentType(DoctypeToken token)
         {
-            this.doc.SetDocumentType(token.Name, token.PublicId, token.SystemId);
+            var node = this.doc.SetDocumentType(token.Name, token.PublicId, token.SystemId);
+            if (node != null)
+                this.parentByNode.Add(node, this.doc.Node);
         }
 
         void AttachElementToTree(Element element)
@@ -731,7 +735,7 @@ namespace High5
             {
                 var parent = this.openElements.CurrentTmplContent ?? this.openElements.Current; //|| operator
 
-                this.treeBuilder.AppendChild(parent, element);
+                this.AppendChild(parent, element);
             }
         }
 
@@ -783,7 +787,7 @@ namespace High5
         {
             var element = this.treeBuilder.CreateElement(T.HTML, NS.HTML, default(ArraySegment<Attr>));
 
-            this.treeBuilder.AppendChild(this.openElements.Current, element);
+            this.AppendChild(this.openElements.Current, element);
             this.openElements.Push(element);
         }
 
@@ -791,7 +795,7 @@ namespace High5
         {
             var commentNode = this.treeBuilder.CreateCommentNode(token.Data);
 
-            this.treeBuilder.AppendChild(parent, commentNode);
+            this.AppendChild(parent, commentNode);
         }
 
         void InsertCharacters(CharacterToken token)
@@ -803,7 +807,7 @@ namespace High5
             {
                 var parent = this.openElements.CurrentTmplContent ?? this.openElements.Current; // || operator
 
-                this.treeBuilder.InsertText(parent, token.Chars);
+                this.InsertText(parent, token.Chars);
             }
         }
 
@@ -816,8 +820,8 @@ namespace High5
                 if (child == null)
                     break;
 
-                this.treeBuilder.DetachNode(child);
-                this.treeBuilder.AppendChild(recipient, child);
+                this.DetachNode(child);
+                this.AppendChild(recipient, child);
             }
         }
 
@@ -1101,7 +1105,7 @@ namespace High5
 
                 else if (tn == T.TABLE)
                 {
-                    location.parent = this.treeBuilder.GetParentNode(openElement);
+                    location.parent = this.GetParentNode(openElement);
 
                     if (location.parent != null)
                         location.beforeElement = openElement;
@@ -1123,9 +1127,9 @@ namespace High5
             var location = this.FindFosterParentingLocation();
 
             if (location.beforeElement != null)
-                this.treeBuilder.InsertBefore(location.parent, element, location.beforeElement);
+                this.InsertBefore(location.parent, element, location.beforeElement);
             else
-                this.treeBuilder.AppendChild(location.parent, element);
+                this.AppendChild(location.parent, element);
         }
 
         void FosterParentText(string chars)
@@ -1133,9 +1137,46 @@ namespace High5
             var location = this.FindFosterParentingLocation();
 
             if (location.beforeElement != null)
-                this.treeBuilder.InsertTextBefore(location.parent, chars, location.beforeElement);
+                this.InsertTextBefore(location.parent, chars, location.beforeElement);
             else
-                this.treeBuilder.InsertText(location.parent, chars);
+                this.InsertText(location.parent, chars);
+        }
+
+        void InsertTextBefore(Node parentNode, string text, Node referenceNode)
+        {
+            var newTextNode = this.treeBuilder.InsertTextBefore(parentNode, text, referenceNode);
+            if (newTextNode != null)
+                parentByNode.Add(newTextNode, parentNode);
+        }
+
+        void InsertText(Node parentNode, string text)
+        {
+            var newTextNode = this.treeBuilder.InsertText(parentNode, text);
+            if (newTextNode != null)
+                parentByNode.Add(newTextNode, parentNode);
+        }
+
+        void AppendChild(Node parentNode, Node newNode)
+        {
+            this.treeBuilder.AppendChild(parentNode, newNode);
+            this.parentByNode.Add(newNode, parentNode);
+        }
+
+        void DetachNode(Node node)
+        {
+            if (!parentByNode.TryGetValue(node, out var parentNode))
+                return;
+            this.treeBuilder.DetachNode(parentNode, node);
+            this.parentByNode.Remove(node);
+        }
+
+        Node GetParentNode(Node node) =>
+            this.parentByNode.TryGetValue(node, out var parent) ? parent : null;
+
+        void InsertBefore(Node parentNode, Element newNode, Element referenceNode)
+        {
+            this.treeBuilder.InsertBefore(parentNode, newNode, referenceNode);
+            this.parentByNode.Add(newNode, parentNode);
         }
 
         //Special elements
@@ -1236,8 +1277,8 @@ namespace High5
                     if (lastElement == furthestBlock)
                         p.activeFormattingElements.Bookmark = elementEntry;
 
-                    p.treeBuilder.DetachNode(lastElement);
-                    p.treeBuilder.AppendChild(element, lastElement);
+                    p.DetachNode(lastElement);
+                    p.AppendChild(element, lastElement);
                     lastElement = element;
                 }
                 element = nextElement;
@@ -1276,7 +1317,7 @@ namespace High5
                 if (tn == T.TEMPLATE && ns == NS.HTML)
                     commonAncestorNode = p.treeBuilder.GetTemplateContent((TemplateElement) commonAncestor);
 
-                p.treeBuilder.AppendChild(commonAncestorNode, lastElement);
+                p.AppendChild(commonAncestorNode, lastElement);
             }
         }
 
@@ -1290,7 +1331,7 @@ namespace High5
                 newElement = p.treeBuilder.CreateElement(token.TagName, ns, token.CopyAttrsTo(attrs.Array, p.CreateAttribute));
 
             p.AdoptNodes(furthestBlock, newElement);
-            p.treeBuilder.AppendChild(furthestBlock, newElement);
+            p.AppendChild(furthestBlock, newElement);
 
             p.activeFormattingElements.InsertElementAfterBookmark(newElement, formattingElementEntry.Token);
             p.activeFormattingElements.RemoveEntry(formattingElementEntry);
@@ -1321,7 +1362,7 @@ namespace High5
                 var lastElement = AaInnerLoop(p, furthestBlock, formattingElementEntry.Element);
                 var commonAncestor = p.openElements.GetCommonAncestor(formattingElementEntry.Element);
 
-                p.treeBuilder.DetachNode(lastElement);
+                p.DetachNode(lastElement);
                 AaInsertLastNodeInCommonAncestor(p, commonAncestor, lastElement);
                 AaReplaceFormattingElement(p, furthestBlock, formattingElementEntry);
             }
@@ -1616,7 +1657,7 @@ namespace High5
 
             if (p.framesetOk && bodyElement != null)
             {
-                p.treeBuilder.DetachNode(bodyElement);
+                p.DetachNode(bodyElement);
                 p.openElements.PopAllUpToHtmlElement();
                 p.InsertElement(token, NS.HTML);
                 p.insertionMode = IN_FRAMESET_MODE;
