@@ -96,6 +96,10 @@ namespace High5
         public static IEnumerable<HtmlElement> Elements(this HtmlNode node) =>
             node?.ChildNodes.Elements()
             ?? throw new ArgumentNullException(nameof(node));
+
+        public static IEnumerable<HtmlElement> ElementsAfterSelf(this HtmlNode node) =>
+            node?.NodesAfterSelf().Elements()
+            ?? throw new ArgumentNullException(nameof(node));
     }
 
     public class HtmlDocument : HtmlNode
