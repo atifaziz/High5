@@ -68,6 +68,19 @@ namespace High5
                     yield return node;
             }
         }
+
+        public IEnumerable<HtmlNode> Descendants()
+        {
+            return DescendantsImpl(); IEnumerable<HtmlNode> DescendantsImpl()
+            {
+                foreach (var child in ChildNodes)
+                {
+                    yield return child;
+                    foreach (var descendant in child.Descendants())
+                        yield return descendant;
+                }
+            }
+        }
     }
 
     public class HtmlDocument : HtmlNode
