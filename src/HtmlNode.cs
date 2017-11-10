@@ -72,7 +72,7 @@ namespace High5
 
         public IEnumerable<HtmlNode> Descendants()
         {
-            return DescendantsImpl(); IEnumerable<HtmlNode> DescendantsImpl()
+            return _(); IEnumerable<HtmlNode> _()
             {
                 foreach (var child in ChildNodes)
                 {
