@@ -94,6 +94,9 @@ namespace High5
                     yield return node;
             }
         }
+
+        public IEnumerable<HtmlNode> AncestorsAndSelf() =>
+            Enumerable.Repeat(this, 1).Concat(Ancestors());
     }
 
     public class HtmlDocument : HtmlNode
