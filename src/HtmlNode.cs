@@ -58,6 +58,16 @@ namespace High5
                     yield return node;
             }
         }
+
+        public IEnumerable<HtmlNode> NodesAfterSelf()
+        {
+            return _(); IEnumerable<HtmlNode> _()
+            {
+                var node = this;
+                while ((node = node.NextSibling) != null)
+                    yield return node;
+            }
+        }
     }
 
     public class HtmlDocument : HtmlNode
