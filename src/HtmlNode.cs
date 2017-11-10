@@ -87,6 +87,17 @@ namespace High5
             Enumerable.Repeat(this, 1).Concat(Ancestors());
     }
 
+    public static class HtmlNodeExtensions
+    {
+        public static IEnumerable<HtmlElement> Elements(this IEnumerable<HtmlNode> nodes) =>
+            nodes?.OfType<HtmlElement>()
+            ?? throw new ArgumentNullException(nameof(nodes));
+
+        public static IEnumerable<HtmlElement> Elements(this HtmlNode node) =>
+            node?.ChildNodes.Elements()
+            ?? throw new ArgumentNullException(nameof(node));
+    }
+
     public class HtmlDocument : HtmlNode
     {
         public string Mode { get; internal set; }
