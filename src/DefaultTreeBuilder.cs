@@ -57,13 +57,13 @@ namespace High5
 
         public void AppendChild(HtmlNode parentNode, HtmlNode newNode)
         {
-            parentNode.ChildNodes.Add(newNode);
+            parentNode.ChildNodeList.Add(newNode);
         }
 
         public void InsertBefore(HtmlNode parentNode, HtmlNode newNode, HtmlNode referenceNode)
         {
-            var i = parentNode.ChildNodes.IndexOf(referenceNode);
-            parentNode.ChildNodes.Insert(i, newNode);
+            var i = parentNode.ChildNodeList.IndexOf(referenceNode);
+            parentNode.ChildNodeList.Insert(i, newNode);
         }
 
         public void SetTemplateContent(HtmlTemplateElement templateElement, HtmlDocumentFragment content) =>
@@ -101,8 +101,8 @@ namespace High5
         {
             if (parentNode == null)
                 return;
-            var i = parentNode.ChildNodes.IndexOf(node);
-            parentNode.ChildNodes.RemoveAt(i);
+            var i = parentNode.ChildNodeList.IndexOf(node);
+            parentNode.ChildNodeList.RemoveAt(i);
         }
 
         static HtmlText CreateTextNode(string value) => new HtmlText(value);
@@ -125,7 +125,7 @@ namespace High5
 
         public HtmlNode InsertTextBefore(HtmlNode parentNode, string text, HtmlNode referenceNode)
         {
-            var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
+            var idx = parentNode.ChildNodeList.IndexOf(referenceNode) - 1;
             var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
 
             if (prevNode is HtmlText textNode)

@@ -31,7 +31,13 @@ namespace High5
 
     public abstract class HtmlNode
     {
-        public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
+        static readonly IReadOnlyList<HtmlNode> ZeroNodes = new HtmlNode[0];
+
+        List<HtmlNode> _childNodeList;
+
+        internal List<HtmlNode> ChildNodeList => _childNodeList ?? (_childNodeList = new List<HtmlNode>());
+
+        public IReadOnlyList<HtmlNode> ChildNodes => ChildNodeList ?? ZeroNodes;
     }
 
     public class HtmlDocument : HtmlNode
