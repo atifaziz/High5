@@ -47,8 +47,8 @@ namespace High5
 
         public HtmlElement CreateElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes) =>
             tagName == "template"
-            ? new HtmlTemplateElement(namespaceUri, attributes.ToList())
-            : new HtmlElement(tagName, namespaceUri, attributes.ToList());
+            ? new HtmlTemplateElement(namespaceUri, attributes)
+            : new HtmlElement(tagName, namespaceUri, attributes);
 
         public HtmlAttribute CreateAttribute(string ns, string prefix, string name, string value) =>
             new HtmlAttribute(ns, prefix, name, value);

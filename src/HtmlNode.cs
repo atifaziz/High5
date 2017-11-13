@@ -22,6 +22,8 @@
 //
 #endregion
 
+using System.Linq;
+
 namespace High5
 {
     using System;
@@ -37,7 +39,7 @@ namespace High5
 
         internal List<HtmlNode> ChildNodeList => _childNodeList ?? (_childNodeList = new List<HtmlNode>());
 
-        public IReadOnlyList<HtmlNode> ChildNodes => ChildNodeList ?? ZeroNodes;
+        public IReadOnlyList<HtmlNode> ChildNodes => _childNodeList ?? ZeroNodes;
     }
 
     public class HtmlDocument : HtmlNode
@@ -101,40 +103,48 @@ namespace High5
 
     public class HtmlElement : HtmlNode
     {
-        IList<HtmlAttribute> _attrs;
+        List<HtmlAttribute> _attrs;
 
         public string TagName { get; }
         public string NamespaceUri { get; }
 
-        static readonly HtmlAttribute[] ZeroAttrs = new HtmlAttribute[0];
+        static readonly IReadOnlyList<HtmlAttribute> ZeroAttrs = new HtmlAttribute[0];
 
-        public IList<HtmlAttribute> Attributes
-        {
-            get => _attrs ?? ZeroAttrs;
-            private set => _attrs = value;
-        }
+        internal List<HtmlAttribute> AttributeList => _attrs ?? (_attrs = new List<HtmlAttribute>());
+        public IReadOnlyList<HtmlAttribute> Attributes => _attrs ?? ZeroAttrs;
 
-        public HtmlElement(string tagName, string namespaceUri, IList<HtmlAttribute> attributes)
+        public HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
-            Attributes = attributes;
+            _attrs = attributes.ToList();
         }
 
-        internal void AttributesPush(HtmlAttribute attr)
+        internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes)
         {
-            // TODO remove ugly hack
-            if (_attrs is null || _attrs is HtmlAttribute[] a && a.Length == 0)
-                _attrs = new List<HtmlAttribute>();
-            _attrs.Push(attr);
+            TagName = tagName;
+            NamespaceUri = namespaceUri;
+            if (attributes.Count > 0)
+            {
+                var list = new List<HtmlAttribute>(attributes.Count);
+                for (var i = attributes.Offset; i < attributes.Offset + attributes.Count; i++)
+                    list.Add(attributes.Array[i]);
+                _attrs = list;
+            }
         }
+
+        internal void AttributesPush(HtmlAttribute attr) =>
+            AttributeList.Push(attr);
     }
 
     public class HtmlTemplateElement : HtmlElement
     {
         public HtmlDocumentFragment Content { get; internal set; }
 
-        public HtmlTemplateElement(string namespaceUri, IList<HtmlAttribute> attributes) :
+        public HtmlTemplateElement(string namespaceUri, IEnumerable<HtmlAttribute> attributes) :
+            base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
+
+        internal HtmlTemplateElement(string namespaceUri, ArraySegment<HtmlAttribute> attributes) :
             base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
     }
 
