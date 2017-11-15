@@ -25,67 +25,10 @@
 namespace High5
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.Internal;
-
-    public static class ListNode
-    {
-        public static ListNode<T> Create<T>(T item) => new ListNode<T>(item, null);
-    }
-
-    public class ListNode<T> : IReadOnlyCollection<T>, IEquatable<ListNode<T>>
-    {
-        public static readonly ListNode<T> Empty = new ListNode<T>();
-
-        public int Count { get; internal set; }
-        public bool IsEmpty => Next == null;
-        public ListNode<T> Next { get; }
-        public T Item { get; }
-
-        public ListNode() { }
-
-        public ListNode(T item, ListNode<T> next)
-        {
-            Next = next;
-            Item = item;
-            Count = Next.Count + 1;
-        }
-
-        public ListNode<T> Prepend(T item) => new ListNode<T>(item, this);
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            for (var node = this; node != null; node = node.Next)
-                yield return node.Item;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public bool Equals(ListNode<T> other) =>
-            ReferenceEquals(this, other)
-            || Count == other.Count
-            && EqualityComparer<T>.Default.Equals(Item, other.Item)
-            && (ReferenceEquals(Next, other.Next) || Equals(Next, other.Next));
-
-        public override bool Equals(object obj) =>
-            obj is ListNode<T> list && Equals(list);
-
-        public override int GetHashCode()
-        {
-            var hash = HashCodeCombiner.Start();
-            hash.Add(EqualityComparer<T>.Default.GetHashCode(Item));
-            hash.Add((object) Next);
-            return hash.CombinedHash;
-        }
-
-        public static bool operator ==(ListNode<T> left, ListNode<T> right) =>
-            Equals(left, right);
-
-        public static bool operator !=(ListNode<T> left, ListNode<T> right) =>
-            !Equals(left, right);
-    }
+    using Collections;
 
     public struct HtmlTree<TNode> : IEquatable<HtmlTree<TNode>>
         where TNode : HtmlNode
