@@ -42,12 +42,12 @@ namespace High5
         internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
     }
 
-    public sealed class HtmlDocument : HtmlNode, IHtmlTreeRootable
+    public sealed class HtmlDocument : HtmlNode
     {
         public string Mode { get; internal set; }
     }
 
-    public sealed class HtmlDocumentFragment : HtmlNode, IHtmlTreeRootable {}
+    public sealed class HtmlDocumentFragment : HtmlNode {}
 
     public sealed class HtmlDocumentType : HtmlNode
     {
@@ -119,7 +119,7 @@ namespace High5
         }
     }
 
-    public class HtmlElement : HtmlNode, IHtmlTreeRootable
+    public class HtmlElement : HtmlNode
     {
         ReadOnlyCollection<HtmlAttribute> _attrs = new ReadOnlyCollection<HtmlAttribute>();
 
