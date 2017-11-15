@@ -70,6 +70,27 @@ namespace High5
             }
         }
 
+        public HtmlTree<HtmlNode> PreviousSibling => GetSibling(-1, (i, _) => i >= 0);
+        public HtmlTree<HtmlNode> NextSibling => GetSibling(+1, (i, count) => i < count);
+
+        HtmlTree<HtmlNode> GetSibling(int offset, Func<int, int, bool> predicate)
+        {
+            if (!HasParent)
+                throw new InvalidOperationException();
+            var siblings = Parent.Node.ChildNodes;
+            for (var i = 0; i < siblings.Count; i++)
+            {
+                var sibling = siblings[i];
+                if (sibling == Node)
+                {
+                    return predicate(i + offset, siblings.Count)
+                         ? HtmlTree.Create(siblings[i + offset], _ancestors)
+                         : default(HtmlTree<HtmlNode>);
+                }
+            }
+            throw new Exception("Implementation error.");
+        }
+
         public bool Equals(HtmlTree<TNode> other) =>
             (ReferenceEquals(_ancestors, other._ancestors) || _ancestors == other._ancestors)
             && Node == other.Node;
@@ -90,6 +111,54 @@ namespace High5
 
         public static bool operator !=(HtmlTree<TNode> left, HtmlTree<TNode> right) =>
             !left.Equals(right);
+
+        public IEnumerable<HtmlTree<HtmlNode>> NodesBeforeSelf()
+        {
+            var node = AsBaseNode();
+            while ((node = node.PreviousSibling).HasValue)
+                yield return node;
+        }
+
+        public IEnumerable<HtmlTree<HtmlNode>> NodesAfterSelf()
+        {
+            var node = AsBaseNode();
+            while ((node = node.NextSibling).HasValue)
+                yield return node;
+        }
+
+        public IEnumerable<HtmlTree<HtmlNode>> Descendants()
+        {
+            foreach (var child in ChildNodes)
+            {
+                yield return child;
+                foreach (var descendant in child.Descendants())
+                    yield return descendant;
+            }
+        }
+
+        public IEnumerable<HtmlTree<HtmlNode>> DescendantsAndSelf() =>
+            Enumerable.Repeat(AsBaseNode(), 1).Concat(Descendants());
+
+        HtmlTree<HtmlNode> ParentOrNull => HasParent ? Parent : default(HtmlTree<HtmlNode>);
+
+        public IEnumerable<HtmlTree<HtmlNode>> Ancestors()
+        {
+            for (var node = ParentOrNull; node.HasValue; node = node.ParentOrNull)
+                yield return node;
+        }
+
+        public IEnumerable<HtmlTree<HtmlNode>> AncestorsAndSelf() =>
+            Enumerable.Repeat(AsBaseNode(), 1).Concat(Ancestors());
+
+        public IEnumerable<HtmlTree<T>> ChildNodesOfType<T>()
+            where T : HtmlNode =>
+            from child in ChildNodes
+            let node = child.Node as T
+            where node != null
+            select HtmlTree.Create(node, child._ancestors);
+
+        public IEnumerable<HtmlTree<HtmlElement>> Elements() =>
+            ChildNodesOfType<HtmlElement>();
     }
 
     public static class HtmlTree
