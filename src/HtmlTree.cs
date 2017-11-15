@@ -87,19 +87,12 @@ namespace High5
             !Equals(left, right);
     }
 
-    static class HtmlTreeNode
-    {
-        public static HtmlTreeNode<TNode> Create<TNode>(TNode node, ListNode<HtmlNode> ancestors)
-            where TNode : HtmlNode =>
-            new HtmlTreeNode<TNode>(node, ancestors);
-    }
-
-    public struct HtmlTreeNode<TNode> : IEquatable<HtmlTreeNode<TNode>>
+    public struct HtmlTree<TNode> : IEquatable<HtmlTree<TNode>>
         where TNode : HtmlNode
     {
         readonly ListNode<HtmlNode> _ancestors;
 
-        internal HtmlTreeNode(TNode node, ListNode<HtmlNode> ancestors)
+        internal HtmlTree(TNode node, ListNode<HtmlNode> ancestors)
         {
             Node = node ?? throw new ArgumentNullException(nameof(node));
             _ancestors = ancestors ?? throw new ArgumentNullException(nameof(ancestors));
@@ -107,39 +100,39 @@ namespace High5
 
         public bool HasParent => _ancestors?.IsEmpty == false;
 
-        public HtmlTreeNode<HtmlNode> Parent =>
+        public HtmlTree<HtmlNode> Parent =>
             HasValue
             ? HasParent
-              ? HtmlTreeNode.Create(_ancestors.Item, _ancestors.Next)
-              : default(HtmlTreeNode<HtmlNode>)
+              ? HtmlTree.Create(_ancestors.Item, _ancestors.Next)
+              : default(HtmlTree<HtmlNode>)
             : throw new InvalidOperationException();
 
         public TNode Node { get; }
 
         public bool HasValue => Node != null;
 
-        public HtmlTreeNode<HtmlNode> AsBaseNode() => HtmlTreeNode.Create((HtmlNode) Node, _ancestors);
+        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, _ancestors);
 
         public int ChildNodeCount => Node.ChildNodes.Count;
         public bool HasChildNodes => ChildNodeCount > 0;
 
-        public IEnumerable<HtmlTreeNode<HtmlNode>> ChildNodes
+        public IEnumerable<HtmlTree<HtmlNode>> ChildNodes
         {
             get
             {
                 var parent = Node;
                 var ancestors = _ancestors.Prepend(parent);
                 return from child in parent.ChildNodes
-                       select HtmlTreeNode.Create(child, ancestors);
+                       select HtmlTree.Create(child, ancestors);
             }
         }
 
-        public bool Equals(HtmlTreeNode<TNode> other) =>
+        public bool Equals(HtmlTree<TNode> other) =>
             (ReferenceEquals(_ancestors, other._ancestors) || _ancestors == other._ancestors)
             && Node == other.Node;
 
         public override bool Equals(object obj) =>
-            obj is HtmlTreeNode<TNode> node && Equals(node);
+            obj is HtmlTree<TNode> node && Equals(node);
 
         public override int GetHashCode()
         {
@@ -149,25 +142,29 @@ namespace High5
             return hash.CombinedHash;
         }
 
-        public static bool operator ==(HtmlTreeNode<TNode> left, HtmlTreeNode<TNode> right) =>
+        public static bool operator ==(HtmlTree<TNode> left, HtmlTree<TNode> right) =>
             left.Equals(right);
 
-        public static bool operator !=(HtmlTreeNode<TNode> left, HtmlTreeNode<TNode> right) =>
+        public static bool operator !=(HtmlTree<TNode> left, HtmlTree<TNode> right) =>
             !left.Equals(right);
     }
 
     public static class HtmlTree
     {
-        public static HtmlTreeNode<HtmlDocument> Create(HtmlDocument document) =>
+        public static HtmlTree<TNode> Create<TNode>(TNode node, ListNode<HtmlNode> ancestors)
+            where TNode : HtmlNode =>
+            new HtmlTree<TNode>(node, ancestors);
+
+        public static HtmlTree<HtmlDocument> Create(HtmlDocument document) =>
             TreeFromNode(document);
 
-        public static HtmlTreeNode<HtmlDocumentFragment> Create(HtmlDocumentFragment documentFragment) =>
+        public static HtmlTree<HtmlDocumentFragment> Create(HtmlDocumentFragment documentFragment) =>
             TreeFromNode(documentFragment);
 
-        public static HtmlTreeNode<HtmlElement> Create(HtmlElement element) =>
+        public static HtmlTree<HtmlElement> Create(HtmlElement element) =>
             TreeFromNode(element);
 
-        static HtmlTreeNode<T> TreeFromNode<T>(T root) where T : HtmlNode =>
-            HtmlTreeNode.Create(root, ListNode<HtmlNode>.Empty);
+        static HtmlTree<T> TreeFromNode<T>(T root) where T : HtmlNode =>
+            Create(root, ListNode<HtmlNode>.Empty);
     }
 }
