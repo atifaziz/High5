@@ -113,11 +113,11 @@ namespace High5
         internal List<HtmlAttribute> AttributeList => _attrs ?? (_attrs = new List<HtmlAttribute>());
         public IReadOnlyList<HtmlAttribute> Attributes => _attrs ?? ZeroAttrs;
 
-        public HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
+        internal HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
-            _attrs = attributes.ToList();
+            _attrs = attributes?.ToList();
         }
 
         internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes)
@@ -141,8 +141,10 @@ namespace High5
     {
         public HtmlDocumentFragment Content { get; internal set; }
 
-        public HtmlTemplateElement(string namespaceUri, IEnumerable<HtmlAttribute> attributes) :
-            base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
+        internal HtmlTemplateElement(string namespaceUri,
+                                     IEnumerable<HtmlAttribute> attributes,
+                                     HtmlDocumentFragment content) :
+            base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) => Content = content;
 
         internal HtmlTemplateElement(string namespaceUri, ArraySegment<HtmlAttribute> attributes) :
             base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
