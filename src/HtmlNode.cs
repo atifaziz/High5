@@ -28,18 +28,17 @@ namespace High5
 {
     using System;
     using System.Collections.Generic;
-    using Extensions;
     using Microsoft.Extensions.Internal;
 
     public abstract class HtmlNode
     {
-        static readonly IReadOnlyList<HtmlNode> ZeroNodes = new HtmlNode[0];
+        ReadOnlyCollection<HtmlNode> _childNodes = new ReadOnlyCollection<HtmlNode>();
 
-        List<HtmlNode> _childNodeList;
+        public ReadOnlyCollection<HtmlNode> ChildNodes => _childNodes;
 
-        internal List<HtmlNode> ChildNodeList => _childNodeList ?? (_childNodeList = new List<HtmlNode>());
-
-        public IReadOnlyList<HtmlNode> ChildNodes => _childNodeList ?? ZeroNodes;
+        internal void AddChildNode(HtmlNode node) => _childNodes.Add(node);
+        internal void InsertChildNode(int index, HtmlNode node) => _childNodes.Insert(index, node);
+        internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
     }
 
     public class HtmlDocument : HtmlNode
@@ -103,21 +102,19 @@ namespace High5
 
     public class HtmlElement : HtmlNode
     {
-        List<HtmlAttribute> _attrs;
+        ReadOnlyCollection<HtmlAttribute> _attrs = new ReadOnlyCollection<HtmlAttribute>();
 
         public string TagName { get; }
         public string NamespaceUri { get; }
 
-        static readonly IReadOnlyList<HtmlAttribute> ZeroAttrs = new HtmlAttribute[0];
-
-        internal List<HtmlAttribute> AttributeList => _attrs ?? (_attrs = new List<HtmlAttribute>());
-        public IReadOnlyList<HtmlAttribute> Attributes => _attrs ?? ZeroAttrs;
+        public ReadOnlyCollection<HtmlAttribute> Attributes => _attrs;
 
         internal HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
-            _attrs = attributes?.ToList();
+            foreach (var attribute in attributes ?? Enumerable.Empty<HtmlAttribute>())
+                _attrs.Add(attribute);
         }
 
         internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes)
@@ -126,15 +123,13 @@ namespace High5
             NamespaceUri = namespaceUri;
             if (attributes.Count > 0)
             {
-                var list = new List<HtmlAttribute>(attributes.Count);
                 for (var i = attributes.Offset; i < attributes.Offset + attributes.Count; i++)
-                    list.Add(attributes.Array[i]);
-                _attrs = list;
+                    _attrs.Add(attributes.Array[i]);
             }
         }
 
         internal void AttributesPush(HtmlAttribute attr) =>
-            AttributeList.Push(attr);
+            _attrs.Add(attr);
     }
 
     public class HtmlTemplateElement : HtmlElement

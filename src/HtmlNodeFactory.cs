@@ -117,7 +117,7 @@ namespace High5
             where T : HtmlNode
         {
             foreach (var child in children)
-                node.ChildNodeList.Add(child);
+                node.AddChildNode(child);
             return node;
         }
     }

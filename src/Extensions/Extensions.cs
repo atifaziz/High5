@@ -40,11 +40,6 @@ namespace High5.Extensions
             list.Add(elem);
         }
 
-        public static void Push<T>(this IList<T> list, T elem)
-        {
-            list.Add(elem);
-        }
-
         public static T Pop<T>(this List<T> list)
         {
             if (list.Count == 0)
