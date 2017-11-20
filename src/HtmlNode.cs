@@ -98,6 +98,24 @@ namespace High5
             hashCode.Add(Value);
             return hashCode;
         }
+
+        public void Deconstruct(out string name, out string value)
+        {
+            name = Name;
+            value = Value;
+        }
+
+        public void Deconstruct(out string namespaceUri, out string name, out string value)
+        {
+            namespaceUri = NamespaceUri;
+            Deconstruct(out name, out value);
+        }
+
+        public void Deconstruct(out string namespaceUri, out string prefix, out string name, out string value)
+        {
+            prefix = Prefix;
+            Deconstruct(out namespaceUri, out name, out value);
+        }
     }
 
     public class HtmlElement : HtmlNode
