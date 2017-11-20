@@ -174,4 +174,18 @@ namespace High5
         public string Value { get; internal set; }
         public HtmlText(string value) => Value = value;
     }
+
+    static class HtmlNodeExtensions
+    {
+        static readonly HtmlDocumentType HtmlDocType = new HtmlDocumentType("html", null, null);
+
+        public static HtmlDocument WithHtmlDoctype(this HtmlDocument document)
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document));
+            return document.ChildNodes.Any(n => n is HtmlDocumentType)
+                 ? document
+                 : HtmlNodeFactory.Document(Enumerable.Repeat(HtmlDocType, 1)
+                                                      .Concat(document.ChildNodes));
+        }
+    }
 }
