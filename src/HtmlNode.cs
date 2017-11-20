@@ -54,7 +54,7 @@ namespace High5
         public string PublicId { get; internal set; }
         public string SystemId { get; internal set; }
 
-        public HtmlDocumentType(string name, string publicId, string systemId)
+        internal HtmlDocumentType(string name, string publicId, string systemId)
         {
             Name = name;
             PublicId = publicId;
