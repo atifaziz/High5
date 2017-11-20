@@ -41,14 +41,14 @@ namespace High5
         internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
     }
 
-    public class HtmlDocument : HtmlNode
+    public sealed class HtmlDocument : HtmlNode
     {
         public string Mode { get; internal set; }
     }
 
-    public class HtmlDocumentFragment : HtmlNode {}
+    public sealed class HtmlDocumentFragment : HtmlNode {}
 
-    public class HtmlDocumentType : HtmlNode
+    public sealed class HtmlDocumentType : HtmlNode
     {
         public string Name     { get; internal set; }
         public string PublicId { get; internal set; }
@@ -150,7 +150,7 @@ namespace High5
             _attrs.Add(attr);
     }
 
-    public class HtmlTemplateElement : HtmlElement
+    public sealed class HtmlTemplateElement : HtmlElement
     {
         public HtmlDocumentFragment Content { get; internal set; }
 
@@ -163,13 +163,13 @@ namespace High5
             base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
     }
 
-    public class HtmlComment : HtmlNode
+    public sealed class HtmlComment : HtmlNode
     {
         public string Data { get; }
         public HtmlComment(string data) => Data = data;
     }
 
-    public class HtmlText : HtmlNode
+    public sealed class HtmlText : HtmlNode
     {
         public string Value { get; internal set; }
         public HtmlText(string value) => Value = value;
