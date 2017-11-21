@@ -27,13 +27,12 @@ namespace High5
     using System.Collections.Generic;
 
     public interface ITree<TNode, TElement>
-        where TElement : TNode
     {
         IEnumerable<TNode> GetChildNodes(TNode node);
         bool TryGetElement(TNode node, out TElement element);
         string GetTagName(TElement element);
         string GetNamespaceUri(TElement element);
-        TNode GetTemplateContent(TElement element);
+        IEnumerable<TNode> GetTemplateContent(TElement element);
         int GetAttributeCount(TElement element);
         int ListAttributes(TElement element, (string Namespace, string Name, string Value)[] attributes, int offset, int count);
         bool TryGetTextValue(TNode node, out string value);

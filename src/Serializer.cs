@@ -25,6 +25,7 @@
 namespace High5
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
     using _ = HTML.TAG_NAMES;
     using NS = HTML.NAMESPACES;
@@ -39,7 +40,6 @@ namespace High5
 
         public static string Serialize<TNode, TElement>(
             ITree<TNode, TElement> tree, TNode node)
-            where TElement : TNode
         {
             var html = new StringBuilder();
             SerializeTo(tree, node, html);
@@ -49,7 +49,6 @@ namespace High5
         public static void SerializeTo<TNode, TElement>(
             ITree<TNode, TElement> tree, TNode node,
             StringBuilder output)
-            where TElement : TNode
         {
             if (tree == null) throw new ArgumentNullException(nameof(tree));
             if (output == null) throw new ArgumentNullException(nameof(output));
@@ -58,7 +57,6 @@ namespace High5
     }
 
     sealed class Serializer<TNode, TElement>
-        where TElement : TNode
     {
         readonly ITree<TNode, TElement> _tree;
 
@@ -68,12 +66,15 @@ namespace High5
         public void Serialize(TNode node, StringBuilder html) =>
             SerializeChildNodes(node, html);
 
-        void SerializeChildNodes(TNode parentNode, StringBuilder html)
+        void SerializeChildNodes(TNode parentNode, StringBuilder html) =>
+            SerializeChildNodes(parentNode, _tree.GetChildNodes(parentNode), html);
+
+        void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
         {
-            foreach (var node in _tree.GetChildNodes(parentNode))
+            foreach (var node in childNodes)
             {
                 if (_tree.TryGetElement(node, out var element))
-                    SerializeElement(element, html);
+                    SerializeElement(node, element, html);
                 else if (_tree.TryGetTextValue(node, out var value))
                     SerializeText(parentNode, value, html);
                 else if (_tree.TryGetCommentData(node, out var content))
@@ -104,7 +105,7 @@ namespace High5
                 EscapeString(value, false, html);
         }
 
-        void SerializeElement(TElement element, StringBuilder html)
+        void SerializeElement(TNode node, TElement element, StringBuilder html)
         {
             var tn = _tree.GetTagName(element);
             var ns = _tree.GetNamespaceUri(element);
@@ -118,11 +119,11 @@ namespace High5
                 tn != _.KEYGEN && tn != _.LINK && tn != _.MENUITEM && tn != _.META && tn != _.PARAM && tn != _.SOURCE &&
                 tn != _.TRACK && tn != _.WBR)
             {
-                var childNodesHolder = tn == _.TEMPLATE && ns == NS.HTML ?
+                var childNodes = tn == _.TEMPLATE && ns == NS.HTML ?
                     _tree.GetTemplateContent(element) :
-                    element;
+                    _tree.GetChildNodes(node);
 
-                SerializeChildNodes(childNodesHolder, html);
+                SerializeChildNodes(node, childNodes, html);
                 html.Append("</").Append(tn).Append('>');
             }
         }

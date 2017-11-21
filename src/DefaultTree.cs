@@ -55,8 +55,8 @@ namespace High5
         public string GetNamespaceUri(HtmlElement element) =>
             NonNullArg(element, nameof(element)).NamespaceUri;
 
-        public HtmlNode GetTemplateContent(HtmlElement element) =>
-            ((HtmlTemplateElement) NonNullArg(element, nameof(element))).Content;
+        public IEnumerable<HtmlNode> GetTemplateContent(HtmlElement element) =>
+            ((HtmlTemplateElement) NonNullArg(element, nameof(element))).Content.ChildNodes;
 
         public int GetAttributeCount(HtmlElement element) =>
             NonNullArg(element, nameof(element)).Attributes.Count;
