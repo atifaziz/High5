@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="data\serialization\tests.json" />
     <None Remove="data\tree_construction\adoption01.dat" />
     <None Remove="data\tree_construction\adoption02.dat" />
     <None Remove="data\tree_construction\comments01.dat" />
@@ -64,6 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="data\serialization\tests.json" />
     <EmbeddedResource Include="data\tree_construction\adoption01.dat" />
     <EmbeddedResource Include="data\tree_construction\adoption02.dat" />
     <EmbeddedResource Include="data\tree_construction\comments01.dat" />
@@ -125,6 +127,7 @@
     <PackageReference Include="morelinq" Version="2.7.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
