@@ -35,6 +35,8 @@ namespace High5
 
         public ReadOnlyCollection<HtmlNode> ChildNodes => _childNodes;
 
+        public override string ToString() => this.Serialize();
+
         internal void AddChildNode(HtmlNode node) => _childNodes.Add(node);
         internal void InsertChildNode(int index, HtmlNode node) => _childNodes.Insert(index, node);
         internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
@@ -172,6 +174,8 @@ namespace High5
     {
         public string Value { get; internal set; }
         public HtmlText(string value) => Value = value;
+
+        public override string ToString() => Value;
     }
 
     static class HtmlNodeExtensions
