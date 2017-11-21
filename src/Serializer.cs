@@ -78,7 +78,7 @@ namespace High5
                 if (_tree.TryGetElement(node, out var element))
                     SerializeElement(element, html);
                 else if (_tree.TryGetText(node, out var text))
-                    SerializeText(text, html);
+                    SerializeText(parentNode, text, html);
                 else if (_tree.TryGetCommentData(node, out var content))
                     SerializeComment(content, html);
                 else if (_tree.TryGetDocumentTypeName(node, out var doctype))
@@ -92,12 +92,12 @@ namespace High5
         static void SerializeComment(string content, StringBuilder html) =>
             html.Append("<!--").Append(content).Append("-->");
 
-        void SerializeText(TText text, StringBuilder html)
+        void SerializeText(TNode parent, TText text, StringBuilder html)
         {
             var content = _tree.GetTextContent(text);
             string parentTn = null;
 
-            if (_tree.TryGetParentNode(text, out var parent) && _tree.TryGetElement(parent, out var element))
+            if (_tree.TryGetElement(parent, out var element))
                 parentTn = _tree.GetTagName(element);
 
             if (parentTn == _.STYLE || parentTn == _.SCRIPT || parentTn == _.XMP || parentTn == _.IFRAME ||

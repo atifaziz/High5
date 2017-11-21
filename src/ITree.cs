@@ -30,7 +30,6 @@ namespace High5
         where TElement : TNode
         where TText : TNode
     {
-        bool TryGetParentNode(TNode node, out TNode parentNode);
         IEnumerable<TNode> GetChildNodes(TNode node);
         bool TryGetElement(TNode node, out TElement element);
         string GetTagName(TElement element);
