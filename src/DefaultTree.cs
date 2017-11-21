@@ -26,7 +26,7 @@ namespace High5
 {
     using System;
     using System.Collections.Generic;
-    using IDefaultTree = ITree<HtmlNode, HtmlElement, HtmlText>;
+    using IDefaultTree = ITree<HtmlNode, HtmlElement>;
 
     public static class Tree
     {
@@ -84,10 +84,10 @@ namespace High5
             return index - offset;
         }
 
-        public bool TryGetText(HtmlNode node, out HtmlText text)
+        public bool TryGetTextValue(HtmlNode node, out string value)
         {
-            text = NonNullArg(node, nameof(node)) as HtmlText;
-            return text != null;
+            value = NonNullArg(node, nameof(node)) is HtmlText text ? text.Value : null;
+            return value != null;
         }
 
         public string GetTextContent(HtmlText text) =>

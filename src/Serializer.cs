@@ -37,35 +37,32 @@ namespace High5
         public static void SerializeTo(this HtmlNode node, StringBuilder output) =>
             SerializeTo(Tree.Default, node, output);
 
-        public static string Serialize<TNode, TElement, TText>(
-            ITree<TNode, TElement, TText> tree, TNode node)
+        public static string Serialize<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node)
             where TElement : TNode
-            where TText : TNode
         {
             var html = new StringBuilder();
             SerializeTo(tree, node, html);
             return html.ToString();
         }
 
-        public static void SerializeTo<TNode, TElement, TText>(
-            ITree<TNode, TElement, TText> tree, TNode node,
+        public static void SerializeTo<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node,
             StringBuilder output)
             where TElement : TNode
-            where TText : TNode
         {
             if (tree == null) throw new ArgumentNullException(nameof(tree));
             if (output == null) throw new ArgumentNullException(nameof(output));
-            new Serializer<TNode, TElement, TText>(tree).Serialize(node, output);
+            new Serializer<TNode, TElement>(tree).Serialize(node, output);
         }
     }
 
-    sealed class Serializer<TNode, TElement, TText>
+    sealed class Serializer<TNode, TElement>
         where TElement : TNode
-        where TText : TNode
     {
-        readonly ITree<TNode, TElement, TText> _tree;
+        readonly ITree<TNode, TElement> _tree;
 
-        public Serializer(ITree<TNode, TElement, TText> tree) =>
+        public Serializer(ITree<TNode, TElement> tree) =>
             _tree = tree;
 
         public void Serialize(TNode node, StringBuilder html) =>
@@ -77,8 +74,8 @@ namespace High5
             {
                 if (_tree.TryGetElement(node, out var element))
                     SerializeElement(element, html);
-                else if (_tree.TryGetText(node, out var text))
-                    SerializeText(parentNode, text, html);
+                else if (_tree.TryGetTextValue(node, out var value))
+                    SerializeText(parentNode, value, html);
                 else if (_tree.TryGetCommentData(node, out var content))
                     SerializeComment(content, html);
                 else if (_tree.TryGetDocumentTypeName(node, out var doctype))
@@ -92,9 +89,8 @@ namespace High5
         static void SerializeComment(string content, StringBuilder html) =>
             html.Append("<!--").Append(content).Append("-->");
 
-        void SerializeText(TNode parent, TText text, StringBuilder html)
+        void SerializeText(TNode parent, string value, StringBuilder html)
         {
-            var content = _tree.GetTextContent(text);
             string parentTn = null;
 
             if (_tree.TryGetElement(parent, out var element))
@@ -102,10 +98,10 @@ namespace High5
 
             if (parentTn == _.STYLE || parentTn == _.SCRIPT || parentTn == _.XMP || parentTn == _.IFRAME ||
                 parentTn == _.NOEMBED || parentTn == _.NOFRAMES || parentTn == _.PLAINTEXT || parentTn == _.NOSCRIPT)
-                html.Append(content);
+                html.Append(value);
 
             else
-                EscapeString(content, false, html);
+                EscapeString(value, false, html);
         }
 
         void SerializeElement(TElement element, StringBuilder html)

@@ -26,9 +26,8 @@ namespace High5
 {
     using System.Collections.Generic;
 
-    public interface ITree<TNode, TElement, TText>
+    public interface ITree<TNode, TElement>
         where TElement : TNode
-        where TText : TNode
     {
         IEnumerable<TNode> GetChildNodes(TNode node);
         bool TryGetElement(TNode node, out TElement element);
@@ -37,8 +36,7 @@ namespace High5
         TNode GetTemplateContent(TElement element);
         int GetAttributeCount(TElement element);
         int ListAttributes(TElement element, (string Namespace, string Name, string Value)[] attributes, int offset, int count);
-        bool TryGetText(TNode node, out TText text);
-        string GetTextContent(TText text);
+        bool TryGetTextValue(TNode node, out string value);
         bool TryGetCommentData(TNode node, out string data);
         bool TryGetDocumentTypeName(TNode node, out string name);
     }
