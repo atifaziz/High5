@@ -54,6 +54,23 @@ namespace High5
             if (output == null) throw new ArgumentNullException(nameof(output));
             new Serializer<TNode, TElement>(tree).Serialize(node, output);
         }
+
+        public static string SerializeChildNodes<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node)
+        {
+            var html = new StringBuilder();
+            SerializeChildNodesTo(tree, node, html);
+            return html.ToString();
+        }
+
+        public static void SerializeChildNodesTo<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node,
+            StringBuilder output)
+        {
+            if (tree == null) throw new ArgumentNullException(nameof(tree));
+            if (output == null) throw new ArgumentNullException(nameof(output));
+            new Serializer<TNode, TElement>(tree).SerializeChildNodes(node, tree.GetChildNodes(node), output);
+        }
     }
 
     sealed class Serializer<TNode, TElement>
@@ -66,7 +83,7 @@ namespace High5
         public void Serialize(TNode node, StringBuilder html) =>
             SerializeNode(node, (false, default(TNode)), html);
 
-        void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
+        internal void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
         {
             foreach (var node in childNodes)
                 SerializeNode(node, (true, parentNode), html);
