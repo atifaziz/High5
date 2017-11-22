@@ -24,7 +24,7 @@ var html = await new HttpClient().GetStringAsync("http://www.example.com/");
 var document = Parser.Parse(html);
 ```
 
-Parse an HTML document:
+Parse an HTML document fragment:
 
 ```c#
 var html = @"
