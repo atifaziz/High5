@@ -30,7 +30,13 @@ namespace High5
     using Microsoft.Extensions.Internal;
     using Collections;
 
-    public struct HtmlTree<TNode> : IEquatable<HtmlTree<TNode>>
+    interface IHtmlTree
+    {
+        HtmlNode Node { get; }
+        ListNode<HtmlNode> Ancestors { get; }
+    }
+
+    public struct HtmlTree<TNode> : IEquatable<HtmlTree<TNode>>, IHtmlTree
         where TNode : HtmlNode
     {
         readonly ListNode<HtmlNode> _ancestors;
@@ -43,42 +49,49 @@ namespace High5
 
         public bool HasParent => _ancestors?.IsEmpty == false;
 
-        public HtmlTree<HtmlNode> Parent =>
-            HasValue
-            ? HasParent
-              ? HtmlTree.Create(_ancestors.Item, _ancestors.Next)
-              : default(HtmlTree<HtmlNode>)
-            : throw new InvalidOperationException();
+        public HtmlTree<HtmlNode>? Parent =>
+            HasParent ? HtmlTree.Create(_ancestors.Item, _ancestors.Next)
+                      : (HtmlTree<HtmlNode>?) null;
 
         public TNode Node { get; }
 
-        public bool HasValue => Node != null;
+        HtmlNode IHtmlTree.Node => Node;
+        ListNode<HtmlNode> IHtmlTree.Ancestors => _ancestors;
+
+        public bool IsEmpty => Node == null;
 
         public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, _ancestors);
 
-        public int ChildNodeCount => Node.ChildNodes.Count;
+        public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
         public bool HasChildNodes => ChildNodeCount > 0;
 
         public IEnumerable<HtmlTree<HtmlNode>> ChildNodes
         {
             get
             {
-                var parent = Node;
-                var ancestors = _ancestors.Prepend(parent);
-                return from child in parent.ChildNodes
+                var node = Node;
+                if (node == null)
+                    return Enumerable.Empty<HtmlTree<HtmlNode>>();
+                var ancestors = _ancestors.Prepend(node);
+                return from child in node.ChildNodes
                        select HtmlTree.Create(child, ancestors);
             }
         }
 
         public bool Equals(HtmlTree<TNode> other) =>
-            (ReferenceEquals(_ancestors, other._ancestors) || _ancestors == other._ancestors)
-            && Node == other.Node;
+            Equals(other.Node, other._ancestors);
+
+        bool Equals(HtmlNode otherNode, ListNode<HtmlNode> otherAncestors) =>
+            (ReferenceEquals(_ancestors, otherAncestors) || _ancestors == otherAncestors)
+            && Node == otherNode;
 
         public override bool Equals(object obj) =>
-            obj is HtmlTree<TNode> node && Equals(node);
+            obj is IHtmlTree tree && Equals(tree.Node, tree.Ancestors);
 
         public override int GetHashCode()
         {
+            if (IsEmpty)
+                return 0;
             var hash = HashCodeCombiner.Start();
             hash.Add(_ancestors?.GetHashCode());
             hash.Add(Node);
