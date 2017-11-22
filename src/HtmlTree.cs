@@ -138,8 +138,20 @@ namespace High5
             }
         }
 
+        internal HtmlTree<HtmlElement> AsElementOrDefault() =>
+            (object) Node is HtmlElement element
+            ? HtmlTree.Create(element, _ancestors)
+            : default(HtmlTree<HtmlElement>);
+
         public IEnumerable<HtmlTree<HtmlNode>> DescendantsAndSelf() =>
             Enumerable.Repeat(AsBaseNode(), 1).Concat(Descendants());
+
+        public IEnumerable<HtmlTree<HtmlElement>> Elements() =>
+            from d in ChildNodes
+            select d.AsElementOrDefault()
+            into e
+            where !e.IsEmpty
+            select e;
     }
 
     public static class HtmlTree
@@ -159,5 +171,12 @@ namespace High5
 
         static HtmlTree<T> TreeFromNode<T>(T root) where T : HtmlNode =>
             Create(root, ListNode<HtmlNode>.Empty);
+
+        public static IEnumerable<HtmlTree<HtmlElement>> Elements(this IEnumerable<HtmlTree<HtmlNode>> nodes) =>
+            from n in nodes ?? throw new ArgumentNullException(nameof(nodes))
+            select n.AsElementOrDefault()
+            into e
+            where !e.IsEmpty
+            select e;
     }
 }
