@@ -86,6 +86,16 @@ namespace High5
             }
         }
 
+        public HtmlTree<HtmlNode>? FirstChild =>
+            ChildNodeCount > 0
+            ? HtmlTree.Create(Node.FirstChild, _ancestors)
+            : (HtmlTree<HtmlNode>?) null;
+
+        public HtmlTree<HtmlNode>? LastChild =>
+            ChildNodeCount > 0
+            ? HtmlTree.Create(Node.LastChild, _ancestors)
+            : (HtmlTree<HtmlNode>?) null;
+
         public bool Equals(HtmlTree<TNode> other) =>
             Equals(other.Node, other._ancestors);
 

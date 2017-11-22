@@ -53,6 +53,14 @@ namespace High5.Tests
             Assert.Empty(DefaultHtmlTree.ChildNodes);
 
         [Fact]
+        public void DefaultFirstChildIsNull() =>
+            Assert.Null(DefaultHtmlTree.FirstChild);
+
+        [Fact]
+        public void DefaultLastChildIsNull() =>
+            Assert.Null(DefaultHtmlTree.LastChild);
+
+        [Fact]
         public void DefaultHasParentIsFalse() =>
             Assert.False(DefaultHtmlTree.HasParent);
 
@@ -105,18 +113,22 @@ namespace High5.Tests
             Assert.False(tree.HasParent);
             Assert.True(tree.HasChildNodes);
             Assert.Equal(1, tree.ChildNodeCount);
+            Assert.True(tree.FirstChild.Equals(tree.LastChild));
 
             var treeHtml = tree.ChildNodes.First();
             Assert.Same(html, treeHtml.Node);
             Assert.True(tree.Equals(treeHtml.Parent));
             Assert.Equal(2, treeHtml.ChildNodeCount);
+            Assert.False(treeHtml.FirstChild.Equals(treeHtml.LastChild));
 
             var treeHead = treeHtml.ChildNodes.First();
+            Assert.True(treeHead.Equals(treeHtml.FirstChild));
             Assert.Same(head, treeHead.Node);
             Assert.True(treeHead.Parent == treeHtml);
             Assert.Equal(1, treeHead.ChildNodeCount);
 
             var treeBody = treeHtml.ChildNodes.Last();
+            Assert.True(treeBody.Equals(treeHtml.LastChild));
             Assert.Same(body, treeBody.Node);
             Assert.True(treeBody.Parent == treeHtml);
             Assert.Equal(2, treeBody.ChildNodeCount);
