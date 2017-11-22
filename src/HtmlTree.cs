@@ -137,6 +137,9 @@ namespace High5
                 }
             }
         }
+
+        public IEnumerable<HtmlTree<HtmlNode>> DescendantsAndSelf() =>
+            Enumerable.Repeat(AsBaseNode(), 1).Concat(Descendants());
     }
 
     public static class HtmlTree

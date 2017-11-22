@@ -137,6 +137,10 @@ namespace High5.Tests
                          from d in tree.Descendants()
                          select d.Node);
 
+            Assert.Equal(doc.DescendantsAndSelf(),
+                         from d in tree.DescendantsAndSelf()
+                         select d.Node);
+
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
         }
