@@ -166,6 +166,12 @@ namespace High5
             into e
             where !e.IsEmpty
             select e;
+
+        public IEnumerable<HtmlTree<HtmlNode>> NodesAfterSelf()
+        {
+            for (var node = NextSibling; node != null; node = node.Value.NextSibling)
+                yield return node.Value;
+        }
     }
 
     public static class HtmlTree

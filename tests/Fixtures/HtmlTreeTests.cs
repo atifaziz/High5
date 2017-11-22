@@ -106,7 +106,9 @@ namespace High5.Tests
                             Element("h1", Attributes(("class", "main")),
                                 Text("Heading")),
                             p = Element("p",
-                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")))));
+                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")),
+                            Element("p",
+                                Text("The quick brown fox jumps over the lazy dog.")))));
 
             var tree = HtmlTree.Create(doc);
             Assert.Same(doc, tree.Node);
@@ -131,7 +133,7 @@ namespace High5.Tests
             Assert.True(treeBody.Equals(treeHtml.LastChild));
             Assert.Same(body, treeBody.Node);
             Assert.True(treeBody.Parent == treeHtml);
-            Assert.Equal(2, treeBody.ChildNodeCount);
+            Assert.Equal(3, treeBody.ChildNodeCount);
 
             Assert.True(treeHead.NextSibling == treeBody);
             Assert.Null(treeHead.PreviousSibling);
@@ -154,6 +156,14 @@ namespace High5.Tests
             Assert.Equal(html.Descendants().Elements(),
                          from e in treeHtml.Descendants().Elements()
                          select e.Node);
+
+            Assert.Equal(treeBody.ChildNodes.Skip(1),
+                         treeBody.FirstChild.Value.NodesAfterSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Skip(2),
+                         treeBody.FirstChild.Value.NextSibling.Value.NodesAfterSelf());
+
+            Assert.Empty(treeBody.LastChild.Value.NodesAfterSelf());
 
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
