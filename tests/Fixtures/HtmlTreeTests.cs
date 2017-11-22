@@ -82,6 +82,10 @@ namespace High5.Tests
             Assert.False(DefaultHtmlTree.Equals(new object()));
 
         [Fact]
+        public void DefaultDescendantsIsEmpty() =>
+            Assert.Empty(DefaultHtmlTree.Descendants());
+
+        [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
             HtmlElement html, head, body;
@@ -116,6 +120,10 @@ namespace High5.Tests
             Assert.Same(body, treeBody.Node);
             Assert.True(treeBody.Parent == treeHtml);
             Assert.Equal(2, treeBody.ChildNodeCount);
+
+            Assert.Equal(doc.Descendants(),
+                         from d in tree.Descendants()
+                         select d.Node);
         }
     }
 }

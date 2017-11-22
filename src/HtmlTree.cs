@@ -103,6 +103,22 @@ namespace High5
 
         public static bool operator !=(HtmlTree<TNode> left, HtmlTree<TNode> right) =>
             !left.Equals(right);
+
+        public IEnumerable<HtmlTree<HtmlNode>> Descendants()
+        {
+            if (HasChildNodes)
+            {
+                foreach (var child in ChildNodes)
+                {
+                    yield return child;
+                    if (child.HasChildNodes)
+                    {
+                        foreach (var descendant in child.Descendants())
+                            yield return descendant;
+                    }
+                }
+            }
+        }
     }
 
     public static class HtmlTree
