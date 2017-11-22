@@ -88,7 +88,7 @@ namespace High5.Tests
         [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
-            HtmlElement html, head, body;
+            HtmlElement html, head, body, p;
             var doc =
                 Document(
                     html = Element("html",
@@ -97,7 +97,7 @@ namespace High5.Tests
                         body = Element("body",
                             Element("h1", Attributes(("class", "main")),
                                 Text("Heading")),
-                            Element("p",
+                            p = Element("p",
                                 Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")))));
 
             var tree = HtmlTree.Create(doc);
@@ -124,6 +124,9 @@ namespace High5.Tests
             Assert.Equal(doc.Descendants(),
                          from d in tree.Descendants()
                          select d.Node);
+
+            var treePara = HtmlTree.Create(p);
+            Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
         }
     }
 }

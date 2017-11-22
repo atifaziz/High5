@@ -43,24 +43,32 @@ namespace High5
 
         internal HtmlTree(TNode node, ListNode<HtmlNode> ancestors)
         {
-            Node = node ?? throw new ArgumentNullException(nameof(node));
-            _ancestors = ancestors ?? throw new ArgumentNullException(nameof(ancestors));
+            if (node == null) throw new ArgumentNullException(nameof(node));
+            if (ancestors == null) throw new ArgumentNullException(nameof(ancestors));
+            Node = node;
+            _ancestors = node.ChildNodes.Count > 0 ? ancestors.Prepend(node) : ancestors;
         }
 
-        public bool HasParent => _ancestors?.IsEmpty == false;
+        public bool HasParent => Ancestors.Count > 0;
 
         public HtmlTree<HtmlNode>? Parent =>
-            HasParent ? HtmlTree.Create(_ancestors.Item, _ancestors.Next)
+            HasParent ? HtmlTree.Create(Ancestors.Item, Ancestors.Next)
                       : (HtmlTree<HtmlNode>?) null;
 
         public TNode Node { get; }
 
         HtmlNode IHtmlTree.Node => Node;
+
         ListNode<HtmlNode> IHtmlTree.Ancestors => _ancestors;
+
+        ListNode<HtmlNode> Ancestors =>
+            Node == null
+            ? ListNode<HtmlNode>.Empty
+            : Node.ChildNodes.Count > 0 ? _ancestors.Next : _ancestors;
 
         public bool IsEmpty => Node == null;
 
-        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, _ancestors);
+        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, Ancestors);
 
         public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
         public bool HasChildNodes => ChildNodeCount > 0;
@@ -72,7 +80,7 @@ namespace High5
                 var node = Node;
                 if (node == null)
                     return Enumerable.Empty<HtmlTree<HtmlNode>>();
-                var ancestors = _ancestors.Prepend(node);
+                var ancestors = _ancestors;
                 return from child in node.ChildNodes
                        select HtmlTree.Create(child, ancestors);
             }
