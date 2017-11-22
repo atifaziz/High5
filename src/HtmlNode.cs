@@ -32,37 +32,18 @@ namespace High5
 
     public abstract class HtmlNode
     {
-        public HtmlNode ParentNode { get; internal set; }
-        public IList<HtmlNode> ChildNodes { get; } = new List<HtmlNode>();
+        ReadOnlyCollection<HtmlNode> _childNodes = new ReadOnlyCollection<HtmlNode>();
+
+        public ReadOnlyCollection<HtmlNode> ChildNodes => _childNodes;
+
+        public override string ToString() => this.Serialize();
+
+        internal void AddChildNode(HtmlNode node) => _childNodes.Add(node);
+        internal void InsertChildNode(int index, HtmlNode node) => _childNodes.Insert(index, node);
+        internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
 
         public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
         public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
-
-        public HtmlNode PreviousSibling => GetSibling(-1, (i, _    ) => i >= 0   );
-        public HtmlNode NextSibling     => GetSibling(+1, (i, count) => i < count);
-
-        HtmlNode GetSibling(int offset, Func<int, int, bool> predicate)
-        {
-            var siblings = ParentNode?.ChildNodes;
-            var index = siblings?.IndexOf(this);
-            return index is int i && predicate(i + offset, siblings.Count)
-                 ? siblings[i + offset]
-                 : null;
-        }
-
-        public IEnumerable<HtmlNode> NodesBeforeSelf()
-        {
-            var node = this;
-            while ((node = node.PreviousSibling) != null)
-                yield return node;
-        }
-
-        public IEnumerable<HtmlNode> NodesAfterSelf()
-        {
-            var node = this;
-            while ((node = node.NextSibling) != null)
-                yield return node;
-        }
 
         public IEnumerable<HtmlNode> Descendants()
         {
@@ -76,18 +57,9 @@ namespace High5
 
         public IEnumerable<HtmlNode> DescendantsAndSelf() =>
             Enumerable.Repeat(this, 1).Concat(Descendants());
-
-        public IEnumerable<HtmlNode> Ancestors()
-        {
-            for (var node = ParentNode; node != null; node = node.ParentNode)
-                yield return node;
-        }
-
-        public IEnumerable<HtmlNode> AncestorsAndSelf() =>
-            Enumerable.Repeat(this, 1).Concat(Ancestors());
     }
 
-    public static class HtmlNodeExtensions
+    public static partial class HtmlNodeExtensions
     {
         public static IEnumerable<HtmlElement> Elements(this IEnumerable<HtmlNode> nodes) =>
             nodes?.OfType<HtmlElement>()
@@ -96,30 +68,22 @@ namespace High5
         public static IEnumerable<HtmlElement> Elements(this HtmlNode node) =>
             node?.ChildNodes.Elements()
             ?? throw new ArgumentNullException(nameof(node));
-
-        public static IEnumerable<HtmlElement> ElementsAfterSelf(this HtmlNode node) =>
-            node?.NodesAfterSelf().Elements()
-            ?? throw new ArgumentNullException(nameof(node));
-
-        public static IEnumerable<HtmlElement> ElementsBeforeSelf(this HtmlNode node) =>
-            node?.NodesBeforeSelf().Elements()
-            ?? throw new ArgumentNullException(nameof(node));
     }
 
-    public class HtmlDocument : HtmlNode
+    public sealed class HtmlDocument : HtmlNode
     {
         public string Mode { get; internal set; }
     }
 
-    public class HtmlDocumentFragment : HtmlNode {}
+    public sealed class HtmlDocumentFragment : HtmlNode {}
 
-    public class HtmlDocumentType : HtmlNode
+    public sealed class HtmlDocumentType : HtmlNode
     {
         public string Name     { get; internal set; }
         public string PublicId { get; internal set; }
         public string SystemId { get; internal set; }
 
-        public HtmlDocumentType(string name, string publicId, string systemId)
+        internal HtmlDocumentType(string name, string publicId, string systemId)
         {
             Name = name;
             PublicId = publicId;
@@ -163,56 +127,99 @@ namespace High5
             hashCode.Add(Value);
             return hashCode;
         }
+
+        public void Deconstruct(out string name, out string value)
+        {
+            name = Name;
+            value = Value;
+        }
+
+        public void Deconstruct(out string namespaceUri, out string name, out string value)
+        {
+            namespaceUri = NamespaceUri;
+            Deconstruct(out name, out value);
+        }
+
+        public void Deconstruct(out string namespaceUri, out string prefix, out string name, out string value)
+        {
+            prefix = Prefix;
+            Deconstruct(out namespaceUri, out name, out value);
+        }
     }
 
     public class HtmlElement : HtmlNode
     {
-        IList<HtmlAttribute> _attrs;
+        ReadOnlyCollection<HtmlAttribute> _attrs = new ReadOnlyCollection<HtmlAttribute>();
 
         public string TagName { get; }
         public string NamespaceUri { get; }
 
-        static readonly HtmlAttribute[] ZeroAttrs = new HtmlAttribute[0];
+        public ReadOnlyCollection<HtmlAttribute> Attributes => _attrs;
 
-        public IList<HtmlAttribute> Attributes
-        {
-            get => _attrs ?? ZeroAttrs;
-            private set => _attrs = value;
-        }
-
-        public HtmlElement(string tagName, string namespaceUri, IList<HtmlAttribute> attributes)
+        internal HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
-            Attributes = attributes;
+            foreach (var attribute in attributes ?? Enumerable.Empty<HtmlAttribute>())
+                _attrs.Add(attribute);
         }
 
-        internal void AttributesPush(HtmlAttribute attr)
+        internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes)
         {
-            // TODO remove ugly hack
-            if (_attrs is null || _attrs is HtmlAttribute[] a && a.Length == 0)
-                _attrs = new List<HtmlAttribute>();
-            _attrs.Push(attr);
+            TagName = tagName;
+            NamespaceUri = namespaceUri;
+            if (attributes.Count > 0)
+            {
+                for (var i = attributes.Offset; i < attributes.Offset + attributes.Count; i++)
+                    _attrs.Add(attributes.Array[i]);
+            }
         }
+
+        public string OuterHtml => this.Serialize();
+        public string InnerHtml => this.SerializeChildNodes();
+
+        internal void AttributesPush(HtmlAttribute attr) =>
+            _attrs.Add(attr);
     }
 
-    public class HtmlTemplateElement : HtmlElement
+    public sealed class HtmlTemplateElement : HtmlElement
     {
         public HtmlDocumentFragment Content { get; internal set; }
 
-        public HtmlTemplateElement(string namespaceUri, IList<HtmlAttribute> attributes) :
+        internal HtmlTemplateElement(string namespaceUri,
+                                     IEnumerable<HtmlAttribute> attributes,
+                                     HtmlDocumentFragment content) :
+            base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) => Content = content;
+
+        internal HtmlTemplateElement(string namespaceUri, ArraySegment<HtmlAttribute> attributes) :
             base(HTML.TAG_NAMES.TEMPLATE, namespaceUri, attributes) {}
     }
 
-    public class HtmlComment : HtmlNode
+    public sealed class HtmlComment : HtmlNode
     {
         public string Data { get; }
         public HtmlComment(string data) => Data = data;
     }
 
-    public class HtmlText : HtmlNode
+    public sealed class HtmlText : HtmlNode
     {
         public string Value { get; internal set; }
         public HtmlText(string value) => Value = value;
+
+        public override string ToString() => Value;
+    }
+
+    partial class HtmlNodeExtensions
+    {
+        static readonly HtmlDocumentType HtmlDocType = new HtmlDocumentType("html", null, null);
+
+        public static HtmlDocument WithHtmlDoctype(this HtmlDocument document)
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document));
+            return document.ChildNodes.Any(n => n is HtmlDocumentType)
+                 ? document
+                 : HtmlNodeFactory.Document(Enumerable.Repeat(HtmlDocType, 1)
+                                                      .Concat(document.ChildNodes));
+        }
     }
 }
