@@ -39,12 +39,8 @@ namespace High5
             SerializeTo(Tree.Default, node, output);
 
         public static string Serialize<TNode, TElement>(
-            ITree<TNode, TElement> tree, TNode node)
-        {
-            var html = new StringBuilder();
-            SerializeTo(tree, node, html);
-            return html.ToString();
-        }
+            ITree<TNode, TElement> tree, TNode node) =>
+            Builder.BuildString(sb => SerializeTo(tree, node, sb));
 
         public static void SerializeTo<TNode, TElement>(
             ITree<TNode, TElement> tree, TNode node,
@@ -53,6 +49,25 @@ namespace High5
             if (tree == null) throw new ArgumentNullException(nameof(tree));
             if (output == null) throw new ArgumentNullException(nameof(output));
             new Serializer<TNode, TElement>(tree).Serialize(node, output);
+        }
+
+        public static string SerializeChildNodes(this HtmlNode node) =>
+            SerializeChildNodes(Tree.Default, node);
+
+        public static void SerializeChildNodesTo(this HtmlNode node, StringBuilder output) =>
+            SerializeChildNodesTo(Tree.Default, node, output);
+
+        public static string SerializeChildNodes<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node) =>
+            Builder.BuildString(sb => SerializeChildNodesTo(tree, node, sb));
+
+        public static void SerializeChildNodesTo<TNode, TElement>(
+            ITree<TNode, TElement> tree, TNode node,
+            StringBuilder output)
+        {
+            if (tree == null) throw new ArgumentNullException(nameof(tree));
+            if (output == null) throw new ArgumentNullException(nameof(output));
+            new Serializer<TNode, TElement>(tree).SerializeChildNodes(node, tree.GetChildNodes(node), output);
         }
     }
 
@@ -66,7 +81,7 @@ namespace High5
         public void Serialize(TNode node, StringBuilder html) =>
             SerializeNode(node, (false, default(TNode)), html);
 
-        void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
+        internal void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
         {
             foreach (var node in childNodes)
                 SerializeNode(node, (true, parentNode), html);

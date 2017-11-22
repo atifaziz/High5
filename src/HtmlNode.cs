@@ -147,6 +147,9 @@ namespace High5
             }
         }
 
+        public string OuterHtml => this.Serialize();
+        public string InnerHtml => this.SerializeChildNodes();
+
         internal void AttributesPush(HtmlAttribute attr) =>
             _attrs.Add(attr);
     }
