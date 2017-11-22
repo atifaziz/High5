@@ -133,6 +133,12 @@ namespace High5.Tests
             Assert.True(treeBody.Parent == treeHtml);
             Assert.Equal(2, treeBody.ChildNodeCount);
 
+            Assert.True(treeHead.NextSibling == treeBody);
+            Assert.Null(treeHead.PreviousSibling);
+
+            Assert.True(treeBody.PreviousSibling == treeHead);
+            Assert.Null(treeBody.NextSibling);
+
             Assert.Equal(doc.Descendants(),
                          from d in tree.Descendants()
                          select d.Node);

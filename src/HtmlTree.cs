@@ -96,6 +96,20 @@ namespace High5
             ? HtmlTree.Create(Node.LastChild, _ancestors)
             : (HtmlTree<HtmlNode>?) null;
 
+        public HtmlTree<HtmlNode>? PreviousSibling => GetSibling(-1, (i, _) => i >= 0);
+        public HtmlTree<HtmlNode>? NextSibling => GetSibling(+1, (i, count) => i < count);
+
+        HtmlTree<HtmlNode>? GetSibling(int offset, Func<int, int, bool> predicate)
+        {
+            if (!HasParent)
+                return null;
+            var siblings = Parent.Value.Node.ChildNodes;
+            var i = siblings.IndexOf(Node);
+            return predicate(i + offset, siblings.Count)
+                 ? HtmlTree.Create(siblings[i + offset], Ancestors)
+                 : (HtmlTree<HtmlNode>?) null;
+        }
+
         public bool Equals(HtmlTree<TNode> other) =>
             Equals(other.Node, other._ancestors);
 
