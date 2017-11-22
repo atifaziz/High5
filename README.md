@@ -15,6 +15,29 @@ document. A default model implementation is supplied that builds a read-only
 tree of HTML nodes.
 
 
+## HTML Tree Model
+
+High5 comes with a class hierarchy designed to represent the various nodes of
+an HTML document:
+
+- `HtmlNode` (abstract and base for all other nodes)
+- `HtmlDocument`
+- `HtmlDocumentFragment`
+- `HtmlDocumentType`
+- `HtmlElement`
+- `HtmlTemplateElement`
+- `HtmlText`
+- `HtmlComment`
+
+Each class provides access to specific properties of a node. For example,
+`HtmlElement` has properties to get the tag name and attributes of
+an element. All nodes also provide access to their child nodes where it
+makes sense (e.g. `HtmlText` and `HtmlComment` are leaf nodes).
+
+All `HtmlNode` objects are immuatable and therefore thread-safe and
+shareable.
+
+
 ## Examples
 
 Parse an HTML document:
