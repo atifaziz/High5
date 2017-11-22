@@ -101,7 +101,7 @@ namespace High5
             if (IsEmpty)
                 return 0;
             var hash = HashCodeCombiner.Start();
-            hash.Add(_ancestors?.GetHashCode());
+            hash.Add(_ancestors?.GetHashCode() ?? 0);
             hash.Add(Node);
             return hash.CombinedHash;
         }
