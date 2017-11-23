@@ -53,7 +53,7 @@ namespace High5
             // in the ancestor chain when handing out new instances of this
             // class for the children; the ancestor chain gets shared.
 
-            _ancestors = node.ChildNodes.Count > 0
+            _ancestors = node.ChildNodes.Count > 0 && ancestors.Item != node
                        ? ancestors.Prepend(node)
                        : ancestors;
         }
