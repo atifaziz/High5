@@ -188,6 +188,17 @@ namespace High5
             for (var node = NextSibling; node != null; node = node.Value.NextSibling)
                 yield return node.Value;
         }
+
+        public IEnumerable<HtmlTree<HtmlNode>> NodesBeforeSelf()
+        {
+            var thisNode = AsBaseNode();
+            for (var node = Parent?.FirstChild;
+                 node != null && node != thisNode;
+                 node = node.Value.NextSibling)
+            {
+                yield return node.Value;
+            }
+        }
     }
 
     public static class HtmlTree

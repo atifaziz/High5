@@ -165,6 +165,14 @@ namespace High5.Tests
 
             Assert.Empty(treeBody.LastChild.Value.NodesAfterSelf());
 
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
+                         treeBody.LastChild.Value.NodesBeforeSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2),
+                         treeBody.LastChild.Value.PreviousSibling.Value.NodesBeforeSelf());
+
+            Assert.Empty(treeBody.FirstChild.Value.NodesBeforeSelf());
+
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
         }
