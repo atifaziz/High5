@@ -39,7 +39,7 @@ namespace High5
     public struct HtmlTree<TNode> : IEquatable<HtmlTree<TNode>>, IHtmlTree
         where TNode : HtmlNode
     {
-        readonly ListNode<HtmlNode> _ancestors;
+        readonly ListNode<HtmlNode> _ancestorStack;
 
         internal HtmlTree(TNode node, ListNode<HtmlNode> ancestors)
         {
@@ -53,24 +53,24 @@ namespace High5
             // in the ancestor chain when handing out new instances of this
             // class for the children; the ancestor chain gets shared.
 
-            _ancestors = node.ChildNodes.Count > 0 && ancestors.Item != node
+            _ancestorStack = node.ChildNodes.Count > 0 && ancestors.Item != node
                        ? ancestors.Prepend(node)
                        : ancestors;
         }
 
-        public bool HasParent => Ancestors.Count > 0;
+        public bool HasParent => AncestorStack.Count > 0;
 
         public HtmlTree<HtmlNode>? Parent =>
-            HasParent ? HtmlTree.Create(Ancestors.Item, Ancestors.Next)
+            HasParent ? HtmlTree.Create(AncestorStack.Item, AncestorStack.Next)
                       : (HtmlTree<HtmlNode>?) null;
 
         public TNode Node { get; }
 
         HtmlNode IHtmlTree.Node => Node;
 
-        ListNode<HtmlNode> IHtmlTree.Ancestors => _ancestors;
+        ListNode<HtmlNode> IHtmlTree.Ancestors => _ancestorStack;
 
-        ListNode<HtmlNode> Ancestors =>
+        ListNode<HtmlNode> AncestorStack =>
             Node == null
             ? ListNode<HtmlNode>.Empty
             : //
@@ -79,12 +79,12 @@ namespace High5
               // true chain.
               //
               Node.ChildNodes.Count > 0
-              ? _ancestors.Next
-              : _ancestors;
+              ? _ancestorStack.Next
+              : _ancestorStack;
 
         public bool IsEmpty => Node == null;
 
-        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, Ancestors);
+        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, AncestorStack);
 
         public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
         public bool HasChildNodes => ChildNodeCount > 0;
@@ -96,7 +96,7 @@ namespace High5
                 var node = Node;
                 if (node == null)
                     return Enumerable.Empty<HtmlTree<HtmlNode>>();
-                var ancestors = _ancestors;
+                var ancestors = _ancestorStack;
                 return from child in node.ChildNodes
                        select HtmlTree.Create(child, ancestors);
             }
@@ -104,12 +104,12 @@ namespace High5
 
         public HtmlTree<HtmlNode>? FirstChild =>
             ChildNodeCount > 0
-            ? HtmlTree.Create(Node.FirstChild, _ancestors)
+            ? HtmlTree.Create(Node.FirstChild, _ancestorStack)
             : (HtmlTree<HtmlNode>?) null;
 
         public HtmlTree<HtmlNode>? LastChild =>
             ChildNodeCount > 0
-            ? HtmlTree.Create(Node.LastChild, _ancestors)
+            ? HtmlTree.Create(Node.LastChild, _ancestorStack)
             : (HtmlTree<HtmlNode>?) null;
 
         public HtmlTree<HtmlNode>? PreviousSibling => GetSibling(-1, (i, _) => i >= 0);
@@ -122,15 +122,15 @@ namespace High5
             var siblings = Parent.Value.Node.ChildNodes;
             var i = siblings.IndexOf(Node);
             return predicate(i + offset, siblings.Count)
-                 ? HtmlTree.Create(siblings[i + offset], Ancestors)
+                 ? HtmlTree.Create(siblings[i + offset], AncestorStack)
                  : (HtmlTree<HtmlNode>?) null;
         }
 
         public bool Equals(HtmlTree<TNode> other) =>
-            Equals(other.Node, other._ancestors);
+            Equals(other.Node, other._ancestorStack);
 
         bool Equals(HtmlNode otherNode, ListNode<HtmlNode> otherAncestors) =>
-            (ReferenceEquals(_ancestors, otherAncestors) || _ancestors == otherAncestors)
+            (ReferenceEquals(_ancestorStack, otherAncestors) || _ancestorStack == otherAncestors)
             && Node == otherNode;
 
         public override bool Equals(object obj) =>
@@ -141,7 +141,7 @@ namespace High5
             if (IsEmpty)
                 return 0;
             var hash = HashCodeCombiner.Start();
-            hash.Add(_ancestors?.GetHashCode());
+            hash.Add(_ancestorStack?.GetHashCode());
             hash.Add(Node);
             return hash.CombinedHash;
         }
@@ -170,7 +170,7 @@ namespace High5
 
         internal HtmlTree<HtmlElement> AsElementOrDefault() =>
             (object) Node is HtmlElement element
-            ? HtmlTree.Create(element, _ancestors)
+            ? HtmlTree.Create(element, _ancestorStack)
             : default(HtmlTree<HtmlElement>);
 
         public IEnumerable<HtmlTree<HtmlNode>> DescendantsAndSelf() =>
@@ -198,6 +198,17 @@ namespace High5
             {
                 yield return node.Value;
             }
+        }
+
+        /// <summary>
+        /// Returns a sequence of the ancestors of this node, going from the
+        /// nearest to the furthest ancestor.
+        /// </summary>
+
+        public IEnumerable<HtmlTree<HtmlNode>> Ancestors()
+        {
+            for (var parent = Parent; parent != null; parent = parent.Value.Parent)
+                yield return parent.Value;
         }
     }
 

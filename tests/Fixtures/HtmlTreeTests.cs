@@ -173,6 +173,13 @@ namespace High5.Tests
 
             Assert.Empty(treeBody.FirstChild.Value.NodesBeforeSelf());
 
+            Assert.Equal(new HtmlNode[] { body, html, doc },
+                         tree.Descendants()
+                             .Elements()
+                             .Single(e => e.Node == p)
+                             .Ancestors()
+                             .Select(a => a.Node));
+
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
         }
