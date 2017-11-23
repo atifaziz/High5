@@ -45,8 +45,17 @@ namespace High5
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
             if (ancestors == null) throw new ArgumentNullException(nameof(ancestors));
+
             Node = node;
-            _ancestors = node.ChildNodes.Count > 0 ? ancestors.Prepend(node) : ancestors;
+
+            // If the node has children then push/cache the node itself on the
+            // ancestors stack. This helps to avoid allocating a new list node
+            // in the ancestor chain when handing out new instances of this
+            // class for the children; the ancestor chain gets shared.
+
+            _ancestors = node.ChildNodes.Count > 0
+                       ? ancestors.Prepend(node)
+                       : ancestors;
         }
 
         public bool HasParent => Ancestors.Count > 0;
@@ -64,7 +73,14 @@ namespace High5
         ListNode<HtmlNode> Ancestors =>
             Node == null
             ? ListNode<HtmlNode>.Empty
-            : Node.ChildNodes.Count > 0 ? _ancestors.Next : _ancestors;
+            : //
+              // If this node had children then it is pushed on the ancestor
+              // chain during construction so pop it off here to return the
+              // true chain.
+              //
+              Node.ChildNodes.Count > 0
+              ? _ancestors.Next
+              : _ancestors;
 
         public bool IsEmpty => Node == null;
 
