@@ -67,7 +67,8 @@ namespace High5
         {
             if (tree == null) throw new ArgumentNullException(nameof(tree));
             if (output == null) throw new ArgumentNullException(nameof(output));
-            new Serializer<TNode, TElement>(tree).SerializeChildNodes(node, tree.GetChildNodes(node), output);
+            if (tree.TryGetChildNodes(node, out var children))
+                new Serializer<TNode, TElement>(tree).SerializeChildNodes(node, children, output);
         }
     }
 
@@ -97,8 +98,8 @@ namespace High5
                 SerializeComment(content, html);
             else if (_tree.TryGetDocumentTypeName(node, out var doctype))
                 SerializeDocumentTypeNode(doctype, html);
-            else
-                SerializeChildNodes(node, _tree.GetChildNodes(node), html);
+            else if (_tree.TryGetChildNodes(node, out var children))
+                SerializeChildNodes(node, children, html);
         }
 
         static void SerializeDocumentTypeNode(string name, StringBuilder html) =>
@@ -138,7 +139,7 @@ namespace High5
             {
                 var childNodes = tn == _.TEMPLATE && ns == NS.HTML ?
                     _tree.GetTemplateContent(element) :
-                    _tree.GetChildNodes(node);
+                    _tree.GetChildNodes(element);
 
                 SerializeChildNodes(node, childNodes, html);
                 html.Append("</").Append(tn).Append('>');

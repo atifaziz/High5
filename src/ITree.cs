@@ -28,7 +28,8 @@ namespace High5
 
     public interface ITree<TNode, TElement>
     {
-        IEnumerable<TNode> GetChildNodes(TNode node);
+        bool TryGetChildNodes(TNode node, out IEnumerable<TNode> childNodes);
+        IEnumerable<TNode> GetChildNodes(TElement element);
         bool TryGetElement(TNode node, out TElement element);
         string GetTagName(TElement element);
         string GetNamespaceUri(TElement element);

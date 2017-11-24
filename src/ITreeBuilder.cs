@@ -26,12 +26,13 @@ namespace High5
 {
     using System;
 
-    public interface ITreeBuilder<TNode,
+    public interface ITreeBuilder<TNode, TContainer,
                                   TDocumentFragment,
                                   TElement, TAttribute, TTemplateElement,
                                   TComment>
-        where TDocumentFragment : TNode
-        where TElement          : TNode
+        where TContainer        : TNode
+        where TDocumentFragment : TContainer
+        where TElement          : TContainer
         where TTemplateElement  : TElement
         where TComment          : TNode
     {
@@ -44,18 +45,18 @@ namespace High5
 
         // Tree mutation
 
-        void AppendChild(TNode parentNode, TNode newNode);
-        void InsertBefore(TNode parentNode, TNode newNode, TNode referenceNode);
+        void AppendChild(TContainer parentNode, TNode newNode);
+        void InsertBefore(TContainer parentNode, TNode newNode, TNode referenceNode);
         void SetTemplateContent(TTemplateElement templateElement, TDocumentFragment content);
         TDocumentFragment GetTemplateContent(TTemplateElement templateElement);
-        void DetachNode(TNode parentNode, TNode node);
-        TNode InsertText(TNode parentNode, string text);
-        TNode InsertTextBefore(TNode parentNode, string text, TNode referenceNode);
+        void DetachNode(TContainer parentNode, TNode node);
+        TNode InsertText(TContainer parentNode, string text);
+        TNode InsertTextBefore(TContainer parentNode, string text, TNode referenceNode);
         void AdoptAttributes(TElement recipient, ArraySegment<TAttribute> attributes);
 
         // Tree traversing
 
-        TNode GetFirstChild(TNode node);
+        TNode GetFirstChild(TContainer node);
         int GetAttributeCount(TElement element);
         int ListAttributes(TElement element, ArraySegment<TAttribute> attributes);
         string GetAttributeName(TAttribute attribute);
@@ -67,15 +68,16 @@ namespace High5
         string GetNamespaceUri(TElement element);
     }
 
-    public interface IDocumentTreeBuilder<TNode,
+    public interface IDocumentTreeBuilder<TNode, TContainer,
                                           TDocument, TDocumentFragment,
                                           TElement, TAttribute, TTemplateElement,
                                           TComment> :
-        ITreeBuilder<TNode, TDocumentFragment,
+        ITreeBuilder<TNode, TContainer, TDocumentFragment,
                      TElement, TAttribute, TTemplateElement,
                      TComment>
-        where TDocumentFragment : TNode
-        where TElement          : TNode
+        where TContainer        : TNode
+        where TDocumentFragment : TContainer
+        where TElement          : TContainer
         where TTemplateElement  : TElement
         where TComment          : TNode
     {

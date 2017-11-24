@@ -40,8 +40,14 @@ namespace High5
         static T NonNullArg<T>(T input, string paramName) where T : class =>
             input ?? throw new ArgumentNullException(paramName);
 
-        public IEnumerable<HtmlNode> GetChildNodes(HtmlNode node) =>
-            NonNullArg(node, nameof(node)).ChildNodes;
+        public bool TryGetChildNodes(HtmlNode node, out IEnumerable<HtmlNode> childNodes)
+        {
+            childNodes = NonNullArg(node, nameof(node)).ChildNodes;
+            return true;
+        }
+
+        public IEnumerable<HtmlNode> GetChildNodes(HtmlElement element) =>
+            NonNullArg(element, nameof(element)).ChildNodes;
 
         public bool TryGetElement(HtmlNode node, out HtmlElement element)
         {

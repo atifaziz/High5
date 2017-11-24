@@ -27,7 +27,7 @@ namespace High5
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using IDefaultTreeBuilder = IDocumentTreeBuilder<HtmlNode,
+    using IDefaultTreeBuilder = IDocumentTreeBuilder<HtmlNode, HtmlNode,
                                                      HtmlDocument, HtmlDocumentFragment,
                                                      HtmlElement, HtmlAttribute, HtmlTemplateElement,
                                                      HtmlComment>;
