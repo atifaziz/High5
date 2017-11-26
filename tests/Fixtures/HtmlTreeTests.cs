@@ -177,7 +177,7 @@ namespace High5.Tests
                          tree.DescendantNodes()
                              .Elements()
                              .Single(e => e.Node == p)
-                             .Ancestors()
+                             .AncestorNodes()
                              .Select(a => a.Node));
 
             var treePara = HtmlTree.Create(p);

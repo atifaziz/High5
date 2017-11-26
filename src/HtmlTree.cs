@@ -207,11 +207,19 @@ namespace High5
         }
 
         /// <summary>
+        /// Returns a sequence of the ancestor elements of this node, going
+        /// from the nearest to the furthest ancestor.
+        /// </summary>
+
+        public IEnumerable<HtmlTree<HtmlElement>> Ancestors() =>
+            AncestorNodes().Elements();
+
+        /// <summary>
         /// Returns a sequence of the ancestors of this node, going from the
         /// nearest to the furthest ancestor.
         /// </summary>
 
-        public IEnumerable<HtmlTree<HtmlNode>> Ancestors()
+        public IEnumerable<HtmlTree<HtmlNode>> AncestorNodes()
         {
             for (var parent = Parent; parent != null; parent = parent.Value.Parent)
                 yield return parent.Value;
