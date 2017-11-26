@@ -84,7 +84,10 @@ namespace High5
 
         public bool IsEmpty => Node == null;
 
-        public HtmlTree<HtmlNode> AsBaseNode() => HtmlTree.Create((HtmlNode) Node, AncestorStack);
+        internal HtmlTree<T> As<T>() where T : HtmlNode =>
+            HtmlTree.Create((T) (HtmlNode) Node, _ancestorStack);
+
+        public HtmlTree<HtmlNode> AsBaseNode() => As<HtmlNode>();
 
         public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
         public bool HasChildNodes => ChildNodeCount > 0;
@@ -172,8 +175,8 @@ namespace High5
         }
 
         internal HtmlTree<HtmlElement> AsElementOrDefault() =>
-            (object) Node is HtmlElement element
-            ? HtmlTree.Create(element, _ancestorStack)
+            Node is HtmlElement
+            ? As<HtmlElement>()
             : default(HtmlTree<HtmlElement>);
 
         public IEnumerable<HtmlTree<HtmlNode>> DescendantNodesAndSelf() =>
@@ -251,6 +254,15 @@ namespace High5
 
         static HtmlTree<T> TreeFromNode<T>(T root) where T : HtmlNode =>
             Create(root, ListNode<HtmlNode>.Empty);
+
+        public static HtmlTree<HtmlElement> AsElement(this HtmlTree<HtmlNode> node) =>
+            node.As<HtmlElement>();
+
+        public static IEnumerable<HtmlTree<HtmlElement>> AncestorsAndSelf(this HtmlTree<HtmlElement> element) =>
+            Enumerable.Repeat(element, 1).Concat(element.Ancestors());
+
+        public static IEnumerable<HtmlTree<HtmlElement>> AncestorsAndSelf(this HtmlTree<HtmlTemplateElement> element) =>
+            element.AsBaseNode().AsElement().AncestorsAndSelf();
 
         public static IEnumerable<HtmlTree<HtmlElement>> Elements(this IEnumerable<HtmlTree<HtmlNode>> nodes) =>
             from n in nodes ?? throw new ArgumentNullException(nameof(nodes))
