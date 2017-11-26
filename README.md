@@ -40,9 +40,9 @@ var fragment = Parser.ParseFragment(html, null);
 ```
 
 
-[win-build-badge]: https://img.shields.io/appveyor/ci/raboof/high5.svg?label=windows
+[win-build-badge]: https://img.shields.io/appveyor/ci/raboof/high5/master.svg?label=windows
 [win-builds]: https://ci.appveyor.com/project/raboof/high5
-[nix-build-badge]: https://img.shields.io/travis/atifaziz/High5.svg?label=linux
+[nix-build-badge]: https://img.shields.io/travis/atifaziz/High5/master.svg?label=linux
 [nix-builds]: https://travis-ci.org/atifaziz/High5
 [myget-badge]: https://img.shields.io/myget/raboof/vpre/High5.svg?label=myget
 [edge-pkgs]: https://www.myget.org/feed/raboof/package/nuget/High5
