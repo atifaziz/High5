@@ -224,6 +224,14 @@ namespace High5
             for (var parent = Parent; parent != null; parent = parent.Value.Parent)
                 yield return parent.Value;
         }
+
+        /// <summary>
+        /// Returns a sequence of the ancestors of this node, going from this
+        /// node then the nearest to the furthest ancestor.
+        /// </summary>
+
+        public IEnumerable<HtmlTree<HtmlNode>> AncestorNodesAndSelf() =>
+            Enumerable.Repeat(AsBaseNode(), 1).Concat(AncestorNodes());
     }
 
     public static class HtmlTree
