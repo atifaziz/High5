@@ -91,7 +91,7 @@ namespace High5.Tests
 
         [Fact]
         public void DefaultDescendantsIsEmpty() =>
-            Assert.Empty(DefaultHtmlTree.Descendants());
+            Assert.Empty(DefaultHtmlTree.DescendantNodes());
 
         [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
@@ -141,20 +141,20 @@ namespace High5.Tests
             Assert.True(treeBody.PreviousSibling == treeHead);
             Assert.Null(treeBody.NextSibling);
 
-            Assert.Equal(doc.Descendants(),
-                         from d in tree.Descendants()
+            Assert.Equal(doc.DescendantNodes(),
+                         from d in tree.DescendantNodes()
                          select d.Node);
 
-            Assert.Equal(doc.DescendantsAndSelf(),
-                         from d in tree.DescendantsAndSelf()
+            Assert.Equal(doc.DescendantNodesAndSelf(),
+                         from d in tree.DescendantNodesAndSelf()
                          select d.Node);
 
             Assert.Equal(html.Elements(),
                          from e in treeHtml.Elements()
                          select e.Node);
 
-            Assert.Equal(html.Descendants().Elements(),
-                         from e in treeHtml.Descendants().Elements()
+            Assert.Equal(html.DescendantNodes().Elements(),
+                         from e in treeHtml.DescendantNodes().Elements()
                          select e.Node);
 
             Assert.Equal(treeBody.ChildNodes.Skip(1),
@@ -174,7 +174,7 @@ namespace High5.Tests
             Assert.Empty(treeBody.FirstChild.Value.NodesBeforeSelf());
 
             Assert.Equal(new HtmlNode[] { body, html, doc },
-                         tree.Descendants()
+                         tree.DescendantNodes()
                              .Elements()
                              .Single(e => e.Node == p)
                              .Ancestors()

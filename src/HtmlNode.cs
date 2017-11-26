@@ -45,18 +45,18 @@ namespace High5
         public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
         public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
 
-        public IEnumerable<HtmlNode> Descendants()
+        public IEnumerable<HtmlNode> DescendantNodes()
         {
             foreach (var child in ChildNodes)
             {
                 yield return child;
-                foreach (var descendant in child.Descendants())
+                foreach (var descendant in child.DescendantNodes())
                     yield return descendant;
             }
         }
 
-        public IEnumerable<HtmlNode> DescendantsAndSelf() =>
-            Enumerable.Repeat(this, 1).Concat(Descendants());
+        public IEnumerable<HtmlNode> DescendantNodesAndSelf() =>
+            Enumerable.Repeat(this, 1).Concat(DescendantNodes());
     }
 
     public static partial class HtmlNodeExtensions

@@ -152,7 +152,10 @@ namespace High5
         public static bool operator !=(HtmlTree<TNode> left, HtmlTree<TNode> right) =>
             !left.Equals(right);
 
-        public IEnumerable<HtmlTree<HtmlNode>> Descendants()
+        public IEnumerable<HtmlTree<HtmlElement>> Descendants() =>
+            DescendantNodes().Elements();
+
+        public IEnumerable<HtmlTree<HtmlNode>> DescendantNodes()
         {
             if (HasChildNodes)
             {
@@ -161,7 +164,7 @@ namespace High5
                     yield return child;
                     if (child.HasChildNodes)
                     {
-                        foreach (var descendant in child.Descendants())
+                        foreach (var descendant in child.DescendantNodes())
                             yield return descendant;
                     }
                 }
@@ -173,8 +176,11 @@ namespace High5
             ? HtmlTree.Create(element, _ancestorStack)
             : default(HtmlTree<HtmlElement>);
 
-        public IEnumerable<HtmlTree<HtmlNode>> DescendantsAndSelf() =>
-            Enumerable.Repeat(AsBaseNode(), 1).Concat(Descendants());
+        public IEnumerable<HtmlTree<HtmlNode>> DescendantNodesAndSelf() =>
+            Enumerable.Repeat(AsBaseNode(), 1).Concat(DescendantNodes());
+
+        public IEnumerable<HtmlTree<HtmlElement>> DescendantsAndSelf() =>
+            DescendantNodesAndSelf().Elements();
 
         public IEnumerable<HtmlTree<HtmlElement>> Elements() =>
             from d in ChildNodes
