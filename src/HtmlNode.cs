@@ -68,6 +68,18 @@ namespace High5
         public static IEnumerable<HtmlElement> Elements(this HtmlNode node) =>
             node?.ChildNodes.Elements()
             ?? throw new ArgumentNullException(nameof(node));
+
+        public static IEnumerable<HtmlElement> Descendants(this HtmlNode node) =>
+            node?.DescendantNodes().Elements()
+            ?? throw new ArgumentNullException(nameof(node));
+
+        public static IEnumerable<HtmlElement> DescendantsAndSelf(this HtmlElement element)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            return Enumerable.Repeat(element, 1)
+                             .Concat(element.DescendantNodes())
+                             .Elements();
+        }
     }
 
     public sealed class HtmlDocument : HtmlNode

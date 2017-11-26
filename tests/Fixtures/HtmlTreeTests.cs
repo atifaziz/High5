@@ -153,8 +153,8 @@ namespace High5.Tests
                          from e in treeHtml.Elements()
                          select e.Node);
 
-            Assert.Equal(html.DescendantNodes().Elements(),
-                         from e in treeHtml.DescendantNodes().Elements()
+            Assert.Equal(html.Descendants(),
+                         from e in treeHtml.Descendants()
                          select e.Node);
 
             Assert.Equal(treeBody.ChildNodes.Skip(1),
