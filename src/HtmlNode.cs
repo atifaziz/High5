@@ -27,6 +27,7 @@ namespace High5
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
     using Microsoft.Extensions.Internal;
 
     public abstract class HtmlNode
@@ -40,6 +41,45 @@ namespace High5
         internal void AddChildNode(HtmlNode node) => _childNodes.Add(node);
         internal void InsertChildNode(int index, HtmlNode node) => _childNodes.Insert(index, node);
         internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
+
+        public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
+        public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
+
+        public IEnumerable<HtmlNode> DescendantNodes()
+        {
+            foreach (var child in ChildNodes)
+            {
+                yield return child;
+                foreach (var descendant in child.DescendantNodes())
+                    yield return descendant;
+            }
+        }
+
+        public IEnumerable<HtmlNode> DescendantNodesAndSelf() =>
+            Enumerable.Repeat(this, 1).Concat(DescendantNodes());
+    }
+
+    public static partial class HtmlNodeExtensions
+    {
+        public static IEnumerable<HtmlElement> Elements(this IEnumerable<HtmlNode> nodes) =>
+            nodes?.OfType<HtmlElement>()
+            ?? throw new ArgumentNullException(nameof(nodes));
+
+        public static IEnumerable<HtmlElement> Elements(this HtmlNode node) =>
+            node?.ChildNodes.Elements()
+            ?? throw new ArgumentNullException(nameof(node));
+
+        public static IEnumerable<HtmlElement> Descendants(this HtmlNode node) =>
+            node?.DescendantNodes().Elements()
+            ?? throw new ArgumentNullException(nameof(node));
+
+        public static IEnumerable<HtmlElement> DescendantsAndSelf(this HtmlElement element)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            return Enumerable.Repeat(element, 1)
+                             .Concat(element.DescendantNodes())
+                             .Elements();
+        }
     }
 
     public sealed class HtmlDocument : HtmlNode
@@ -181,7 +221,7 @@ namespace High5
         public override string ToString() => Value;
     }
 
-    static class HtmlNodeExtensions
+    partial class HtmlNodeExtensions
     {
         static readonly HtmlDocumentType HtmlDocType = new HtmlDocumentType("html", null, null);
 
