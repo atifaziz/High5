@@ -171,7 +171,7 @@ namespace High5.Tests
             Assert.Equal(treeBody.ChildNodes.Skip(2).Elements(),
                          treeBody.FirstChild?.NextSibling?.ElementsAfterSelf());
 
-            Assert.Empty(treeBody.ChildNodes.First().NodesAfterSelf());
+            Assert.Empty(treeBody.ChildNodes.Last().NodesAfterSelf());
             Assert.Empty(treeBody.Elements().Last().ElementsAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
@@ -186,7 +186,7 @@ namespace High5.Tests
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2).Elements(),
                          treeBody.LastChild?.PreviousSibling?.ElementsBeforeSelf());
 
-            Assert.Empty(treeBody.ChildNodes.Last().NodesBeforeSelf());
+            Assert.Empty(treeBody.ChildNodes.First().NodesBeforeSelf());
             Assert.Empty(treeBody.Elements().First().ElementsBeforeSelf());
 
             Assert.Equal(new HtmlNode[] { body, html, doc },
