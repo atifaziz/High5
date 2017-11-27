@@ -105,10 +105,12 @@ namespace High5.Tests
                         body = Element("body",
                             Element("h1", Attributes(("class", "main")),
                                 Text("Heading")),
+                            Comment("content start"),
                             p = Element("p",
                                 Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")),
                             Element("p",
-                                Text("The quick brown fox jumps over the lazy dog.")))));
+                                Text("The quick brown fox jumps over the lazy dog.")),
+                            Comment("content end"))));
 
             var tree = HtmlTree.Create(doc);
             Assert.Same(doc, tree.Node);
@@ -133,7 +135,7 @@ namespace High5.Tests
             Assert.True(treeBody.Equals(treeHtml.LastChild));
             Assert.Same(body, treeBody.Node);
             Assert.True(treeBody.Parent == treeHtml);
-            Assert.Equal(3, treeBody.ChildNodeCount);
+            Assert.Equal(5, treeBody.ChildNodeCount);
 
             Assert.True(treeHead.NextSibling == treeBody);
             Assert.Null(treeHead.PreviousSibling);
@@ -160,10 +162,17 @@ namespace High5.Tests
             Assert.Equal(treeBody.ChildNodes.Skip(1),
                          treeBody.FirstChild.Value.NodesAfterSelf());
 
+            Assert.Equal(treeBody.ChildNodes.Skip(1).Elements(),
+                         treeBody.FirstChild.Value.ElementsAfterSelf());
+
             Assert.Equal(treeBody.ChildNodes.Skip(2),
                          treeBody.FirstChild.Value.NextSibling.Value.NodesAfterSelf());
 
+            Assert.Equal(treeBody.ChildNodes.Skip(2).Elements(),
+                         treeBody.FirstChild.Value.NextSibling.Value.ElementsAfterSelf());
+
             Assert.Empty(treeBody.LastChild.Value.NodesAfterSelf());
+            Assert.Empty(treeBody.Elements().Last().ElementsAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
                          treeBody.LastChild.Value.NodesBeforeSelf());

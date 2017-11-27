@@ -209,6 +209,9 @@ namespace High5
             }
         }
 
+        public IEnumerable<HtmlTree<HtmlElement>> ElementsAfterSelf() =>
+            NodesAfterSelf().Elements();
+
         /// <summary>
         /// Returns a sequence of the ancestor elements of this node, going
         /// from the nearest to the furthest ancestor.
