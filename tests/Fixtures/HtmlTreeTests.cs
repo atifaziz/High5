@@ -53,6 +53,14 @@ namespace High5.Tests
             Assert.Empty(DefaultHtmlTree.ChildNodes);
 
         [Fact]
+        public void DefaultFirstChildIsNull() =>
+            Assert.Null(DefaultHtmlTree.FirstChild);
+
+        [Fact]
+        public void DefaultLastChildIsNull() =>
+            Assert.Null(DefaultHtmlTree.LastChild);
+
+        [Fact]
         public void DefaultHasParentIsFalse() =>
             Assert.False(DefaultHtmlTree.HasParent);
 
@@ -82,6 +90,10 @@ namespace High5.Tests
             Assert.False(DefaultHtmlTree.Equals(new object()));
 
         [Fact]
+        public void DefaultDescendantsIsEmpty() =>
+            Assert.Empty(DefaultHtmlTree.DescendantNodes());
+
+        [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
             HtmlElement html, head, body, p;
@@ -93,29 +105,96 @@ namespace High5.Tests
                         body = Element("body",
                             Element("h1", Attributes(("class", "main")),
                                 Text("Heading")),
+                            Comment("content start"),
                             p = Element("p",
-                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")))));
+                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")),
+                            Element("p",
+                                Text("The quick brown fox jumps over the lazy dog.")),
+                            Comment("content end"))));
 
             var tree = HtmlTree.Create(doc);
             Assert.Same(doc, tree.Node);
             Assert.False(tree.HasParent);
             Assert.True(tree.HasChildNodes);
             Assert.Equal(1, tree.ChildNodeCount);
+            Assert.True(tree.FirstChild.Equals(tree.LastChild));
 
             var treeHtml = tree.ChildNodes.First();
             Assert.Same(html, treeHtml.Node);
             Assert.True(tree.Equals(treeHtml.Parent));
             Assert.Equal(2, treeHtml.ChildNodeCount);
+            Assert.False(treeHtml.FirstChild.Equals(treeHtml.LastChild));
 
             var treeHead = treeHtml.ChildNodes.First();
+            Assert.True(treeHead.Equals(treeHtml.FirstChild));
             Assert.Same(head, treeHead.Node);
             Assert.True(treeHead.Parent == treeHtml);
             Assert.Equal(1, treeHead.ChildNodeCount);
 
             var treeBody = treeHtml.ChildNodes.Last();
+            Assert.True(treeBody.Equals(treeHtml.LastChild));
             Assert.Same(body, treeBody.Node);
             Assert.True(treeBody.Parent == treeHtml);
-            Assert.Equal(2, treeBody.ChildNodeCount);
+            Assert.Equal(5, treeBody.ChildNodeCount);
+
+            Assert.True(treeHead.NextSibling == treeBody);
+            Assert.Null(treeHead.PreviousSibling);
+
+            Assert.True(treeBody.PreviousSibling == treeHead);
+            Assert.Null(treeBody.NextSibling);
+
+            Assert.Equal(doc.DescendantNodes(),
+                         from d in tree.DescendantNodes()
+                         select d.Node);
+
+            Assert.Equal(doc.DescendantNodesAndSelf(),
+                         from d in tree.DescendantNodesAndSelf()
+                         select d.Node);
+
+            Assert.Equal(html.Elements(),
+                         from e in treeHtml.Elements()
+                         select e.Node);
+
+            Assert.Equal(html.Descendants(),
+                         from e in treeHtml.Descendants()
+                         select e.Node);
+
+            Assert.Equal(treeBody.ChildNodes.Skip(1),
+                         treeBody.FirstChild?.NodesAfterSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Skip(1).Elements(),
+                         treeBody.FirstChild?.ElementsAfterSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Skip(2),
+                         treeBody.FirstChild?.NextSibling?.NodesAfterSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Skip(2).Elements(),
+                         treeBody.FirstChild?.NextSibling?.ElementsAfterSelf());
+
+            Assert.Empty(treeBody.ChildNodes.Last().NodesAfterSelf());
+            Assert.Empty(treeBody.Elements().Last().ElementsAfterSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
+                         treeBody.LastChild?.NodesBeforeSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1).Elements(),
+                         treeBody.LastChild?.ElementsBeforeSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2),
+                         treeBody.LastChild?.PreviousSibling?.NodesBeforeSelf());
+
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2).Elements(),
+                         treeBody.LastChild?.PreviousSibling?.ElementsBeforeSelf());
+
+            Assert.Empty(treeBody.ChildNodes.First().NodesBeforeSelf());
+            Assert.Empty(treeBody.Elements().First().ElementsBeforeSelf());
+
+            Assert.Equal(new HtmlNode[] { body, html, doc },
+                         tree.DescendantNodes()
+                             .Elements()
+                             .Single(e => e.Node == p)
+                             .AncestorNodes()
+                             .Select(a => a.Node));
 
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
