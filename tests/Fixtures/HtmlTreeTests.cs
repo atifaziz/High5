@@ -160,33 +160,33 @@ namespace High5.Tests
                          select e.Node);
 
             Assert.Equal(treeBody.ChildNodes.Skip(1),
-                         treeBody.FirstChild.Value.NodesAfterSelf());
+                         treeBody.FirstChild?.NodesAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Skip(1).Elements(),
-                         treeBody.FirstChild.Value.ElementsAfterSelf());
+                         treeBody.FirstChild?.ElementsAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Skip(2),
-                         treeBody.FirstChild.Value.NextSibling.Value.NodesAfterSelf());
+                         treeBody.FirstChild?.NextSibling?.NodesAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Skip(2).Elements(),
-                         treeBody.FirstChild.Value.NextSibling.Value.ElementsAfterSelf());
+                         treeBody.FirstChild?.NextSibling?.ElementsAfterSelf());
 
-            Assert.Empty(treeBody.LastChild.Value.NodesAfterSelf());
+            Assert.Empty(treeBody.ChildNodes.First().NodesAfterSelf());
             Assert.Empty(treeBody.Elements().Last().ElementsAfterSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
-                         treeBody.LastChild.Value.NodesBeforeSelf());
+                         treeBody.LastChild?.NodesBeforeSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1).Elements(),
-                         treeBody.LastChild.Value.ElementsBeforeSelf());
+                         treeBody.LastChild?.ElementsBeforeSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2),
-                         treeBody.LastChild.Value.PreviousSibling.Value.NodesBeforeSelf());
+                         treeBody.LastChild?.PreviousSibling?.NodesBeforeSelf());
 
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2).Elements(),
-                         treeBody.LastChild.Value.PreviousSibling.Value.ElementsBeforeSelf());
+                         treeBody.LastChild?.PreviousSibling?.ElementsBeforeSelf());
 
-            Assert.Empty(treeBody.FirstChild.Value.NodesBeforeSelf());
+            Assert.Empty(treeBody.ChildNodes.Last().NodesBeforeSelf());
             Assert.Empty(treeBody.Elements().First().ElementsBeforeSelf());
 
             Assert.Equal(new HtmlNode[] { body, html, doc },
