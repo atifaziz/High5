@@ -177,10 +177,17 @@ namespace High5.Tests
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1),
                          treeBody.LastChild.Value.NodesBeforeSelf());
 
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 1).Elements(),
+                         treeBody.LastChild.Value.ElementsBeforeSelf());
+
             Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2),
                          treeBody.LastChild.Value.PreviousSibling.Value.NodesBeforeSelf());
 
+            Assert.Equal(treeBody.ChildNodes.Take(treeBody.ChildNodeCount - 2).Elements(),
+                         treeBody.LastChild.Value.PreviousSibling.Value.ElementsBeforeSelf());
+
             Assert.Empty(treeBody.FirstChild.Value.NodesBeforeSelf());
+            Assert.Empty(treeBody.Elements().First().ElementsBeforeSelf());
 
             Assert.Equal(new HtmlNode[] { body, html, doc },
                          tree.DescendantNodes()
