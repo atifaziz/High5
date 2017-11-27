@@ -129,6 +129,13 @@ namespace High5
                  : (HtmlTree<HtmlNode>?) null;
         }
 
+        public override string ToString() =>
+            IsEmpty
+            ? string.Empty
+            : (HtmlNode) Node is HtmlText text && Parent?.Node is HtmlElement parent
+            ? text.Serialize(parent.TagName)
+            : Node.Serialize();
+
         public bool Equals(HtmlTree<TNode> other) =>
             Equals(other.Node, other._ancestorStack);
 

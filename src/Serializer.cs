@@ -70,6 +70,59 @@ namespace High5
             if (tree.TryGetChildNodes(node, out var children))
                 new Serializer<TNode, TElement>(tree).SerializeChildNodes(node, children, output);
         }
+
+        public static string Serialize(this HtmlText text, string parentTagName)
+        {
+            if (text == null) throw new ArgumentNullException(nameof(text));
+            return Builder.BuildString(sb => SerializeTextTo(text.Value, parentTagName, sb));
+        }
+
+        public static void SerializeTextTo(string value, string parentTagName, StringBuilder output)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (output == null) throw new ArgumentNullException(nameof(output));
+
+            if (parentTagName == _.STYLE || parentTagName == _.SCRIPT || parentTagName == _.XMP || parentTagName == _.IFRAME ||
+                parentTagName == _.NOEMBED || parentTagName == _.NOFRAMES || parentTagName == _.PLAINTEXT || parentTagName == _.NOSCRIPT)
+                output.Append(value);
+
+            else
+                EscapeString(value, false, output);
+        }
+
+        internal static void EscapeString(string str, bool inAttributeMode, StringBuilder sb)
+        {
+            // TODO escape only if needed
+            // Instead of looping over all characters, search for those needing
+            // to be escaped and bulk-add raw chunks in-between.
+
+            foreach (var ch in str)
+            {
+                switch (ch)
+                {
+                    case '&': sb.Append("&amp;"); break;
+                    case '\u00a0': sb.Append("&nbsp;"); break;
+                    default:
+                    {
+                        if (inAttributeMode)
+                        {
+                            if (ch == '"')
+                            {
+                                sb.Append("&quot;");
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (ch == '<') { sb.Append("&lt;"); break; }
+                            if (ch == '>') { sb.Append("&gt;"); break; }
+                        }
+                        sb.Append(ch);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     sealed class Serializer<TNode, TElement>
@@ -115,12 +168,7 @@ namespace High5
             if (parent.IsDefined && _tree.TryGetElement(parent.Value, out var element))
                 parentTn = _tree.GetTagName(element);
 
-            if (parentTn == _.STYLE || parentTn == _.SCRIPT || parentTn == _.XMP || parentTn == _.IFRAME ||
-                parentTn == _.NOEMBED || parentTn == _.NOFRAMES || parentTn == _.PLAINTEXT || parentTn == _.NOSCRIPT)
-                html.Append(value);
-
-            else
-                EscapeString(value, false, html);
+            Serializer.SerializeTextTo(value, parentTn, html);
         }
 
         void SerializeElement(TNode node, TElement element, StringBuilder html)
@@ -181,42 +229,8 @@ namespace High5
                     html.Append(attr.Namespace).Append(':').Append(attr.Name);
 
                 html.Append("=\"");
-                EscapeString(attr.Value, true, html);
+                Serializer.EscapeString(attr.Value, true, html);
                 html.Append('"');
-            }
-        }
-
-        static void EscapeString(string str, bool inAttributeMode, StringBuilder sb)
-        {
-            // TODO escape only if needed
-            // Instead of looping over all characters, search for those needing
-            // to be escaped and bulk-add raw chunks in-between.
-
-            foreach (var ch in str)
-            {
-                switch (ch)
-                {
-                    case '&': sb.Append("&amp;"); break;
-                    case '\u00a0': sb.Append("&nbsp;"); break;
-                    default:
-                    {
-                        if (inAttributeMode)
-                        {
-                            if (ch == '"')
-                            {
-                                sb.Append("&quot;");
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (ch == '<') { sb.Append("&lt;"); break; }
-                            if (ch == '>') { sb.Append("&gt;"); break; }
-                        }
-                        sb.Append(ch);
-                        break;
-                    }
-                }
             }
         }
     }

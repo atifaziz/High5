@@ -94,6 +94,10 @@ namespace High5.Tests
             Assert.Empty(DefaultHtmlTree.DescendantNodes());
 
         [Fact]
+        public void DefaultToStringReturnsEmptyString() =>
+            Assert.Equal(string.Empty, DefaultHtmlTree.ToString());
+
+        [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
             HtmlElement html, head, body, p;
@@ -198,6 +202,35 @@ namespace High5.Tests
 
             var treePara = HtmlTree.Create(p);
             Assert.True(treePara.Equals(treePara.ChildNodes.Single().Parent));
+        }
+
+        [Fact]
+        public void ToStringEncodesTextNodes()
+        {
+            var text = Text("\"2 < 3\" & \"3 > 2\"");
+            const string escaped = "\"2 &lt; 3\" &amp; \"3 &gt; 2\"";
+
+            Assert.Equal($"<p>{escaped}</p>",
+                HtmlTree.Create(Element("p", text)).ToString());
+
+            Assert.Equal(escaped,
+                HtmlTree.Create(DocumentFragment(text)).ToString());
+        }
+
+        [Theory]
+        [InlineData("script"   , "document.writeline('2 < 3 & 3 > 2');")]
+        [InlineData("xmp"      , "<strong>This is bold text</strong> while <em>this is emphasized text.</em>")]
+        [InlineData("style"    , "div.article > a[href] {} /* < & > */")]
+        [InlineData("iframe"   , "<p>Your browser <em>does not</em> support inline frames.</p>")]
+        [InlineData("noembed"  , "<img src='poster.gif' alt='Poster'>")]
+        [InlineData("noframes" , "<p>Your browser <em>does not</em> support frames.</p>")]
+        [InlineData("noscript" , "<p>Your browser <em>does not</em> support scripting.</p>")]
+        [InlineData("plaintext", "<h1>Heading</h1><p>!Lorem ipsum dolor sit amet</p>")]
+        public void ToStringDoesNotEncodeTextOfSomeElements(string tag, string text)
+        {
+            var tree = HtmlTree.Create(Element(tag, Text(text)));
+            Assert.Equal($"<{tag}>{text}</{tag}>", tree.ToString());
+            Assert.Equal(text, tree.FirstChild.ToString());
         }
     }
 }
