@@ -105,15 +105,15 @@ namespace High5.Tests
                 Document(
                     html = Element("html",
                         head = Element("head",
-                            Element("title", Text("Example"))),
+                            Element("title", "Example")),
                         body = Element("body",
                             Element("h1", Attributes(("class", "main")),
-                                Text("Heading")),
+                                "Heading"),
                             Comment("content start"),
                             p = Element("p",
-                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")),
+                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
                             Element("p",
-                                Text("The quick brown fox jumps over the lazy dog.")),
+                                "The quick brown fox jumps over the lazy dog."),
                             Comment("content end"))));
 
             var tree = HtmlTree.Create(doc);
@@ -228,7 +228,7 @@ namespace High5.Tests
         [InlineData("plaintext", "<h1>Heading</h1><p>!Lorem ipsum dolor sit amet</p>")]
         public void ToStringDoesNotEncodeTextOfSomeElements(string tag, string text)
         {
-            var tree = HtmlTree.Create(Element(tag, Text(text)));
+            var tree = HtmlTree.Create(Element(tag, text));
             Assert.Equal($"<{tag}>{text}</{tag}>", tree.ToString());
             Assert.Equal(text, tree.FirstChild.ToString());
         }

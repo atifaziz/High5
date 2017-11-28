@@ -51,6 +51,12 @@ namespace High5
         public static HtmlElement Element(string tagName) =>
             Element(tagName, new HtmlNode[] {});
 
+        public static HtmlElement Element(string tagName, string text) =>
+            Element(tagName, Text(text));
+
+        public static HtmlElement Element(string tagName, IEnumerable<HtmlAttribute> attributes, string text) =>
+            Element(tagName, attributes, Text(text));
+
         public static HtmlElement Element(string tagName, params HtmlNode[] children) =>
             Element(tagName, (IEnumerable<HtmlNode>) children);
 
@@ -58,7 +64,7 @@ namespace High5
             Element(tagName, null, children);
 
         public static HtmlElement Element(string tagName, params HtmlAttribute[] attributes) =>
-            Element(tagName, attributes, null);
+            Element(tagName, attributes, EmptyArray<HtmlNode>.Value);
 
         public static HtmlElement Element(string tagName, IEnumerable<HtmlAttribute> attributes, params HtmlNode[] children) =>
             Element(tagName, attributes, (IEnumerable<HtmlNode>) children);

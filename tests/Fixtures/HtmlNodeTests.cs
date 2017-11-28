@@ -202,6 +202,45 @@ namespace High5.Tests
         }
 
         [Fact]
+        public void ElementWithStringReturnsElementWithStringAsTextNode()
+        {
+            const string tagName = "p";
+            const string text = "This is a paragraph.";
+            var e = Element(tagName, text);
+
+            Assert.NotNull(e);
+            Assert.Equal(tagName, e.TagName);
+
+            Assert.Empty(e.Attributes);
+
+            Assert.Equal(1, e.ChildNodes.Count);
+            Assert.IsType<HtmlText>(e.FirstChild);
+            Assert.Equal(text, ((HtmlText) e.FirstChild).Value);
+        }
+
+        [Fact]
+        public void ElementWithAttributesAndStringReturnsElementWithStringAsTextNode()
+        {
+            const string tagName = "div";
+            const string text = "Please tread carefully!";
+            const string @class = nameof(@class);
+            const string classes = "warn";
+            var e = Element(tagName, Attributes((@class, classes)), text);
+
+            Assert.NotNull(e);
+            Assert.Equal(tagName, e.TagName);
+            Assert.Equal(1, e.Attributes.Count);
+
+            var attr = e.Attributes.Single();
+            Assert.Equal(@class, attr.Name);
+            Assert.Equal(classes, attr.Value);
+
+            Assert.Equal(1, e.ChildNodes.Count);
+            Assert.IsType<HtmlText>(e.FirstChild);
+            Assert.Equal(text, ((HtmlText) e.FirstChild).Value);
+        }
+
+        [Fact]
         public void DocumentFragmentReturnsDocumentFragmentInitialized()
         {
             var fragment = DocumentFragment();
@@ -298,10 +337,10 @@ namespace High5.Tests
         {
             var head =
                 Element("head",
-                    Element("title", Text("The Document")));
+                    Element("title", "The Document"));
             var body =
                 Element("body",
-                    Element("p", Text("This is a paragraph.")));
+                    Element("p", "This is a paragraph."));
 
             var document = Document(head, body);
 
