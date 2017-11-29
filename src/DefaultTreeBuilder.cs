@@ -126,7 +126,7 @@ namespace High5
         public HtmlNode InsertTextBefore(HtmlNode parentNode, string text, HtmlNode referenceNode)
         {
             var idx = parentNode.ChildNodes.IndexOf(referenceNode) - 1;
-            var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count() ? parentNode.ChildNodes[idx] : null;
+            var prevNode = 0 <= idx && idx < parentNode.ChildNodes.Count ? parentNode.ChildNodes[idx] : null;
 
             if (prevNode is HtmlText textNode)
             {
@@ -143,14 +143,21 @@ namespace High5
 
         public void AdoptAttributes(HtmlElement recipient, ArraySegment<HtmlAttribute> attributes)
         {
-            var recipientAttrsMap = new HashSet<string>();
+            var recipientAttributes = recipient.Attributes;
 
-            foreach (var attr in recipient.Attributes)
-                recipientAttrsMap.Add(attr.Name);
-
-            foreach (var attr in attributes)
+            HashSet<string> recipientAttrsMap = null;
+            if (recipientAttributes.Count > 0)
             {
-                if (!recipientAttrsMap.Contains(attr.Name))
+                recipientAttrsMap = new HashSet<string>();
+
+                for (var i = 0; i < recipientAttributes.Count; i++)
+                    recipientAttrsMap.Add(recipientAttributes[i].Name);
+            }
+
+            for (var i = attributes.Offset; i < attributes.Count; i++)
+            {
+                var attr = attributes.Array[i];
+                if (recipientAttrsMap == null || recipientAttrsMap.Contains(attr.Name))
                     recipient.AttributesPush(attr);
             }
         }
@@ -158,7 +165,7 @@ namespace High5
         // Tree traversing
 
         public HtmlNode GetFirstChild(HtmlNode node) =>
-            node.ChildNodes.Any() ? node.ChildNodes[0] : null;
+            node.ChildNodes.Count > 0 ? node.ChildNodes[0] : null;
 
         public int GetAttributeCount(HtmlElement element) =>
             element.Attributes.Count;
