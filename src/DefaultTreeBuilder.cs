@@ -157,7 +157,7 @@ namespace High5
             for (var i = attributes.Offset; i < attributes.Count; i++)
             {
                 var attr = attributes.Array[i];
-                if (recipientAttrsMap == null || recipientAttrsMap.Contains(attr.Name))
+                if (recipientAttrsMap == null || !recipientAttrsMap.Contains(attr.Name))
                     recipient.AttributesPush(attr);
             }
         }
