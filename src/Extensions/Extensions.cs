@@ -30,7 +30,7 @@ namespace High5.Extensions
     static class StringExtensions
     {
         public static string ToLowerCase(this string str) => str.ToLowerInvariant();
-        public static int CharCodeAt(this string str, int index) => (int)str[index];
+        public static int CharCodeAt(this string str, int index) => str[index];
     }
 
     static class ListExtensions
