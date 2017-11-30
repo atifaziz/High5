@@ -43,7 +43,7 @@ namespace High5
         internal void RemoveChildNodeAt(int index) => _childNodes.RemoveAt(index);
 
         public HtmlNode FirstChild => ChildNodes.Count > 0 ? ChildNodes[0] : null;
-        public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes.GetLastItem() : null;
+        public HtmlNode LastChild  => ChildNodes.Count > 0 ? ChildNodes[ChildNodes.Count - 1] : null;
 
         public IEnumerable<HtmlNode> DescendantNodes()
         {

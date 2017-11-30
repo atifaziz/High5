@@ -35,12 +35,6 @@ namespace High5.Extensions
 
     static class ListExtensions
     {
-        public static T GetLastItem<T>(this IList<T> list)
-        {
-            if (list == null) throw new ArgumentNullException(nameof(list));
-            return list[list.Count - 1];
-        }
-
         public static void Push<T>(this List<T> list, T elem)
         {
             list.Add(elem);
