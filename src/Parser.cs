@@ -42,16 +42,23 @@ namespace High5
     public static class Parser
     {
         public static HtmlDocument Parse(string html) =>
-            Parse(TreeBuilder.Default, html);
+            Parse(html, (doc, _) => doc);
 
-        public static TDocument Parse<TNode, TContainer,
-                                      TDocument, TDocumentFragment,
-                                      TElement, TAttribute, TTemplateElement,
-                                      TComment>(
+        public static TResult Parse<TResult>(string html,
+            Func<HtmlDocument, string, TResult> resultSelector) =>
+            Parse(TreeBuilder.Default, html, resultSelector);
+
+        public static TResult Parse<TNode, TContainer,
+                                    TDocument, TDocumentFragment,
+                                    TElement, TAttribute, TTemplateElement,
+                                    TComment,
+                                    TResult>(
             IDocumentTreeBuilder<TNode, TContainer,
                                  TDocument, TDocumentFragment,
                                  TElement, TAttribute, TTemplateElement,
-                                 TComment> builder, string html)
+                                 TComment> builder,
+            string html,
+            Func<TDocument, string, TResult> resultSelector)
             where TNode             : class
             where TContainer        : class, TNode
             where TDocument         : TContainer
@@ -68,12 +75,10 @@ namespace High5
             var document =
                 new Document<TDocument, TContainer, TNode>(
                     builder.CreateDocument(),
-                    builder.SetDocumentType,
-                    builder.SetDocumentMode,
-                    builder.GetDocumentMode);
+                    builder.SetDocumentType);
 
             parser.ParseTo(html, document);
-            return document.Node;
+            return resultSelector(document.Node, document.Mode);
         }
 
         public static HtmlDocumentFragment ParseFragment(string html, HtmlNode context) =>
@@ -105,18 +110,12 @@ namespace High5
             where TDocument : TContainer
         {
             readonly Func<TDocument, string, string, string, TNode> _documentTypeSetter;
-            readonly Action<TDocument, string> _documentModeSetter;
-            readonly Func<TDocument, string> _documentModeGetter;
 
             public Document(TDocument node,
-                            Func<TDocument, string, string, string, TNode> documentTypeSetter,
-                            Action<TDocument, string> documentModeSetter,
-                            Func<TDocument, string> documentModeGetter)
+                            Func<TDocument, string, string, string, TNode> documentTypeSetter)
             {
                 Node = node;
                 _documentTypeSetter = documentTypeSetter;
-                _documentModeSetter = documentModeSetter;
-                _documentModeGetter = documentModeGetter;
             }
 
             public TDocument Node { get; }
@@ -125,11 +124,8 @@ namespace High5
             public TNode SetDocumentType(string name, string publicId, string systemId) =>
                 _documentTypeSetter(Node, name, publicId, systemId);
 
-            public string Mode
-            {
-                get => _documentModeGetter(Node);
-                set => _documentModeSetter(Node, value);
-            }
+            // TODO Fix Mode to be enum
+            public string Mode { get; set; }
         }
     }
 

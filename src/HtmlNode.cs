@@ -82,10 +82,7 @@ namespace High5
         }
     }
 
-    public sealed class HtmlDocument : HtmlNode
-    {
-        public string Mode { get; internal set; }
-    }
+    public sealed class HtmlDocument : HtmlNode {}
 
     public sealed class HtmlDocumentFragment : HtmlNode {}
 

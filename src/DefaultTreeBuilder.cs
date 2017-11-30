@@ -91,12 +91,6 @@ namespace High5
             }
         }
 
-        public void SetDocumentMode(HtmlDocument document, string mode) =>
-            document.Mode = mode;
-
-        public string GetDocumentMode(HtmlDocument document) =>
-            document.Mode;
-
         public void DetachNode(HtmlNode parentNode, HtmlNode node)
         {
             if (parentNode == null)

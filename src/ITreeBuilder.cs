@@ -83,7 +83,5 @@ namespace High5
     {
         TDocument CreateDocument();
         TNode SetDocumentType(TDocument document, string name, string publicId, string systemId);
-        void SetDocumentMode(TDocument document, string mode);
-        string GetDocumentMode(TDocument document);
     }
 }
