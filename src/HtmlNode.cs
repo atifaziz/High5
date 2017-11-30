@@ -168,18 +168,22 @@ namespace High5
 
         public ReadOnlyCollection<HtmlAttribute> Attributes => _attrs;
 
-        internal HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes)
+        HtmlElement(string tagName, string namespaceUri)
         {
             TagName = tagName;
             NamespaceUri = namespaceUri;
+        }
+
+        internal HtmlElement(string tagName, string namespaceUri, IEnumerable<HtmlAttribute> attributes) :
+            this(tagName, namespaceUri)
+        {
             foreach (var attribute in attributes ?? Enumerable.Empty<HtmlAttribute>())
                 _attrs.Add(attribute);
         }
 
-        internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes)
+        internal HtmlElement(string tagName, string namespaceUri, ArraySegment<HtmlAttribute> attributes) :
+            this(tagName, namespaceUri)
         {
-            TagName = tagName;
-            NamespaceUri = namespaceUri;
             if (attributes.Count > 0)
             {
                 for (var i = attributes.Offset; i < attributes.Offset + attributes.Count; i++)
