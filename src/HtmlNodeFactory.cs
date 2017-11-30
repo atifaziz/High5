@@ -36,8 +36,8 @@ namespace High5
             from a in attributes
             select Attribute(a.Name, a.Value);
 
-        public static HtmlDocument Document(params HtmlNode[] children) =>
-            Document((IEnumerable<HtmlNode>) children);
+        public static HtmlDocument Document(HtmlNode first, params HtmlNode[] children) =>
+            Document(Enumerable.Repeat(first, 1).Concat(children));
 
         public static HtmlDocument Document(IEnumerable<HtmlNode> children) =>
             AddingChildren(new HtmlDocument(), children);

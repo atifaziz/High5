@@ -326,10 +326,12 @@ namespace High5.Tests
         [Fact]
         public void DocumentReturnsDocumentNodeInitialized()
         {
-            var document = Document();
+            HtmlElement html;
+            var document = Document(html = Element("html"));
 
             Assert.NotNull(document);
-            Assert.Equal(0, document.ChildNodes.Count);
+            Assert.Equal(1, document.ChildNodes.Count);
+            Assert.Same(html, document.ChildNodes.Single());
         }
 
         [Fact]
