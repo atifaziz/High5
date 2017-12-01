@@ -60,13 +60,19 @@ namespace High5.Tests
         {
             internal static void AssertEqual(string expectedName,
                                              string expectedValue,
+                                             HtmlAttribute actualAttribute) =>
+                AssertEqual(null, expectedName, expectedValue, actualAttribute);
+
+            internal static void AssertEqual(string expectedNamespaceUri,
+                                             string expectedName,
+                                             string expectedValue,
                                              HtmlAttribute actualAttribute)
             {
                 Assert.NotNull(actualAttribute);
+                Assert.Equal(expectedNamespaceUri, actualAttribute.NamespaceUri);
+                Assert.Equal(null, actualAttribute.Prefix);
                 Assert.Equal(expectedName, actualAttribute.Name);
                 Assert.Equal(expectedValue, actualAttribute.Value);
-                Assert.Equal(null, actualAttribute.NamespaceUri);
-                Assert.Equal(null, actualAttribute.Prefix);
             }
 
             [Fact]
@@ -116,12 +122,49 @@ namespace High5.Tests
                 Assert.Equal(n, name);
                 Assert.Equal(v, value);
             }
+
+            const string XmlnsNs = "http://www.w3.org/2000/xmlns/";
+
+            [Fact]
+            public void XmlnsWithValueOnlyReturnsXmlnsAttributeInXmlnsNamespace()
+            {
+                const string value = "http://www.example.com/";
+                var attribute = XmlnsAttribute(value);
+                AssertEqual(XmlnsNs, "xmlns", value, attribute);
+            }
+
+            [Fact]
+            public void XmlnsReturnsAttributeInXmlnsNamespace()
+            {
+                const string name = "name";
+                const string value = "value";
+                var attribute = XmlnsAttribute(name, value);
+                AssertEqual(XmlnsNs, name, value, attribute);
+            }
+
+            [Fact]
+            public void XmlReturnsAttributeInXmlNamespace()
+            {
+                const string name = "name";
+                const string value = "value";
+                var attribute = XmlAttribute(name, value);
+                AssertEqual("http://www.w3.org/XML/1998/namespace", name, value, attribute);
+            }
+
+            [Fact]
+            public void XLinkReturnsAttributeInXLinkNamespace()
+            {
+                const string name = "name";
+                const string value = "value";
+                var attribute = XLinkAttribute(name, value);
+                AssertEqual("http://www.w3.org/1999/xlink", name, value, attribute);
+            }
         }
 
         public class Attributes
         {
             [Fact]
-            public void AttributesReturnsSequenceOfInitializedAttributes()
+            public void ReturnsSequenceOfInitializedAttributes()
             {
                 const string name1  = "name1";
                 const string value1 = "value2";

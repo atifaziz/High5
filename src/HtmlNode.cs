@@ -107,10 +107,10 @@ namespace High5
         public string Name         { get; }
         public string Value        { get; }
 
-        public HtmlAttribute(string name, string value) :
+        internal HtmlAttribute(string name, string value) :
             this(null, null, name, value) {}
 
-        public HtmlAttribute(string namespaceUri, string prefix, string name, string value)
+        internal HtmlAttribute(string namespaceUri, string prefix, string name, string value)
         {
             NamespaceUri = namespaceUri;
             Prefix       = prefix;

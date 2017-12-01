@@ -32,6 +32,20 @@ namespace High5
         public static HtmlAttribute Attribute(string name, string value) =>
             new HtmlAttribute(name, value);
 
+        public static HtmlAttribute XmlnsAttribute(string name, string value) =>
+            new HtmlAttribute(HTML.NAMESPACES.XMLNS, null, name, value);
+
+        public static HtmlAttribute XmlnsAttribute(string value) =>
+            new HtmlAttribute(HTML.NAMESPACES.XMLNS, null, "xmlns", value);
+
+        public static HtmlAttribute XLinkAttribute(string name, string value) =>
+            new HtmlAttribute(HTML.NAMESPACES.XLINK, null, name, value);
+
+        public static HtmlAttribute XmlAttribute(string name, string value) =>
+            new HtmlAttribute(HTML.NAMESPACES.XML, null, name, value);
+
+        public static IEnumerable<HtmlAttribute> Attributes(params HtmlAttribute[] attributes) => attributes;
+
         public static IEnumerable<HtmlAttribute> Attributes(params (string Name, string Value)[] attributes) =>
             from a in attributes
             select Attribute(a.Name, a.Value);
