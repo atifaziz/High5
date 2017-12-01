@@ -30,6 +30,8 @@ namespace High5.Tests
 
     public class HtmlNodeFactoryTests
     {
+        const string HtmlNs = "http://www.w3.org/1999/xhtml";
+
         public class Text
         {
             [Fact]
@@ -61,7 +63,7 @@ namespace High5.Tests
             internal static void AssertEqual(string expectedName,
                                              string expectedValue,
                                              HtmlAttribute actualAttribute) =>
-                AssertEqual(null, expectedName, expectedValue, actualAttribute);
+                AssertEqual(HtmlNs, expectedName, expectedValue, actualAttribute);
 
             internal static void AssertEqual(string expectedNamespaceUri,
                                              string expectedName,
@@ -70,7 +72,7 @@ namespace High5.Tests
             {
                 Assert.NotNull(actualAttribute);
                 Assert.Equal(expectedNamespaceUri, actualAttribute.NamespaceUri);
-                Assert.Equal(null, actualAttribute.Prefix);
+                Assert.Equal(string.Empty, actualAttribute.Prefix);
                 Assert.Equal(expectedName, actualAttribute.Name);
                 Assert.Equal(expectedValue, actualAttribute.Value);
             }
@@ -104,7 +106,7 @@ namespace High5.Tests
 
                 var attribute = Attribute(name, value);
                 var (ns, n, v) = attribute;
-                Assert.Equal(ns, null);
+                Assert.Equal(ns, HtmlNs);
                 Assert.Equal(n, name);
                 Assert.Equal(v, value);
             }
@@ -117,8 +119,8 @@ namespace High5.Tests
 
                 var attribute = Attribute(name, value);
                 var (ns, prefix, n, v) = attribute;
-                Assert.Equal(ns, null);
-                Assert.Equal(prefix, null);
+                Assert.Equal(ns, HtmlNs);
+                Assert.Equal(prefix, string.Empty);
                 Assert.Equal(n, name);
                 Assert.Equal(v, value);
             }
@@ -186,8 +188,6 @@ namespace High5.Tests
 
         public class Element
         {
-            const string HtmlNs = "http://www.w3.org/1999/xhtml";
-
             [Fact]
             public void ReturnsElementNodeInitialzed()
             {

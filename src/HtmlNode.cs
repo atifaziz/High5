@@ -99,29 +99,88 @@ namespace High5
         }
     }
 
-    public struct HtmlAttribute : IEquatable<HtmlAttribute>
+    sealed class HtmlAttributeName : IEquatable<HtmlAttributeName>
     {
         public string NamespaceUri { get; }
         public string Prefix       { get; }
         public string Name         { get; }
+
+        public HtmlAttributeName(string name) :
+            this(null, null, name) {}
+
+        public HtmlAttributeName(string namespaceUri, string prefix, string name)
+        {
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (name.Length == 0) throw new ArgumentException(null, nameof(name));
+
+            NamespaceUri = namespaceUri ?? HTML.NAMESPACES.HTML;
+            Prefix       = prefix ?? string.Empty;
+            Name         = name;
+        }
+
+        public bool Equals(HtmlAttributeName other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+            if (!string.Equals(NamespaceUri, other.NamespaceUri))
+                return false;
+            var comparison
+                =    NamespaceUri == HTML.NAMESPACES.HTML
+                  || NamespaceUri == HTML.NAMESPACES.MATHML
+                  || NamespaceUri == HTML.NAMESPACES.SVG
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            return string.Equals(Prefix, other.Prefix, comparison)
+                && string.Equals(Name, other.Name, comparison);
+        }
+
+        public override bool Equals(object obj) =>
+            obj is HtmlAttributeName other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            var hash = HashCodeCombiner.Start();
+            hash.Add(NamespaceUri);
+            var comparer
+                =    NamespaceUri == HTML.NAMESPACES.HTML
+                  || NamespaceUri == HTML.NAMESPACES.MATHML
+                  || NamespaceUri == HTML.NAMESPACES.SVG
+                  ? StringComparer.OrdinalIgnoreCase
+                  : StringComparer.Ordinal;
+            hash.Add(Prefix, comparer);
+            hash.Add(Name, comparer);
+            return hash.CombinedHash;
+        }
+
+        public override string ToString() =>
+            Prefix.Length == 0 && NamespaceUri.Length == 0 ? Name
+            : Prefix.Length > 0 ? $"{Prefix}:Name ({NamespaceUri})"
+            : Name + " (" + NamespaceUri + ")";
+    }
+
+    public struct HtmlAttribute : IEquatable<HtmlAttribute>
+    {
+        readonly HtmlAttributeName _name;
+
+        public string NamespaceUri => _name?.NamespaceUri;
+        public string Prefix       => _name?.Prefix;
+        public string Name         => _name?.Name;
         public string Value        { get; }
 
         internal HtmlAttribute(string name, string value) :
             this(null, null, name, value) {}
 
-        internal HtmlAttribute(string namespaceUri, string prefix, string name, string value)
+        internal HtmlAttribute(string namespaceUri, string prefix, string name, string value) :
+            this(new HtmlAttributeName(namespaceUri, prefix, name), value) {}
+
+        internal HtmlAttribute(HtmlAttributeName name, string value)
         {
-            NamespaceUri = namespaceUri;
-            Prefix       = prefix;
-            Name         = name;
-            Value        = value;
+            _name = name;
+            Value = value;
         }
 
         public bool Equals(HtmlAttribute other) =>
-            string.Equals(NamespaceUri, other.NamespaceUri)
-            && string.Equals(Prefix, other.Prefix, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(Value, other.Value);
+            _name?.Equals(other._name) == true && string.Equals(Value, other.Value);
 
         public override bool Equals(object obj) =>
             obj is HtmlAttribute attribute && Equals(attribute);
