@@ -99,7 +99,7 @@ namespace High5
         }
     }
 
-    sealed class HtmlAttributeName : IEquatable<HtmlAttributeName>
+    sealed partial class HtmlAttributeName : IEquatable<HtmlAttributeName>
     {
         public string NamespaceUri { get; }
         public string Prefix       { get; }

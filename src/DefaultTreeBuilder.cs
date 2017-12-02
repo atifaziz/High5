@@ -51,7 +51,9 @@ namespace High5
             : new HtmlElement(tagName, namespaceUri, attributes);
 
         public HtmlAttribute CreateAttribute(string ns, string prefix, string name, string value) =>
-            new HtmlAttribute(ns, prefix, name, value);
+            ns == HTML.NAMESPACES.HTML && HtmlAttributeName.CommonNames.TryGetValue(name, out var an)
+            ? new HtmlAttribute(an, value)
+            : new HtmlAttribute(ns, prefix, name, value);
 
         public HtmlComment CreateCommentNode(string data) => new HtmlComment(data);
 

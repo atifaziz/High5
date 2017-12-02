@@ -30,7 +30,9 @@ namespace High5
     public static class HtmlNodeFactory
     {
         public static HtmlAttribute Attribute(string name, string value) =>
-            new HtmlAttribute(name, value);
+            HtmlAttributeName.CommonNames.TryGetValue(name, out var an)
+            ? new HtmlAttribute(an, value)
+            : new HtmlAttribute(name, value);
 
         public static HtmlAttribute XmlnsAttribute(string name, string value) =>
             new HtmlAttribute(HTML.NAMESPACES.XMLNS, null, name, value);
