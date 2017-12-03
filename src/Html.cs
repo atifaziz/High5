@@ -207,7 +207,7 @@ namespace High5
             public const string XMP = "xmp";
         }
 
-        public static IDictionary<string, IDictionary<string, bool>> SPECIAL_ELEMENTS = new Dictionary<string, IDictionary<string, bool>>
+        public static readonly IDictionary<string, IDictionary<string, bool>> SPECIAL_ELEMENTS = new Dictionary<string, IDictionary<string, bool>>
         {
             [NS.HTML] = new Dictionary<string, bool>
             {
