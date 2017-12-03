@@ -27,7 +27,6 @@ namespace High5
     using System;
     using System.Collections.Generic;
     using Extensions;
-    using DOCUMENT_MODE = HTML.DOCUMENT_MODE;
 
     static class Doctype
     {
@@ -142,33 +141,33 @@ namespace High5
             }
         }
 
-        public static string GetDocumentMode(string name, string publicId, string systemId)
+        public static DocumentMode GetDocumentMode(string name, string publicId, string systemId)
         {
             if (name != ValidDoctypeName)
-                return DOCUMENT_MODE.QUIRKS;
+                return DocumentMode.Quirks;
 
             if (systemId != null && systemId.ToLowerCase() == QuirksModeSystemId)
-                return DOCUMENT_MODE.QUIRKS;
+                return DocumentMode.Quirks;
 
             if (publicId != null)
             {
                 publicId = publicId.ToLowerCase();
 
                 if (Array.IndexOf(QuirksModePublicIds, publicId) > -1)
-                    return DOCUMENT_MODE.QUIRKS;
+                    return DocumentMode.Quirks;
 
                 var prefixes = systemId == null ? QuirksModeNoSystemIdPublicIdPrefixes : QuirksModePublicIdPrefixes;
 
                 if (HasPrefix(publicId, prefixes))
-                    return DOCUMENT_MODE.QUIRKS;
+                    return DocumentMode.Quirks;
 
                 prefixes = systemId == null ? LimitedQuirksPublicIdPrefixes : LimitedQuirksWithSystemIdPublicIdPrefixes;
 
                 if (HasPrefix(publicId, prefixes))
-                    return DOCUMENT_MODE.LIMITED_QUIRKS;
+                    return DocumentMode.LimitedQuirks;
             }
 
-            return DOCUMENT_MODE.NO_QUIRKS;
+            return DocumentMode.NoQuirks;
 
             bool HasPrefix(string str, string[] prefixes)
             {

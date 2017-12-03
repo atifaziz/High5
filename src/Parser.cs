@@ -39,13 +39,21 @@ namespace High5
     using MODE = Tokenizer.MODE;
     using T = HTML.TAG_NAMES;
 
+    public enum DocumentMode
+    {
+        Undefined,
+        NoQuirks,
+        Quirks,
+        LimitedQuirks,
+    }
+
     public static class Parser
     {
         public static HtmlDocument Parse(string html) =>
             Parse(html, (doc, _) => doc);
 
         public static TResult Parse<TResult>(string html,
-            Func<HtmlDocument, string, TResult> resultSelector) =>
+            Func<HtmlDocument, DocumentMode, TResult> resultSelector) =>
             Parse(TreeBuilder.Default, html, resultSelector);
 
         public static TResult Parse<TNode, TContainer,
@@ -58,7 +66,7 @@ namespace High5
                                  TElement, TAttribute, TTemplateElement,
                                  TComment> builder,
             string html,
-            Func<TDocument, string, TResult> resultSelector)
+            Func<TDocument, DocumentMode, TResult> resultSelector)
             where TNode             : class
             where TContainer        : class, TNode
             where TDocument         : TContainer
@@ -125,7 +133,7 @@ namespace High5
                 _documentTypeSetter(Node, name, publicId, systemId);
 
             // TODO Fix Mode to be enum
-            public string Mode { get; set; }
+            public DocumentMode Mode { get; set; }
         }
     }
 
@@ -133,7 +141,7 @@ namespace High5
     {
         TDocument Node { get; }
         TDoctype SetDocumentType(string name, string publicId, string systemId);
-        string Mode { get; set; }
+        DocumentMode Mode { get; set; }
     }
 
     enum InsertionMode
@@ -1415,7 +1423,7 @@ namespace High5
             p.SetDocumentType(token);
 
             var mode = token.ForceQuirks ?
-                HTML.DOCUMENT_MODE.QUIRKS :
+                DocumentMode.Quirks :
                 Doctype.GetDocumentMode(token.Name, token.PublicId, token.SystemId);
 
             p.doc.Mode = mode;
@@ -1425,7 +1433,7 @@ namespace High5
 
         static void TokenInInitialMode(Parser<Node, Container, DocumentFragment, Element, Attr, TemplateElement, Comment> p, Token token)
         {
-            p.doc.Mode = HTML.DOCUMENT_MODE.QUIRKS;
+            p.doc.Mode = DocumentMode.Quirks;
             p.insertionMode = BEFORE_HTML_MODE;
             p.ProcessToken(token);
         }
@@ -1819,7 +1827,7 @@ namespace High5
         static void TableStartTagInBody(Parser<Node, Container, DocumentFragment, Element, Attr, TemplateElement, Comment> p, StartTagToken token)
         {
             var mode = p.doc?.Mode;
-            if (mode != HTML.DOCUMENT_MODE.QUIRKS && p.openElements.HasInButtonScope(T.P))
+            if (mode != DocumentMode.Quirks && p.openElements.HasInButtonScope(T.P))
                 p.ClosePElement();
 
             p.InsertElement(token, NS.HTML);

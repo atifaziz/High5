@@ -52,13 +52,6 @@ namespace High5
             public const string SIZE = "size";
         }
 
-        public static class DOCUMENT_MODE
-        {
-            public const string NO_QUIRKS = "no-quirks";
-            public const string QUIRKS = "quirks";
-            public const string LIMITED_QUIRKS = "limited-quirks";
-        }
-
         public static class TAG_NAMES
         {
             public const string A = "a";
