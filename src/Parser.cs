@@ -132,7 +132,6 @@ namespace High5
             public TNode SetDocumentType(string name, string publicId, string systemId) =>
                 _documentTypeSetter(Node, name, publicId, systemId);
 
-            // TODO Fix Mode to be enum
             public DocumentMode Mode { get; set; }
         }
     }
