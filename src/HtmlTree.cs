@@ -84,7 +84,7 @@ namespace High5
 
         public bool IsEmpty => Node == null;
 
-        internal HtmlTree<T> As<T>() where T : HtmlNode =>
+        public HtmlTree<T> As<T>() where T : HtmlNode =>
             HtmlTree.Create((T) (HtmlNode) Node, _ancestorStack);
 
         public HtmlTree<HtmlNode> AsBaseNode() => As<HtmlNode>();

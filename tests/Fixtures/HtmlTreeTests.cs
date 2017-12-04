@@ -24,6 +24,7 @@
 
 namespace High5.Tests
 {
+    using System;
     using System.Linq;
     using Xunit;
     using static HtmlNodeFactory;
@@ -106,6 +107,21 @@ namespace High5.Tests
             Assert.Same(div.Node, baseNode.Node);
             Assert.Same(tree.Node, baseNode.Parent.Value.Node);
         }
+
+        [Fact]
+        public void AsReturnsTheSameNodeTyped()
+        {
+            HtmlElement htmlElement;
+            var tree = HtmlTree.Create(DocumentFragment(htmlElement = Element("div")));
+            var treeElement = tree.FirstChild.Value.As<HtmlElement>();
+            Assert.Same(htmlElement, treeElement.Node);
+            Assert.Same(tree.Node, treeElement.Parent.Value.Node);
+        }
+
+        [Fact]
+        public void AsWithWrongTypeThrowsInvalidCastException() =>
+            Assert.Throws<InvalidCastException>(() =>
+                HtmlTree.Create(Element("div")).As<HtmlDocument>());
 
         [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
