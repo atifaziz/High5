@@ -124,6 +124,20 @@ namespace High5.Tests
                 HtmlTree.Create(Element("div")).As<HtmlDocument>());
 
         [Fact]
+        public void TryAsReturnsTheSameNodeTyped()
+        {
+            HtmlElement htmlElement;
+            var tree = HtmlTree.Create(DocumentFragment(htmlElement = Element("div")));
+            Assert.True(tree.FirstChild.Value.TryAs<HtmlElement>(out var treeElement));
+            Assert.Same(htmlElement, treeElement.Node);
+            Assert.Same(tree.Node, treeElement.Parent.Value.Node);
+        }
+
+        [Fact]
+        public void TryAsWithWrongTypeReturnsFalse() =>
+            Assert.False(HtmlTree.Create(Element("div")).TryAs<HtmlDocument>(out var _));
+
+        [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
             HtmlElement html, head, body, p;

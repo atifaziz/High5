@@ -87,6 +87,15 @@ namespace High5
         public HtmlTree<T> As<T>() where T : HtmlNode =>
             HtmlTree.Create((T) (HtmlNode) Node, _ancestorStack);
 
+        public bool TryAs<T>(out HtmlTree<T> tree) where T : HtmlNode
+        {
+            var node = Node as T;
+            tree = node != null
+                 ? new HtmlTree<T>(node, _ancestorStack)
+                 : default(HtmlTree<T>);
+            return node != null;
+        }
+
         public HtmlTree<HtmlNode> AsBaseNode() => As<HtmlNode>();
 
         public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
