@@ -41,7 +41,6 @@ namespace High5
 
     public enum DocumentMode
     {
-        Undefined,
         NoQuirks,
         Quirks,
         LimitedQuirks,
@@ -118,6 +117,7 @@ namespace High5
             where TDocument : TContainer
         {
             readonly Func<TDocument, string, string, string, TNode> _documentTypeSetter;
+            DocumentMode? _mode;
 
             public Document(TDocument node,
                             Func<TDocument, string, string, string, TNode> documentTypeSetter)
@@ -132,7 +132,11 @@ namespace High5
             public TNode SetDocumentType(string name, string publicId, string systemId) =>
                 _documentTypeSetter(Node, name, publicId, systemId);
 
-            public DocumentMode Mode { get; set; }
+            public DocumentMode Mode
+            {
+                get => _mode ?? throw new InvalidOperationException();
+                set => _mode = value;
+            }
         }
     }
 
