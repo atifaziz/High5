@@ -217,7 +217,7 @@ namespace High5.Tests
         [InlineData(4, 2)]
         [InlineData(4, 3)]
         [InlineData(4, 4)]
-        public void MatchReturnsResultsBasedOnNodeTypesWhileSkippingMismatches(int cases, int position)
+        public void ChooseReturnsResultsBasedOnNodeTypesWhileSkippingMismatches(int cases, int position)
         {
             HtmlElement p1, p2, p3, hr;
             var tree =
@@ -237,44 +237,44 @@ namespace High5.Tests
 
                 new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
                 {
-                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                    nodes => nodes.Choose((HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e),
                 },
                 new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
                 {
-                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                    nodes => nodes.Choose((HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e),
                 },
                 new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
                 {
-                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                    nodes => nodes.Choose((HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e,
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
 
-                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                    nodes => nodes.Choose((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
                                          (HtmlTree<HtmlElement>  e) => e),

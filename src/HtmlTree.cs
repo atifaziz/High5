@@ -313,7 +313,7 @@ namespace High5
                  : node.TryAs<T4>(out var t4) ? selector4(t4)
                  : defaultSelector(node);
 
-        public static IEnumerable<TResult> Match<T1, T2, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+        public static IEnumerable<TResult> Choose<T1, T2, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
             Func<HtmlTree<T1>, TResult> selector1,
             Func<HtmlTree<T2>, TResult> selector2)
             where T1 : HtmlNode
@@ -329,7 +329,7 @@ namespace High5
                 select e.Result;
         }
 
-        public static IEnumerable<TResult> Match<T1, T2, T3, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+        public static IEnumerable<TResult> Choose<T1, T2, T3, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
             Func<HtmlTree<T1>, TResult> selector1,
             Func<HtmlTree<T2>, TResult> selector2,
             Func<HtmlTree<T3>, TResult> selector3)
@@ -348,7 +348,7 @@ namespace High5
                 select e.Result;
         }
 
-        public static IEnumerable<TResult> Match<T1, T2, T3, T4, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+        public static IEnumerable<TResult> Choose<T1, T2, T3, T4, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
             Func<HtmlTree<T1>, TResult> selector1,
             Func<HtmlTree<T2>, TResult> selector2,
             Func<HtmlTree<T3>, TResult> selector3,
