@@ -1197,7 +1197,7 @@ namespace High5
             var tn = this.treeBuilder.GetTagName(element);
             var ns = this.treeBuilder.GetNamespaceUri(element);
 
-            return HTML.SPECIAL_ELEMENTS[ns].TryGetValue(tn, out var result) ? result : false;
+            return HTML.SPECIAL_ELEMENTS[ns].Contains(tn);
         }
 
         //Adoption agency algorithm
