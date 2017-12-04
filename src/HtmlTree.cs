@@ -274,6 +274,102 @@ namespace High5
         public static HtmlTree<HtmlElement> Create(HtmlElement element) =>
             TreeFromNode(element);
 
+        public static TResult Match<T1, T2, TResult>(this HtmlTree<HtmlNode> node,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2,
+            Func<HtmlTree<HtmlNode>, TResult> defaultSelector)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+                => node.TryAs<T1>(out var t1) ? selector1(t1)
+                 : node.TryAs<T2>(out var t2) ? selector2(t2)
+                 : defaultSelector(node);
+
+        public static TResult Match<T1, T2, T3, TResult>(this HtmlTree<HtmlNode> node,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2,
+            Func<HtmlTree<T3>, TResult> selector3,
+            Func<HtmlTree<HtmlNode>, TResult> defaultSelector)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+            where T3 : HtmlNode
+                => node.TryAs<T1>(out var t1) ? selector1(t1)
+                 : node.TryAs<T2>(out var t2) ? selector2(t2)
+                 : node.TryAs<T3>(out var t3) ? selector3(t3)
+                 : defaultSelector(node);
+
+        public static TResult Match<T1, T2, T3, T4, TResult>(this HtmlTree<HtmlNode> node,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2,
+            Func<HtmlTree<T3>, TResult> selector3,
+            Func<HtmlTree<T4>, TResult> selector4,
+            Func<HtmlTree<HtmlNode>, TResult> defaultSelector)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+            where T3 : HtmlNode
+            where T4 : HtmlNode
+                => node.TryAs<T1>(out var t1) ? selector1(t1)
+                 : node.TryAs<T2>(out var t2) ? selector2(t2)
+                 : node.TryAs<T3>(out var t3) ? selector3(t3)
+                 : node.TryAs<T4>(out var t4) ? selector4(t4)
+                 : defaultSelector(node);
+
+        public static IEnumerable<TResult> Match<T1, T2, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+
+            return
+                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true, Result: selector1(t)),
+                                                    (HtmlTree<T2> t) => (Matched: true, Result: selector2(t)),
+                                                    _                => (Matched: false, Result: default(TResult))))
+                where e.Matched
+                select e.Result;
+        }
+
+        public static IEnumerable<TResult> Match<T1, T2, T3, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2,
+            Func<HtmlTree<T3>, TResult> selector3)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+            where T3 : HtmlNode
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+
+            return
+                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true , Result: selector1(t)),
+                                                    (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
+                                                    (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
+                                                    _                => (Matched: false, Result: default(TResult))))
+                where e.Matched
+                select e.Result;
+        }
+
+        public static IEnumerable<TResult> Match<T1, T2, T3, T4, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
+            Func<HtmlTree<T1>, TResult> selector1,
+            Func<HtmlTree<T2>, TResult> selector2,
+            Func<HtmlTree<T3>, TResult> selector3,
+            Func<HtmlTree<T4>, TResult> selector4)
+            where T1 : HtmlNode
+            where T2 : HtmlNode
+            where T3 : HtmlNode
+            where T4 : HtmlNode
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+
+            return
+                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true , Result: selector1(t)),
+                                                    (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
+                                                    (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
+                                                    (HtmlTree<T4> t) => (Matched: true , Result: selector4(t)),
+                                                    _                => (Matched: false, Result: default(TResult))))
+                where e.Matched
+                select e.Result;
+        }
+
         static HtmlTree<T> TreeFromNode<T>(T root) where T : HtmlNode =>
             Create(root, ListNode<HtmlNode>.Empty);
 

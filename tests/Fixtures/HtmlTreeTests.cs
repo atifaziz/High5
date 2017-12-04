@@ -25,6 +25,7 @@
 namespace High5.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Xunit;
     using static HtmlNodeFactory;
@@ -136,6 +137,159 @@ namespace High5.Tests
         [Fact]
         public void TryAsWithWrongTypeReturnsFalse() =>
             Assert.False(HtmlTree.Create(Element("div")).TryAs<HtmlDocument>(out var _));
+
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void MatchReturnsResultBasedOnNodeType(int cases)
+        {
+            var element = HtmlTree.Create(Element("div"));
+
+            var matches = new Func<HtmlTree<HtmlNode>, HtmlTree<HtmlElement>>[]
+            {
+                /* 0 */ null,
+                /* 1 */ null,
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => e,
+                                   _                          => throw new InvalidOperationException()),
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => e,
+                                   (HtmlTree<HtmlText> _)     => throw new InvalidOperationException(),
+                                   _                          => throw new InvalidOperationException()),
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => e,
+                                   (HtmlTree<HtmlText> _)     => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlComment> _)  => throw new InvalidOperationException(),
+                                   _                          => throw new InvalidOperationException()),
+            };
+
+            Assert.InRange(cases, 2, 4);
+            var result = matches[cases](element.AsBaseNode());
+            Assert.Equal(element, result);
+        }
+
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void MatchWithMismatchReturnsDefaultCase(int cases)
+        {
+            var tree = HtmlTree.Create(DocumentFragment(Element("div")));
+            var mismatch = new object();
+
+            var matches = new Func<HtmlTree<HtmlNode>, object>[]
+            {
+                /* 0 */ null,
+                /* 1 */ null,
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => throw new InvalidOperationException(),
+                                   _                          => mismatch),
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlText> _)     => throw new InvalidOperationException(),
+                                   _                          => mismatch),
+
+                node => node.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlElement> e)  => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlText> _)     => throw new InvalidOperationException(),
+                                   (HtmlTree<HtmlComment> _)  => throw new InvalidOperationException(),
+                                   _                          => mismatch),
+            };
+
+            Assert.InRange(cases, 2, 4);
+            var result = matches[cases](tree.AsBaseNode());
+            Assert.Equal(mismatch, result);
+        }
+
+        [Theory]
+        [InlineData(2, 1)]
+        [InlineData(2, 2)]
+        [InlineData(3, 1)]
+        [InlineData(3, 2)]
+        [InlineData(3, 3)]
+        [InlineData(4, 1)]
+        [InlineData(4, 2)]
+        [InlineData(4, 3)]
+        [InlineData(4, 4)]
+        public void MatchReturnsResultsBasedOnNodeTypesWhileSkippingMismatches(int cases, int position)
+        {
+            HtmlElement p1, p2, p3, hr;
+            var tree =
+                HtmlTree.Create(
+                    DocumentFragment(
+                        p1 = Element("p", "foo"),
+                        Comment("comment"),
+                        p2 = Element("p", "bar"),
+                        p3 = Element("p", "baz"),
+                        hr = Element("hr"),
+                        Text("qux")));
+
+            var matches = new[]
+            {
+                /* 0 */ null,
+                /* 1 */ null,
+
+                new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
+                {
+                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e),
+                },
+                new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
+                {
+                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e),
+                },
+                new Func<IEnumerable<HtmlTree<HtmlNode>>, IEnumerable<HtmlTree<HtmlElement>>>[]
+                {
+                    nodes => nodes.Match((HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e,
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException()),
+
+                    nodes => nodes.Match((HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlDocument> _) => throw new InvalidOperationException(),
+                                         (HtmlTree<HtmlElement>  e) => e),
+                }
+            };
+
+            Assert.InRange(cases, 2, 4);
+            Assert.InRange(position, 1, cases);
+
+            var result =
+                from e in matches[cases][position - 1](tree.DescendantNodes())
+                select e.Node;
+
+            Assert.Equal(new[] { p1, p2, p3, hr }, result);
+        }
 
         [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
