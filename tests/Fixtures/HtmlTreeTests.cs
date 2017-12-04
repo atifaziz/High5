@@ -98,6 +98,16 @@ namespace High5.Tests
             Assert.Equal(string.Empty, DefaultHtmlTree.ToString());
 
         [Fact]
+        public void AsBaseNodeReturnsTheSameNode()
+        {
+            var tree = HtmlTree.Create(DocumentFragment(Element("div")));
+            var div = tree.FirstChild.Value;
+            var baseNode = div.AsBaseNode();
+            Assert.Same(div.Node, baseNode.Node);
+            Assert.Same(tree.Node, baseNode.Parent.Value.Node);
+        }
+
+        [Fact]
         public void AllRelationsAreReflectedCorrectlyThroughTree()
         {
             HtmlElement html, head, body, p;
