@@ -389,4 +389,16 @@ namespace High5
             where !e.IsEmpty
             select e;
     }
+
+    partial class HtmlNodeExtensions
+    {
+        public static HtmlTree<HtmlDocument> ToTree(this HtmlDocument document) =>
+            HtmlTree.Create(document);
+
+        public static HtmlTree<HtmlDocumentFragment> ToTree(this HtmlDocumentFragment documentFragment) =>
+            HtmlTree.Create(documentFragment);
+
+        public static HtmlTree<HtmlElement> ToTree(this HtmlElement element) =>
+            HtmlTree.Create(element);
+    }
 }
