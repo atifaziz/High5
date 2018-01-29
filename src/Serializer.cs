@@ -180,7 +180,7 @@ namespace High5
             SerializeAttributes(element, html);
             html.Append('>');
 
-            if (tn != _.AREA && tn != _.BASE && tn != _.BASEFONT && tn != _.BGSOUND && tn != _.BR && tn != _.BR &&
+            if (tn != _.AREA && tn != _.BASE && tn != _.BASEFONT && tn != _.BGSOUND && tn != _.BR &&
                 tn != _.COL && tn != _.EMBED && tn != _.FRAME && tn != _.HR && tn != _.IMG && tn != _.INPUT &&
                 tn != _.KEYGEN && tn != _.LINK && tn != _.MENUITEM && tn != _.META && tn != _.PARAM && tn != _.SOURCE &&
                 tn != _.TRACK && tn != _.WBR)
