@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard1.0</TargetFrameworks>
     <Copyright>Copyright © 2017 Atif Aziz, Adrian Guerra. Portions Copyright © 2013 Ivan Nikulin</Copyright>
     <Description>HTML parsing/serialization toolset for .NET</Description>
     <Company></Company>
@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" Condition="'$(TargetFramework)'=='netstandard1.0'" />
     <None Include="..\LICENSE" Pack="true" PackagePath=""/>
   </ItemGroup>
 
