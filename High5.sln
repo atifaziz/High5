@@ -7,7 +7,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AE5E52B4-BB2D-48F8-8560-07A888E3D090}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		bench.cmd = bench.cmd
 		bench.sh = bench.sh
