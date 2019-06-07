@@ -8,7 +8,6 @@ which dotnet 2>/dev/null || {
     exit 1
 }
 set -e
-dotnet --info
 for c in Debug Release; do
     dotnet build -c $c
 done
