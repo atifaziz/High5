@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/atifaziz/High5</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>html5 html</PackageTags>
-    <PackageLicenseUrl>https://github.com/atifaziz/High5/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <None Include="..\LICENSE" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>
