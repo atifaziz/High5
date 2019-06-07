@@ -33,6 +33,8 @@ namespace High5.Tests
 
     public class SerializationTests
     {
+        #pragma warning disable xUnit1026 // Theory method 'Test' on test class 'SerializationTests' does not use parameter 'name'.
+
         [Theory, MemberData(nameof(GetTestData))]
         public void Test(string name, string input, string expected)
         {
@@ -40,6 +42,8 @@ namespace High5.Tests
             var result = document.Serialize();
             Assert.Equal(expected, result);
         }
+
+        #pragma warning restore xUnit1026
 
         public static IEnumerable<object[]> GetTestData()
         {

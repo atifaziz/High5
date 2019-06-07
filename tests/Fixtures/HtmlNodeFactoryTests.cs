@@ -41,7 +41,7 @@ namespace High5.Tests
                 var text = Text(value);
                 Assert.NotNull(text);
                 Assert.Equal(value, text.Value);
-                Assert.Equal(0, text.ChildNodes.Count);
+                Assert.Empty(text.ChildNodes);
             }
         }
 
@@ -54,7 +54,7 @@ namespace High5.Tests
                 var comment = Comment(data);
                 Assert.NotNull(comment);
                 Assert.Equal(data, comment.Data);
-                Assert.Equal(0, comment.ChildNodes.Count);
+                Assert.Empty(comment.ChildNodes);
             }
         }
 
@@ -70,7 +70,6 @@ namespace High5.Tests
                                              string expectedValue,
                                              HtmlAttribute actualAttribute)
             {
-                Assert.NotNull(actualAttribute);
                 Assert.Equal(expectedNamespaceUri, actualAttribute.NamespaceUri);
                 Assert.Equal(string.Empty, actualAttribute.Prefix);
                 Assert.Equal(expectedName, actualAttribute.Name);
@@ -197,8 +196,8 @@ namespace High5.Tests
                 Assert.NotNull(element);
                 Assert.Equal(tagName, element.TagName);
                 Assert.Equal(HtmlNs, element.NamespaceUri);
-                Assert.Equal(0, element.Attributes.Count);
-                Assert.Equal(0, element.ChildNodes.Count);
+                Assert.Empty(element.Attributes);
+                Assert.Empty(element.ChildNodes);
             }
 
             [Fact]
@@ -221,7 +220,7 @@ namespace High5.Tests
                 Attribute.AssertEqual(name1, value1, element.Attributes[0]);
                 Attribute.AssertEqual(name2, value2, element.Attributes[1]);
 
-                Assert.Equal(0, element.ChildNodes.Count);
+                Assert.Empty(element.ChildNodes);
             }
 
             [Fact]
@@ -270,7 +269,7 @@ namespace High5.Tests
 
                 Assert.Empty(e.Attributes);
 
-                Assert.Equal(1, e.ChildNodes.Count);
+                Assert.Single(e.ChildNodes);
                 Assert.IsType<HtmlText>(e.FirstChild);
                 Assert.Equal(text, ((HtmlText) e.FirstChild).Value);
             }
@@ -286,13 +285,13 @@ namespace High5.Tests
 
                 Assert.NotNull(e);
                 Assert.Equal(tagName, e.TagName);
-                Assert.Equal(1, e.Attributes.Count);
+                Assert.Single(e.Attributes);
 
                 var attr = e.Attributes.Single();
                 Assert.Equal(@class, attr.Name);
                 Assert.Equal(classes, attr.Value);
 
-                Assert.Equal(1, e.ChildNodes.Count);
+                Assert.Single(e.ChildNodes);
                 Assert.IsType<HtmlText>(e.FirstChild);
                 Assert.Equal(text, ((HtmlText) e.FirstChild).Value);
             }
@@ -305,7 +304,7 @@ namespace High5.Tests
             {
                 var fragment = DocumentFragment();
                 Assert.NotNull(fragment);
-                Assert.Equal(0, fragment.ChildNodes.Count);
+                Assert.Empty(fragment.ChildNodes);
             }
 
             [Fact]
@@ -396,7 +395,7 @@ namespace High5.Tests
                 var document = Document(html = Element("html"));
 
                 Assert.NotNull(document);
-                Assert.Equal(1, document.ChildNodes.Count);
+                Assert.Single(document.ChildNodes);
                 Assert.Same(html, document.ChildNodes.Single());
             }
 

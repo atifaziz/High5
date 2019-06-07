@@ -32,8 +32,8 @@ namespace High5.Tests
     using System.Reflection;
     using System.Text;
     using System.Text.RegularExpressions;
-    using MoreLinq;
     using Xunit;
+    using static MoreLinq.Extensions.ZipLongestExtension;
 
     public class TreeConstructionTests
     {
@@ -254,10 +254,10 @@ namespace High5.Tests
         public void DocumentWrite(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        public void Dat(int      line,
-                        string   html,
-                        string   documentFragment,
-                        string[] document)
+        void Dat(int      line,
+                 string   html,
+                 string   documentFragment,
+                 string[] document)
         {
             const string nsSvg = "http://www.w3.org/2000/svg";
             const string nsMath = "http://www.w3.org/1998/Math/MathML";
@@ -285,7 +285,7 @@ namespace High5.Tests
 
             var doc = parse(html);
             char[] indent = {};
-            var actuals = Dump(doc).Concat(string.Empty);
+            var actuals = Dump(doc).Append(string.Empty);
             foreach (var t in document.ZipLongest(actuals, (exp, act) => new { Expected = exp, Actual = act }))
                 Assert.Equal(t.Expected, t.Actual);
 
