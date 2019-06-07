@@ -2,7 +2,7 @@
 pushd "%~dp0"
 call :main %*
 popd
-goto :EOF
+exit /b %ERRORLEVEL%
 
 :main
 setlocal
@@ -14,18 +14,18 @@ where dotnet >nul 2>&1 || (
     exit 1
 )
 call :%1 %2 %3 %4 %5 %6 %7 %8 %9
-goto :EOF
+exit /b %ERRORLEVEL%
 
 :build
     dotnet build -c Debug ^
  && dotnet build -c Release
-goto :EOF
+exit /b %ERRORLEVEL%
 
 :test
     call :build ^
  && dotnet test --no-restore --no-build -c Debug   tests\Fixtures ^
  && dotnet test --no-restore --no-build -c Release tests\Fixtures
-goto :EOF
+exit /b %ERRORLEVEL%
 
 :pack
 setlocal
@@ -36,4 +36,4 @@ call :build ^
                  --no-restore          ^
                  --no-build            ^
                  %VERSION_SUFFIX%
-goto :EOF
+exit /b %ERRORLEVEL%
