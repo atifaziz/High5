@@ -32,10 +32,8 @@ setlocal
 set VERSION_SUFFIX=
 if not "%~1"=="" set VERSION_SUFFIX=--version-suffix %1
 call :build ^
-  && dotnet pack -c Release -o ..\dist ^
+  && dotnet pack -c Release            ^
                  --no-restore          ^
                  --no-build            ^
-                 --include-symbols     ^
-                 --include-source      ^
                  %VERSION_SUFFIX%
 goto :EOF

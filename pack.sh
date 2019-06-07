@@ -8,4 +8,4 @@ which dotnet 2>/dev/null || {
     exit 1
 }
 set -e
-dotnet pack -c Release -o ../dist src
+dotnet pack -c Release src
