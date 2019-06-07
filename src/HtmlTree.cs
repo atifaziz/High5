@@ -84,19 +84,20 @@ namespace High5
 
         public bool IsEmpty => Node == null;
 
-        public HtmlTree<T> As<T>() where T : HtmlNode =>
+        public HtmlTree<T> Cast<T>() where T : HtmlNode =>
             HtmlTree.Create((T) (HtmlNode) Node, _ancestorStack);
+
+        public (bool, HtmlTree<T>) As<T>() where T : HtmlNode =>
+            Node is T node ? (true, new HtmlTree<T>(node, _ancestorStack)) : default;
 
         public bool TryAs<T>(out HtmlTree<T> tree) where T : HtmlNode
         {
-            var node = Node as T;
-            tree = node != null
-                 ? new HtmlTree<T>(node, _ancestorStack)
-                 : default;
-            return node != null;
+            bool succeeded;
+            (succeeded, tree) = As<T>();
+            return succeeded;
         }
 
-        public HtmlTree<HtmlNode> AsBaseNode() => As<HtmlNode>();
+        public HtmlTree<HtmlNode> AsBaseNode() => Cast<HtmlNode>();
 
         public int ChildNodeCount => Node?.ChildNodes.Count ?? 0;
         public bool HasChildNodes => ChildNodeCount > 0;
@@ -191,8 +192,8 @@ namespace High5
         }
 
         internal HtmlTree<HtmlElement> AsElementOrDefault() =>
-            Node is HtmlElement
-            ? As<HtmlElement>()
+            Node is HtmlElement e
+            ? new HtmlTree<HtmlElement>(e, _ancestorStack)
             : default;
 
         public IEnumerable<HtmlTree<HtmlNode>> DescendantNodesAndSelf() =>
@@ -317,17 +318,14 @@ namespace High5
             Func<HtmlTree<T1>, TResult> selector1,
             Func<HtmlTree<T2>, TResult> selector2)
             where T1 : HtmlNode
-            where T2 : HtmlNode
-        {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-
-            return
-                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true, Result: selector1(t)),
-                                                    (HtmlTree<T2> t) => (Matched: true, Result: selector2(t)),
-                                                    _                => (Matched: false, Result: default)))
-                where e.Matched
-                select e.Result;
-        }
+            where T2 : HtmlNode =>
+            from n in nodes ?? throw new ArgumentNullException(nameof(nodes))
+            select n.As<T1>() is (true, var t1) ? (Matched: true, Result: selector1(t1))
+                 : n.As<T2>() is (true, var t2) ? (Matched: true, Result: selector2(t2))
+                 : default
+            into e
+            where e.Matched
+            select e.Result;
 
         public static IEnumerable<TResult> Choose<T1, T2, T3, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
             Func<HtmlTree<T1>, TResult> selector1,
@@ -335,18 +333,20 @@ namespace High5
             Func<HtmlTree<T3>, TResult> selector3)
             where T1 : HtmlNode
             where T2 : HtmlNode
-            where T3 : HtmlNode
-        {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-
-            return
-                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true , Result: selector1(t)),
-                                                    (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
-                                                    (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
-                                                    _                => (Matched: false, Result: default)))
-                where e.Matched
-                select e.Result;
-        }
+            where T3 : HtmlNode =>
+            nodes switch
+            {
+                null => throw new ArgumentNullException(nameof(nodes)),
+                var ns =>
+                    from n in ns
+                    select n.As<T1>() is (true, var t1) ? (Matched: true, Result: selector1(t1))
+                         : n.As<T2>() is (true, var t2) ? (Matched: true, Result: selector2(t2))
+                         : n.As<T3>() is (true, var t3) ? (Matched: true, Result: selector3(t3))
+                         : default
+                    into e
+                    where e.Matched
+                    select e.Result
+            };
 
         public static IEnumerable<TResult> Choose<T1, T2, T3, T4, TResult>(this IEnumerable<HtmlTree<HtmlNode>> nodes,
             Func<HtmlTree<T1>, TResult> selector1,
@@ -356,31 +356,33 @@ namespace High5
             where T1 : HtmlNode
             where T2 : HtmlNode
             where T3 : HtmlNode
-            where T4 : HtmlNode
-        {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-
-            return
-                from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true , Result: selector1(t)),
-                                                    (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
-                                                    (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
-                                                    (HtmlTree<T4> t) => (Matched: true , Result: selector4(t)),
-                                                    _                => (Matched: false, Result: default)))
-                where e.Matched
-                select e.Result;
-        }
+            where T4 : HtmlNode =>
+            nodes switch
+            {
+                null => throw new ArgumentNullException(nameof(nodes)),
+                var ns =>
+                    from n in ns
+                    select n.As<T1>() is (true, var t1) ? (Matched: true, Result: selector1(t1))
+                         : n.As<T2>() is (true, var t2) ? (Matched: true, Result: selector2(t2))
+                         : n.As<T3>() is (true, var t3) ? (Matched: true, Result: selector3(t3))
+                         : n.As<T4>() is (true, var t4) ? (Matched: true, Result: selector4(t4))
+                         : default
+                    into e
+                    where e.Matched
+                    select e.Result
+            };
 
         static HtmlTree<T> TreeFromNode<T>(T root) where T : HtmlNode =>
             Create(root, ListNode<HtmlNode>.Empty);
 
-        public static HtmlTree<HtmlElement> AsElement(this HtmlTree<HtmlNode> node) =>
-            node.As<HtmlElement>();
+        public static HtmlTree<HtmlElement> ToElement(this HtmlTree<HtmlNode> node) =>
+            node.Cast<HtmlElement>();
 
         public static IEnumerable<HtmlTree<HtmlElement>> AncestorsAndSelf(this HtmlTree<HtmlElement> element) =>
             Enumerable.Repeat(element, 1).Concat(element.Ancestors());
 
         public static IEnumerable<HtmlTree<HtmlElement>> AncestorsAndSelf(this HtmlTree<HtmlTemplateElement> element) =>
-            element.AsBaseNode().AsElement().AncestorsAndSelf();
+            element.AsBaseNode().ToElement().AncestorsAndSelf();
 
         public static IEnumerable<HtmlTree<HtmlElement>> Elements(this IEnumerable<HtmlTree<HtmlNode>> nodes) =>
             from n in nodes ?? throw new ArgumentNullException(nameof(nodes))

@@ -110,19 +110,23 @@ namespace High5.Tests
         }
 
         [Fact]
-        public void AsReturnsTheSameNodeTyped()
+        public void CastReturnsTheSameNodeTyped()
         {
             HtmlElement htmlElement;
             var tree = HtmlTree.Create(DocumentFragment(htmlElement = Element("div")));
-            var treeElement = tree.FirstChild.Value.As<HtmlElement>();
+            var treeElement = tree.FirstChild.Value.Cast<HtmlElement>();
             Assert.Same(htmlElement, treeElement.Node);
             Assert.Same(tree.Node, treeElement.Parent.Value.Node);
         }
 
         [Fact]
-        public void AsWithWrongTypeThrowsInvalidCastException() =>
+        public void AsWithWrongType() =>
+            Assert.Equal(default, HtmlTree.Create(Element("div")).As<HtmlDocument>());
+
+        [Fact]
+        public void CastWithWrongTypeThrowsInvalidCastException() =>
             Assert.Throws<InvalidCastException>(() =>
-                HtmlTree.Create(Element("div")).As<HtmlDocument>());
+                HtmlTree.Create(Element("div")).Cast<HtmlDocument>());
 
         [Fact]
         public void TryAsReturnsTheSameNodeTyped()

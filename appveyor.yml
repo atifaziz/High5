@@ -1,12 +1,25 @@
 version: '{build}'
 image:
-  - Visual Studio 2017
+  - Visual Studio 2019
   - Ubuntu
 skip_commits:
   files:
     - '*.md'
     - '*.txt'
 skip_tags: true
+install:
+- sh: curl -O https://dot.net/v1/dotnet-install.sh
+- sh: chmod +x dotnet-install.sh
+- ps: |
+    $dotnetDir = (dirname (readlink -f (which dotnet)))
+    echo "dotnet installation path is $dotnetDir"
+    if ($isLinux) {
+      ./dotnet-install.sh --version ((type .\global.json | ConvertFrom-Json).sdk.version)
+      if ($LASTEXITCODE) {
+        throw "dotnet-install failed (exit code = $LASTEXITCODE)."
+      }
+      $env:PATH = "$(Join-Path $HOME '.dotnet'):$env:PATH"
+    }
 before_build:
 - dotnet --info
 build_script:
