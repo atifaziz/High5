@@ -552,12 +552,12 @@ namespace High5
             //NOTE: use <template> element as a fragment context if context element was not provided,
             //so we will parse in "forgiving" manner
             if (fragmentContext == null)
-                fragmentContext = this.treeBuilder.CreateElement(T.TEMPLATE, NS.HTML, default(ArraySegment<Attr>));
+                fragmentContext = this.treeBuilder.CreateElement(T.TEMPLATE, NS.HTML, default);
 
             //NOTE: create fake element which will be used as 'document' for fragment parsing.
             //This is important for jsdom there 'document' can't be recreated, therefore
             //fragment parsing causes messing of the main `document`.
-            var documentMock = this.treeBuilder.CreateElement("documentmock", NS.HTML, default(ArraySegment<Attr>));
+            var documentMock = this.treeBuilder.CreateElement("documentmock", NS.HTML, default);
 
             this.Bootstrap(documentMock, fragmentContext);
 
@@ -772,7 +772,7 @@ namespace High5
 
         void InsertFakeElement(string tagName)
         {
-            var element = this.treeBuilder.CreateElement(tagName, NS.HTML, default(ArraySegment<Attr>));
+            var element = this.treeBuilder.CreateElement(tagName, NS.HTML, default);
 
             this.AttachElementToTree(element);
             this.openElements.Push(element);
@@ -797,7 +797,7 @@ namespace High5
 
         void InsertFakeRootElement()
         {
-            var element = this.treeBuilder.CreateElement(T.HTML, NS.HTML, default(ArraySegment<Attr>));
+            var element = this.treeBuilder.CreateElement(T.HTML, NS.HTML, default);
 
             this.AppendChild(this.openElements.Current, element);
             this.openElements.Push(element);

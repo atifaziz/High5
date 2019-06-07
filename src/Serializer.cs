@@ -133,7 +133,7 @@ namespace High5
             _tree = tree;
 
         public void Serialize(TNode node, StringBuilder html) =>
-            SerializeNode(node, (false, default(TNode)), html);
+            SerializeNode(node, (false, default), html);
 
         internal void SerializeChildNodes(TNode parentNode, IEnumerable<TNode> childNodes, StringBuilder html)
         {

@@ -92,7 +92,7 @@ namespace High5
             var node = Node as T;
             tree = node != null
                  ? new HtmlTree<T>(node, _ancestorStack)
-                 : default(HtmlTree<T>);
+                 : default;
             return node != null;
         }
 
@@ -193,7 +193,7 @@ namespace High5
         internal HtmlTree<HtmlElement> AsElementOrDefault() =>
             Node is HtmlElement
             ? As<HtmlElement>()
-            : default(HtmlTree<HtmlElement>);
+            : default;
 
         public IEnumerable<HtmlTree<HtmlNode>> DescendantNodesAndSelf() =>
             Enumerable.Repeat(AsBaseNode(), 1).Concat(DescendantNodes());
@@ -324,7 +324,7 @@ namespace High5
             return
                 from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true, Result: selector1(t)),
                                                     (HtmlTree<T2> t) => (Matched: true, Result: selector2(t)),
-                                                    _                => (Matched: false, Result: default(TResult))))
+                                                    _                => (Matched: false, Result: default)))
                 where e.Matched
                 select e.Result;
         }
@@ -343,7 +343,7 @@ namespace High5
                 from e in nodes.Select(n => n.Match((HtmlTree<T1> t) => (Matched: true , Result: selector1(t)),
                                                     (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
                                                     (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
-                                                    _                => (Matched: false, Result: default(TResult))))
+                                                    _                => (Matched: false, Result: default)))
                 where e.Matched
                 select e.Result;
         }
@@ -365,7 +365,7 @@ namespace High5
                                                     (HtmlTree<T2> t) => (Matched: true , Result: selector2(t)),
                                                     (HtmlTree<T3> t) => (Matched: true , Result: selector3(t)),
                                                     (HtmlTree<T4> t) => (Matched: true , Result: selector4(t)),
-                                                    _                => (Matched: false, Result: default(TResult))))
+                                                    _                => (Matched: false, Result: default)))
                 where e.Matched
                 select e.Result;
         }

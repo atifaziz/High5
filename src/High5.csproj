@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.0</TargetFrameworks>
+    <LangVersion>7.1</LangVersion>
     <Copyright>Copyright © 2017 Atif Aziz, Adrian Guerra. Portions Copyright © 2013 Ivan Nikulin</Copyright>
     <Description>HTML parsing/serialization toolset for .NET</Description>
     <Company></Company>

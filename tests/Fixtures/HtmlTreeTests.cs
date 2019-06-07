@@ -32,7 +32,7 @@ namespace High5.Tests
 
     public class HtmlTreeTests
     {
-        static HtmlTree<HtmlNode> DefaultHtmlTree => default(HtmlTree<HtmlNode>);
+        static HtmlTree<HtmlNode> DefaultHtmlTree => default;
 
         [Fact]
         public void DefaultNodeIsNull() =>
@@ -79,8 +79,8 @@ namespace High5.Tests
         {
             Assert.True(DefaultHtmlTree.Equals(DefaultHtmlTree));
             Assert.True(DefaultHtmlTree.Equals((object) DefaultHtmlTree));
-            Assert.True(DefaultHtmlTree == default(HtmlTree<HtmlNode>));
-            Assert.False(DefaultHtmlTree != default(HtmlTree<HtmlNode>));
+            Assert.True(DefaultHtmlTree == default);
+            Assert.False(DefaultHtmlTree != default);
         }
 
         [Fact]

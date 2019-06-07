@@ -112,14 +112,14 @@ namespace High5
                 return;
             OnChanging();
             _bitmap[index] = false;
-            _array[index] = default(T);
+            _array[index] = default;
         }
 
         public bool TryIndex(int index, out T value)
         {
             if (index >= Length || !_bitmap[index])
             {
-                value = default(T);
+                value = default;
                 return false;
             }
             value = _array[index];
@@ -180,7 +180,7 @@ namespace High5
                 _array = array;
                 _version = array._version;
                 _index = -1;
-                _item = default(T);
+                _item = default;
             }
 
             public bool MoveNext()
@@ -218,7 +218,7 @@ namespace High5
                 if (_array == null)
                     return;
                 _array = null;
-                _item = default(T);
+                _item = default;
             }
         }
     }
