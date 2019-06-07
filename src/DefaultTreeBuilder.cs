@@ -146,8 +146,8 @@ namespace High5
             {
                 recipientAttrsMap = new HashSet<string>();
 
-                for (var i = 0; i < recipientAttributes.Count; i++)
-                    recipientAttrsMap.Add(recipientAttributes[i].Name);
+                foreach (var attr in recipientAttributes)
+                    recipientAttrsMap.Add(attr.Name);
             }
 
             for (var i = attributes.Offset; i < attributes.Count; i++)
