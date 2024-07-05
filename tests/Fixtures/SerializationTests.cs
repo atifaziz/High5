@@ -26,9 +26,8 @@ namespace High5.Tests
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
-    using Newtonsoft.Json;
+    using Jacob;
     using Xunit;
 
     public class SerializationTests
@@ -45,6 +44,12 @@ namespace High5.Tests
 
         #pragma warning restore xUnit1026
 
+        static readonly IJsonReader<object[][]> TestDataJsonReader =
+            JsonReader.Array(JsonReader.Object(JsonReader.Property("name", JsonReader.String()),
+                                               JsonReader.Property("input", JsonReader.String()),
+                                               JsonReader.Property("expected", JsonReader.String()),
+                                               (name, input, expected) => new object[] { name, input, expected }));
+
         public static IEnumerable<object[]> GetTestData()
         {
             var method = MethodBase.GetCurrentMethod();
@@ -55,18 +60,7 @@ namespace High5.Tests
             using (var reader = new StreamReader(stream))
                 json = reader.ReadToEnd();
 
-            var prototype = new[]
-            {
-                new
-                {
-                    name     = default(string),
-                    input    = default(string),
-                    expected = default(string)
-                }
-            };
-
-            return from e in JsonConvert.DeserializeAnonymousType(json, prototype)
-                   select new object[] { e.name, e.input, e.expected };
+            return TestDataJsonReader.Read(json);
         }
     }
 }
