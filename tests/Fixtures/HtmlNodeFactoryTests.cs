@@ -93,8 +93,8 @@ namespace High5.Tests
 
                 var attribute = Attribute(name, value);
                 var (n, v) = attribute;
-                Assert.Equal(n, name);
-                Assert.Equal(v, value);
+                Assert.Equal(name, n);
+                Assert.Equal(value, v);
             }
 
             [Fact]
@@ -105,9 +105,9 @@ namespace High5.Tests
 
                 var attribute = Attribute(name, value);
                 var (ns, n, v) = attribute;
-                Assert.Equal(ns, HtmlNs);
-                Assert.Equal(n, name);
-                Assert.Equal(v, value);
+                Assert.Equal(HtmlNs, ns);
+                Assert.Equal(name, n);
+                Assert.Equal(value, v);
             }
 
             [Fact]
@@ -118,10 +118,10 @@ namespace High5.Tests
 
                 var attribute = Attribute(name, value);
                 var (ns, prefix, n, v) = attribute;
-                Assert.Equal(ns, HtmlNs);
-                Assert.Equal(prefix, string.Empty);
-                Assert.Equal(n, name);
-                Assert.Equal(v, value);
+                Assert.Equal(HtmlNs, ns);
+                Assert.Equal(string.Empty, prefix);
+                Assert.Equal(name, n);
+                Assert.Equal(value, v);
             }
 
             const string XmlnsNs = "http://www.w3.org/2000/xmlns/";
