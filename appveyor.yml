@@ -8,7 +8,7 @@ skip_commits:
     - '*.txt'
 skip_tags: true
 install:
-- sh: curl -O https://dot.net/v1/dotnet-install.sh
+- sh: curl -OsSL https://dot.net/v1/dotnet-install.sh
 - sh: chmod +x dotnet-install.sh
 - ps: |
     $dotnetDir = (dirname (readlink -f (which dotnet)))
