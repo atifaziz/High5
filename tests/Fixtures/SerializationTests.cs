@@ -44,12 +44,6 @@ namespace High5.Tests
 
         #pragma warning restore xUnit1026
 
-        static readonly IJsonReader<object[][]> TestDataJsonReader =
-            JsonReader.Array(JsonReader.Object(JsonReader.Property("name", JsonReader.String()),
-                                               JsonReader.Property("input", JsonReader.String()),
-                                               JsonReader.Property("expected", JsonReader.String()),
-                                               (name, input, expected) => new object[] { name, input, expected }));
-
         public static IEnumerable<object[]> GetTestData()
         {
             var method = MethodBase.GetCurrentMethod();
@@ -60,7 +54,15 @@ namespace High5.Tests
             using (var reader = new StreamReader(stream))
                 json = reader.ReadToEnd();
 
-            return TestDataJsonReader.Read(json);
+            var dataReader =
+                JsonReader.Array(
+                    JsonReader.Object(
+                        JsonReader.Property("name", JsonReader.String()),
+                        JsonReader.Property("input", JsonReader.String()),
+                        JsonReader.Property("expected", JsonReader.String()),
+                        (name, input, expected) => new object[] { name, input, expected }));
+
+            return dataReader.Read(json);
         }
     }
 }
