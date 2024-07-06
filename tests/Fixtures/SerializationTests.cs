@@ -25,8 +25,6 @@
 namespace High5.Tests
 {
     using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
     using Jacob;
     using Xunit;
 
@@ -46,14 +44,6 @@ namespace High5.Tests
 
         public static IEnumerable<object[]> GetTestData()
         {
-            var method = MethodBase.GetCurrentMethod();
-            var assembly = method.DeclaringType.Assembly;
-
-            string json;
-            using (var stream = assembly.GetManifestResourceStream(method.DeclaringType, "data.serialization.tests.json"))
-            using (var reader = new StreamReader(stream))
-                json = reader.ReadToEnd();
-
             var dataReader =
                 JsonReader.Array(
                     JsonReader.Object(
@@ -62,7 +52,7 @@ namespace High5.Tests
                         JsonReader.Property("expected", JsonReader.String()),
                         (name, input, expected) => new object[] { name, input, expected }));
 
-            return dataReader.Read(json);
+            return dataReader.Read(ThisAssembly.Resources.data.serialization.tests.Text);
         }
     }
 }

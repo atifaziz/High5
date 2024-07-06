@@ -33,224 +33,225 @@ namespace High5.Tests
     using System.Text;
     using System.Text.RegularExpressions;
     using Xunit;
+    using Xunit.Sdk;
     using static MoreLinq.Extensions.ZipLongestExtension;
+    using static ThisAssembly.Resources.data;
 
     public class TreeConstructionTests
     {
-
-        [Theory, MemberData(nameof(GetTestData), "adoption01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.adoption01))]
         public void Adoption01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "adoption02.dat")]
+        [Theory, ResourceData(typeof(tree_construction.adoption02))]
         public void Adoption02(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "comments01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.comments01))]
         public void Comments01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "doctype01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.doctype01))]
         public void Doctype01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "domjs-unsafe.dat")]
+        [Theory, ResourceData(typeof(tree_construction.domjs_unsafe))]
         public void DomjsUnsafe(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "entities01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.entities01))]
         public void Entities01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "entities02.dat")]
+        [Theory, ResourceData(typeof(tree_construction.entities02))]
         public void Entities02(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "foreign-fragment.dat")]
+        [Theory, ResourceData(typeof(tree_construction.foreign_fragment))]
         public void ForeignFragment(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "html5test-com.dat")]
+        [Theory, ResourceData(typeof(tree_construction.html5test_com))]
         public void Html5TestCom(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "inbody01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.inbody01))]
         public void Inbody01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "isindex.dat")]
+        [Theory, ResourceData(typeof(tree_construction.isindex))]
         public void Isindex(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "main-element.dat")]
+        [Theory, ResourceData(typeof(tree_construction.main_element))]
         public void MainElement(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "math.dat")]
+        [Theory, ResourceData(typeof(tree_construction.math))]
         public void Math(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "menuitem-element.dat")]
+        [Theory, ResourceData(typeof(tree_construction.menuitem_element))]
         public void MenuitemElement(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "namespace-sensitivity.dat")]
+        [Theory, ResourceData(typeof(tree_construction.namespace_sensitivity))]
         public void NamespaceSensitivity(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory(Skip = "Skip tests with the scripting disabled since we always act as the interactive user agent."), MemberData(nameof(GetTestData), "noscript01.dat")]
+        [Theory(Skip = "Skip tests with the scripting disabled since we always act as the interactive user agent."), ResourceData(typeof(tree_construction.noscript01))]
         public void Noscript01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "pending-spec-changes-plain-text-unsafe.dat")]
+        [Theory, ResourceData(typeof(tree_construction.pending_spec_changes_plain_text_unsafe))]
         public void PendingSpecChangesPlainTextUnsafe(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "pending-spec-changes.dat")]
+        [Theory, ResourceData(typeof(tree_construction.pending_spec_changes))]
         public void PendingSpecChanges(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "plain-text-unsafe.dat")]
+        [Theory, ResourceData(typeof(tree_construction.plain_text_unsafe))]
         public void PlainTextUnsafe(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "ruby.dat")]
+        [Theory, ResourceData(typeof(tree_construction.ruby))]
         public void Ruby(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "scriptdata01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.scriptdata01))]
         public void Scriptdata01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tables01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tables01))]
         public void Tables01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "template.dat")]
+        [Theory, ResourceData(typeof(tree_construction.template))]
         public void Template(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests1.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests1))]
         public void Tests1(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests10.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests10))]
         public void Tests10(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests11.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests11))]
         public void Tests11(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests12.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests12))]
         public void Tests12(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests14.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests14))]
         public void Tests14(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests15.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests15))]
         public void Tests15(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests16.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests16))]
         public void Tests16(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests17.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests17))]
         public void Tests17(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests18.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests18))]
         public void Tests18(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests19.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests19))]
         public void Tests19(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests2.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests2))]
         public void Tests2(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests20.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests20))]
         public void Tests20(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests21.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests21))]
         public void Tests21(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests22.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests22))]
         public void Tests22(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests23.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests23))]
         public void Tests23(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests24.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests24))]
         public void Tests24(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests25.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests25))]
         public void Tests25(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests26.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests26))]
         public void Tests26(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests3.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests3))]
         public void Tests3(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests4.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests4))]
         public void Tests4(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests5.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests5))]
         public void Tests5(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests6.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests6))]
         public void Tests6(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests7.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests7))]
         public void Tests7(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests8.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests8))]
         public void Tests8(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests9.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests9))]
         public void Tests9(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tests_innerHTML_1.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tests_innerHTML_1))]
         public void TestsInnerHtml1(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "tricky01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.tricky01))]
         public void Tricky01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "webkit01.dat")]
+        [Theory, ResourceData(typeof(tree_construction.webkit01))]
         public void Webkit01(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "webkit02.dat")]
+        [Theory, ResourceData(typeof(tree_construction.webkit02))]
         public void Webkit02(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory, MemberData(nameof(GetTestData), "gh40_form_in_template.dat")]
+        [Theory, ResourceData(typeof(tree_construction_regression.gh40_form_in_template))]
         public void Gh40FormInTemplate(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
-        [Theory(Skip = "Scripting not available"), MemberData(nameof(GetTestData), "document_write.dat")]
+        [Theory(Skip = "Scripting not available"), ResourceData(typeof(tree_construction_scripting.document_write))]
         public void DocumentWrite(int line, string html, string documentFragment, string[] document) =>
             Dat(line, html, documentFragment, document);
 
@@ -369,36 +370,6 @@ namespace High5.Tests
             }
         }
 
-        public static IEnumerable<object[]> GetTestData(string dat)
-        {
-            var assembly = MethodBase.GetCurrentMethod().DeclaringType.Assembly;
-
-            return
-                from name in assembly.GetManifestResourceNames()
-                let tokens = name.Split('.').SkipWhile(e => e != "data").Skip(1).ToArray()
-                where tokens.Length > 1
-                   && tokens.First().StartsWith("tree_construction", StringComparison.OrdinalIgnoreCase)
-                   && name.EndsWith("." + dat, StringComparison.OrdinalIgnoreCase)
-                from test in ParseTestData(ReadTextResourceLines(name))
-                // NOTE! Skip tests with the scripting disabled
-                // since we always act as the interactive user agent.
-                where !test.IsScriptOff
-                select new object[]
-                {
-                    test.LineNumber, test.Data, test.DocumentFragment, test.Document.ToArray()
-                };
-
-            IEnumerable<string> ReadTextResourceLines(string rn)
-            {
-                using (var stream = assembly.GetManifestResourceStream(rn))
-                using (var reader = new StreamReader(stream))
-                {
-                    foreach (var line in Regex.Split(reader.ReadToEnd(), @"\r?\n"))
-                        yield return line;
-                }
-            }
-        }
-
         sealed class TestData
         {
             public int LineNumber               { get; }
@@ -438,71 +409,108 @@ namespace High5.Tests
                 IsScriptOff == value ? this : With(Errors, DocumentFragment, Document, value);
         }
 
-        static IEnumerable<TestData> ParseTestData(IEnumerable<string> lines)
+        [AttributeUsage(AttributeTargets.Method)]
+        public sealed class ResourceDataAttribute : DataAttribute
         {
-            var numberedLines = lines.Select((s, i) => (Nr: i + 1, Line: s));
+            public ResourceDataAttribute(Type sourceType) => SourceType = sourceType;
 
-            TestData td = null;
+            public Type SourceType { get; set; }
 
-            string ReadLine(IEnumerator<(int, string Line)> e) =>
-                e.MoveNext() ? e.Current.Line : throw new FormatException();
-
-            IEnumerable<string> ReadLines(IEnumerator<(int, string)> e, ref int nr, ref string line)
+            public override IEnumerable<object[]> GetData(MethodInfo testMethod)
             {
-                var list = new List<string>();
-                while (e.MoveNext())
-                {
-                    (nr, line) = e.Current;
-                    if (line.Length > 0 && line[0] == '#')
-                        break;
-                    list.Add(line);
-                    nr = 0; line = null;
-                }
-                return list;
-            }
+                var opener = (Func<Stream>)
+                    Delegate.CreateDelegate(typeof(Func<Stream>),
+                                            SourceType, nameof(tree_construction.adoption01.GetStream),
+                                            throwOnBindFailure: true,
+                                            ignoreCase: false);
 
-            using (var e = numberedLines.GetEnumerator())
-            {
-                if (e.MoveNext())
-                {
-                    var (lnr, line) = e.Current;
-
-                    do
+                return
+                    from test in ParseTestData(ReadTextLines(opener))
+                    // NOTE! Skip tests with the scripting disabled
+                    // since we always act as the interactive user agent.
+                    where !test.IsScriptOff
+                    select new object[]
                     {
-                        if (line == null)
-                            break;
+                        test.LineNumber, test.Data, test.DocumentFragment, test.Document.ToArray()
+                    };
 
-                        if (line == "#data")
-                        {
-                            if (td != null)
-                                yield return td;
-                            td = new TestData(lnr, string.Join("\r\n", ReadLines(e, ref lnr, ref line)));
-                        }
-                        else
-                        {
-                            Debug.Assert(td != null);
-                            switch (line)
-                            {
-                                case "#errors": td = td.WithErrors(ReadLines(e, ref lnr, ref line)); continue;
-                                case "#document-fragment": td = td.WithDocumentFragment(ReadLine(e)); break;
-                                case "#document": td = td.WithDocument(ReadLines(e, ref lnr, ref line)); continue;
-                                case "#script-on": td = td.WithIsScriptOff(false); break;
-                                case "#script-off": td = td.WithIsScriptOff(true); break;
-                                default: throw new FormatException($"Error parsing line #{lnr}: {line}");
-                            }
-
-                            if (!e.MoveNext())
-                                yield break;
-
-                            (lnr, line) = e.Current;
-                        }
+                static IEnumerable<string> ReadTextLines(Func<Stream> opener)
+                {
+                    using (var stream = opener())
+                    using (var reader = new StreamReader(stream))
+                    {
+                        foreach (var line in Regex.Split(reader.ReadToEnd(), @"\r?\n"))
+                            yield return line;
                     }
-                    while (true);
                 }
             }
 
-            if (td != null)
-                yield return td;
+            static IEnumerable<TestData> ParseTestData(IEnumerable<string> lines)
+            {
+                var numberedLines = lines.Select((s, i) => (Nr: i + 1, Line: s));
+
+                TestData td = null;
+
+                string ReadLine(IEnumerator<(int, string Line)> e) =>
+                    e.MoveNext() ? e.Current.Line : throw new FormatException();
+
+                IEnumerable<string> ReadLines(IEnumerator<(int, string)> e, ref int nr, ref string line)
+                {
+                    var list = new List<string>();
+                    while (e.MoveNext())
+                    {
+                        (nr, line) = e.Current;
+                        if (line.Length > 0 && line[0] == '#')
+                            break;
+                        list.Add(line);
+                        nr = 0; line = null;
+                    }
+                    return list;
+                }
+
+                using (var e = numberedLines.GetEnumerator())
+                {
+                    if (e.MoveNext())
+                    {
+                        var (lnr, line) = e.Current;
+
+                        do
+                        {
+                            if (line == null)
+                                break;
+
+                            if (line == "#data")
+                            {
+                                if (td != null)
+                                    yield return td;
+                                td = new TestData(lnr, string.Join("\r\n", ReadLines(e, ref lnr, ref line)));
+                            }
+                            else
+                            {
+                                Debug.Assert(td != null);
+                                switch (line)
+                                {
+                                    case "#errors": td = td.WithErrors(ReadLines(e, ref lnr, ref line)); continue;
+                                    case "#document-fragment": td = td.WithDocumentFragment(ReadLine(e)); break;
+                                    case "#document": td = td.WithDocument(ReadLines(e, ref lnr, ref line)); continue;
+                                    case "#script-on": td = td.WithIsScriptOff(false); break;
+                                    case "#script-off": td = td.WithIsScriptOff(true); break;
+                                    default: throw new FormatException($"Error parsing line #{lnr}: {line}");
+                                }
+
+                                if (!e.MoveNext())
+                                    yield break;
+
+                                (lnr, line) = e.Current;
+                            }
+                        }
+                        while (true);
+                    }
+                }
+
+                if (td != null)
+                    yield return td;
+            }
         }
     }
 }
